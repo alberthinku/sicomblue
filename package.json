@@ -1,5 +1,5 @@
 {
-  "name": "js-helloworld",
+  "name": "js-sicomblue",
   "version": "1.0.0",
   "description": "hello",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "start": "node index",
     "dev": "nodemon index"
   },
-  "author": "as",
+  "author": "albert sun",
   "license": "ISC",
   "dependencies": {
     "uuid": "^3.3.3"

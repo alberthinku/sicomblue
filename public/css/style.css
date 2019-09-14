@@ -1,5 +1,100 @@
 body{
-    background: #333;
-    color: #fff;
+    background: #ffffff;
+    color: #333333;
 
 }
+
+button {
+    color: black;
+    /* This is a single-line comment */
+    text-align: center;
+}
+
+p {
+    color: black;
+    background-color: azure;
+    background-clip: content-box;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    /* This is a single-line comment */
+    text-align: left;
+}
+
+h1,
+h2 {
+    color: black;
+    /* This is a single-line comment */
+    font-size: 14px;
+    text-align: left;
+}
+
+div {
+    background-color: #0ff;
+    /* background-color: black; */
+    color: #e7e7e7;
+    font: lighter;
+    width: flex;
+    height: 20px;
+    border: 2px;
+    overflow: auto;
+}
+
+.notification {
+    background-color: black;
+    font-size: 13px;
+    width: fit-content;
+    height: 15px;
+    overflow: hidden;
+}
+
+.xJSON {
+    background-color: black;
+    font-size: 16px;
+    height: 40px;
+}
+
+.label {
+    color: white;
+    padding: 2px;
+    font-family: Arial;
+}
+
+.success {
+    background-color: #4CAF50;
+
+}
+
+/* Green */
+.info {
+    background-color: black;
+    /* background-color: #2196f3; */
+    font-size: 15px;
+    color: white;
+
+}
+
+/* Blue */
+.warning {
+    background-color: goldenrod;
+    /* background-color: #ff9800; */
+    font-size: 10px;
+}
+
+/* Orange */
+.danger {
+    background-color: #f44336;
+}
+
+/* Red */
+.other {
+    background-color: #e7e7e7;
+    color: black;
+    font-size: 12px;
+}
+
+/* Gray */
+
+/* This is
+            a multi-line
+            comment */
+
