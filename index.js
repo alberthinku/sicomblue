@@ -100,8 +100,9 @@ const server = http.createServer((req, res) => {
             var datafile = chunk;
             var isJson = false;
             // console.log(datafile);
-            try { var data = JSON.parse(datafile.toString()); isJson = true; }
-            catch (err) { console.log("Json file not correct!" + err); isJson = false; }
+            // try { var data = JSON.parse(datafile.toString()); isJson = true; }
+            // catch (err) { console.log("Json file not correct!" + err); isJson = false; }
+            isJson = true;
 
             if (isJson) {
                 fs.writeFile(filePath, datafile, (err, content) => {
