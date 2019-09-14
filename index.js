@@ -94,18 +94,15 @@ const server = http.createServer((req, res) => {
         console.log("received POST request now!");
         filePath = path.join(filePath, "uploaded.json");
 
-        // var fileName = req.files.type;
-        // console.log(fileName);
-        // req.on()
+
         req.on("data", chunk => {
             var datafile = chunk;
-            var isJson = false;
+            // var isJson = false;
             // console.log(datafile);
-            // try { var data = JSON.parse(datafile.toString()); isJson = true; }
-            // catch (err) { console.log("Json file not correct!" + err); isJson = false; }
-            isJson = true;
-
-            if (isJson) {
+            // try {
+            // JSON.parse(datafile.toString());
+            var isJson = true;
+            if (isJson)
                 fs.writeFile(filePath, datafile, (err, content) => {
                     if (err) {
                         if (err.code == 'ENOENT') {
@@ -130,20 +127,17 @@ const server = http.createServer((req, res) => {
                     }
                 });
 
-            } else {
 
-                //Page not found
-                // fs.readFile(path.join(__dirname, 'public', '404.html'), (err, content) => {
-                //     res.writeHead(200, { 'Content-Type': 'text/html' });
-                //     res.end(content, 'utf8');
-                // })
-
+            // catch (err) 
+            else {
+                console.log("Json file not correct!" + err);
                 res.writeHead(413, "not supported file type!");
                 res.end("not supported file type!");
                 console.log("file type not supported");
             }
 
-        })
+
+        });
 
     } else {
         console.log(filePath);
