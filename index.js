@@ -92,7 +92,7 @@ const server = http.createServer((req, res) => {
 
     if (req.method == "POST") {
         console.log("received POST request now!");
-        filePath = path.join(filePath, "uploaded.json");
+        const filePathP = path.join(__dirname, "public/uploads", "uploaded.json");
 
 
         req.on("data", chunk => {
@@ -103,7 +103,7 @@ const server = http.createServer((req, res) => {
             // JSON.parse(datafile.toString());
             var isJson = true;
             if (isJson)
-                fs.writeFile(filePath, datafile, (err, content) => {
+                fs.writeFile(filePathP, datafile, (err, content) => {
                     if (err) {
                         if (err.code == 'ENOENT') {
                             //Page not found
