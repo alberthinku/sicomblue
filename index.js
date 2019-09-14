@@ -80,6 +80,7 @@ const server = http.createServer((req, res) => {
     let filename = req.url;
     if (req.url === '/') {
         filename = 'index.html';
+        // filename = 'application.html';
     } else if (req.url === '/upload') {
         filename = "uploads/uploaded.json";
     } else { filename = req.url; }

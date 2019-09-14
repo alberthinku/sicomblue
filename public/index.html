@@ -1,18 +1,122 @@
 <!DOCTYPE html>
 <html>
 
-
 <head>
-    <link rel='stylesheet' href="./css/style.css" />
-    <link rel="stylesheet" type="text/css" href="./css/tableCss.css">
-    <link rel="stylesheet" type="text/css" href="./css/smallbuttonsCss.css">
+    <title>Web Bluetooth SiCom</title>
+    <link rel="stylesheet" type="text/css" href="css/tableCss.css">
+    <link rel="stylesheet" type="text/css" href="css/smallbuttonsCss.css">
 
+    <!-- <link rel="stylesheet" type="text/css" href="./libraries/css/RadiobuttonCss.css"> -->
+    <!-- <link rel="stylesheet" type="text/css" href="./libraries/css/CheckboxCss.css"> -->
+
+    <style>
+        button {
+            color: black;
+            /* This is a single-line comment */
+            text-align: center;
+        }
+
+        p {
+            color: black;
+            background-color: azure;
+            background-clip: content-box;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            /* This is a single-line comment */
+            text-align: left;
+        }
+
+        h1,
+        h2 {
+            color: black;
+            /* This is a single-line comment */
+            font-size: 14px;
+            text-align: left;
+        }
+
+        div {
+            background-color: #0ff;
+            /* background-color: black; */
+            color: #e7e7e7;
+            font: lighter;
+            width: flex;
+            height: 20px;
+            border: 2px;
+            overflow: auto;
+        }
+
+        .notification {
+            background-color: black;
+            font-size: 13px;
+            width: fit-content;
+            height: 15px;
+            overflow: hidden;
+        }
+
+        .xJSON {
+            background-color: black;
+            font-size: 16px;
+            height: 40px;
+        }
+
+        .label {
+            color: white;
+            padding: 2px;
+            font-family: Arial;
+        }
+
+        .success {
+            background-color: #4CAF50;
+
+        }
+
+        /* Green */
+        .info {
+            background-color: black;
+            /* background-color: #2196f3; */
+            font-size: 15px;
+            color: white;
+
+        }
+
+        /* Blue */
+        .warning {
+            background-color: goldenrod;
+            /* background-color: #ff9800; */
+            font-size: 10px;
+        }
+
+        /* Orange */
+        .danger {
+            background-color: #f44336;
+        }
+
+        /* Red */
+        .other {
+            background-color: #e7e7e7;
+            color: black;
+            font-size: 12px;
+        }
+
+        /* Gray */
+
+        /* This is
+                    a multi-line
+                    comment */
+    </style>
+
+    <script src="libraries/webblue-phaseOne.js"></script>
+    <script src="libraries/parseJson.js"></script>
+    <script src="libraries/refreshLayer.js"></script>
+
+    <!-- <script src="./libraries/webblue-phaseOne.js"></script>
+    <script src="./libraries/parseJson.js"></script>
+    <script src="./libraries/refreshLayer.js"></script> -->
+    <script>myWindow = null;</script>
 
 </head>
 
 <body>
-    <!-- <h1>this is homepage!WelCOME!</h1> -->
-
     <h1>Web Bluetooth SiCom ver 1.0.0</h1>
 
     <h2>Connection Status</h2>
@@ -49,10 +153,10 @@
     <!-- <h2>Step.1 select profile you wanted to connect.</h2> -->
 
     <!-- <select id="mySelectedProfile" onchange="if (!(this.value==null)) deviceNo_1 = new webblue_phaseOne(1, this.value)"> -->
-    <h2>Step.1 select a prestored profile or add your own file
+    <h2>Step.1 choose a profile
         <form>
-            <select id="mySelectedProfile" onchange="selectProfile(this.value)">
-                <option value="" selected="selected" disabled="true">Select a profile</option>
+            <select id="mySelectedProfile" onchange="selectProfile(this.value, 'libraries/')">
+                <option value="" selected="selected" disabled="true">Choose a profile</option>
                 <option value="BBC_Microbit">Microbit</option>
                 <option value="ST_BLUEST">BLUEST</option>
                 <option value="ST_BLUEST_full">BLUEST_f</option>
@@ -61,41 +165,31 @@
             <input class="small red button" type="reset" value="reset" onclick="reinit()" />
             OR
             <input class="small green button" type="file" id="file-input" value="add" onchange="addAprofile()" />
+
         </form>
         <!-- Take a look at <a href=deviceNo_1.realname target="_blank">profile details</a> -->
 
     </h2>
+
+    <div class="xJSON" id="showJson" hidden="true"></div>
+
+    <h2>Step.2 Device Discovery and Connection</h2>
+    <button class="small button" id="btn_scan1" onclick="deviceDiscoverOrDisconnectCall()">discoverDevices</button>
+    <hr>
+
+    <h2>Step.3 Customize your choices and run!</h2>
+
+    <button class="small button" id="btn_notify1" onclick="processAllCharSelections()">ProcessAllCharSelctions</button>
+
+    <div class="notification" id="chardatanotification1">
+
+    </div>
+    <!-- <hr> -->
+
+
+    <span id="GATTShow"></span>
+    <!-- <button class="container" id="btn_refresh" onclick="confirmAct()">Confirm!</button> -->
     <script>
-        function selectProfile(value) {
-            console.log(value);
-        }
-
-        function getOwnFileRequest(file) {
-            //             const xhr = new XMLHttpRequest();
-            //             // xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
-            //             xhr.open('GET', file);
-            //             xhr.onreadystatechange = () => {
-            //                 if (xhr.readyState === 4) {
-            //                     if (xhr.status === 200) {
-
-            // var filereader = new FileReader();
-            // filereader.onload = (function (file) {
-            //     return function (e) {
-            //         console.log(e.target.result);
-            //     }
-            // });
-
-            // const xhr = file.text();
-            // const response = JSON.parse(xhr);
-            // uploadFile(file, response.signedRequest, response.url);
-            //                     }
-            //                     else {
-            //                         alert('Could not get signed URL.');
-            //                     }
-            //                 }
-            //             };
-            //             xhr.send();
-        }
 
         function addAprofile() {
             console.log("adding a new Json profile!");
@@ -105,25 +199,6 @@
                 return alert('No file selected.');
             }
 
-            //multipart encoded:
-            //             var formData = new FormData();
-            //             xhr = new XMLHttpRequest();
-            //             formData.append('file', file);
-            //             xhr.open("POST", "uploads");
-            //             xhr.send(formData);
-
-            //send the file as the payload of request
-
-            // xmlhttp.onload = function () {
-            //     if (xmlhttp.status === 200) {
-            //         myObj = xmlhttp.response;
-            //         document.getElementById("showJson").innerHTML = JSON.stringify(myObj);
-            //         myWindow = new refreshLayer(deviceNo_1.makeObjJson(myObj));
-            //         myWindow.refreshSelf(deviceNo_1);
-            //     } else {
-            //         console.log("new work request for .json failed with respone " + xmlhttp.status + ": " + xmlhttp.statusText);
-            //     }
-            // }
             xhr = new XMLHttpRequest();
             xhr.open("POST", "uploads");
             xhr.setRequestHeader("Content-Type", file.type);
@@ -132,6 +207,7 @@
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                     // Request finished. Do processing here.
                     console.log("file saved");
+                    selectProfile("uploaded", "uploads/");
                 } else if (!(this.status == 200)) {
                     console.log("new work request for .json failed with respone " + xhr.status + ": " + xhr.statusText);
                 }
@@ -139,21 +215,126 @@
 
             xhr.send(file);
 
-            // if (xhr.status == 200) {
-            //     console.log("file saved");
-            // }
-            // else {
-            //     console.log("new work request for .json failed with respone " + xhr.status + ": " + xhr.statusText);
-            // }
+        }//custom profile upload
 
-
-
-            // console.log("file saved!");
+        function deviceDiscoverOrDisconnectCall() {
+            if (!(deviceNo_1 == undefined)) { deviceNo_1.discoverDevicesOrDisconnect(); }
+            else {
+                alert("please go step.1 chose a profile first!")
+            }
+        }
+        function processAllCharSelections() {
+            myWindow.refreshSelf(deviceNo_1);
+            deviceNo_1.commitCharActions(true, [], [], []);
         }
 
+        function selectProfile(profilename, dirFix) {
+            if (!(profilename == "")) {
+                deviceNo_1 = new webblue_phaseOne(1, profilename);
+            }
+            else {
+                // document.getElementById("mySelectedProfileDefault").disabled = true;
+            }
+            mySelectedProfile(dirFix);
+        }
 
+        function confirmAct() {
+            myWindow.refreshSelf(deviceNo_1);
+        }
+
+        function reinit() {
+            deviceNo_1.statusInit();
+
+            var options = document.querySelectorAll('#mySelectedProfile option');
+            for (var i = 0, l = options.length; i < l; i++) {
+                options[i].selected = options[i].defaultSelected;
+            }
+
+            deviceNo_1 = undefined;
+            myWindow = null;
+            showJson.innerHTML = "";
+            GATTShow.innerHTML = "";
+            chardatanotification1.innerHTML = "";
+        }
+
+        function mySelectedProfile(dirFix) {
+            try {
+                document.getElementsByTagName("a")[0].setAttribute("href", dirFix + deviceNo_1.realname + ".JSON");
+                var xmlhttp = new XMLHttpRequest();
+                // xmlhttp.onreadystatechange = function () {
+                //     if (this.readyState == 4 && this.status == 200) {
+                //         var myObj = JSON.parse(this.responseText);
+                //         document.getElementById("showJson").innerHTML = JSON.stringify(myObj);
+                //         myWindow = new refreshLayer(deviceNo_1.makeObjJson(myObj));
+                //         myWindow.refreshSelf(deviceNo_1);
+
+                //     }
+                // };
+
+                xmlhttp.open("GET", dirFix + deviceNo_1.realname + ".json", true);
+                xmlhttp.responseType = 'json';
+                var myObj;
+
+                xmlhttp.onload = function () {
+                    if (xmlhttp.status === 200) {
+                        myObj = xmlhttp.response;
+                        if (myObj == null) { alert('wrong profile type uploaded, please reselect!'); reinit(); return -1 }
+                        document.getElementById("showJson").innerHTML = JSON.stringify(myObj);
+                        myWindow = new refreshLayer(deviceNo_1.makeObjJson(myObj));
+                        myWindow.refreshSelf(deviceNo_1);
+                    } else {
+                        console.log("new work request for .json failed with respone " + xmlhttp.status + ": " + xmlhttp.statusText);
+                    }
+                }
+                xmlhttp.send();
+
+            }
+            catch (error) {
+                alert('ERROR: ' + error);
+                console.log('ERROR: ' + error);
+                reinit();
+                return -1;
+            }
+        }//selected profile implementation
+
+        // function addAprofile() {
+        //     console.log("adding a new Json profile!");
+        //     const files = document.getElementById('file-input').files;
+        //     const file = files[0];
+        //     if (file == null) {
+        //         return alert('No file selected.');
+        //     }
+        // }//addAprofile from user's drive
 
     </script>
+
+    <script src="libraries/saveit.js"></script>
+
+    <!-- <script src="./libraries/saveit.js"></script> -->
+
+    <script>
+        checkBoxRWNAsst = function () {
+            myWindow.refreshSelf(deviceNo_1);
+        }
+
+        checkBoxImmyActAsst = function (tag) {
+            var uuid = tag.slice(2);
+            console.log(uuid);
+            if (deviceNo_1 == null) return;
+            deviceNo_1.commitCharActionsImmy(uuid);
+        }
+
+    </script>
+    <p>
+        SiCom web bluetooth connection tool user environment:<br>
+        HARDWARE: PC/Mac/Laptop/Chromebook, <br>
+        SOFTWARE: Chrome ver70 or later on Windows10 or Chrome ver56 or later on
+        Mac/Linux/Window7</p>
+    <p>
+        Bluetooth devices :<br>
+        HARDWARE : BBC microbit, STM32 Nucelo kit, SensorTile, or any device equipted with BLE 4.x or later<br>
+        FIRMWARE/PROFILE : BBC microbit V1_11, ST BlueST V4.3 or later/FunctionPack ALLMEMS/FLV/MOTENV<br>
+    </p>
 
 </body>
 
