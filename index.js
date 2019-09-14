@@ -77,17 +77,17 @@ const server = http.createServer((req, res) => {
     // console.log(req);
 
     //Build file path
-    // let filename = req.url;
-    // if (req.url === '/') {
-    //     filename = 'index.html';
-    // } else if (req.url === '/upload') {
-    //     filename = "/fileupload.html";
-    // } else { filename = req.url; }
+    let filename = req.url;
+    if (req.url === '/') {
+        filename = 'index.html';
+    } else if (req.url === '/upload') {
+        filename = "uploads/uploaded.json";
+    } else { filename = req.url; }
 
-    // let filePath = path.join(__dirname, 'public', filename);
+    let filePath = path.join(__dirname, 'public', filename);
 
-    let filePath = path.join(__dirname, 'public', req.url === '/' ?
-        'index.html' : req.url);
+    // let filePath = path.join(__dirname, 'public', req.url === '/' ?
+    //     'index.html' : req.url);
 
     if (req.method == "POST") {
         console.log("received POST request now!");
