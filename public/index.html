@@ -223,7 +223,7 @@
             xhr.open("POST", "/uploads", true); //if call open for an existing open request, it will abort the connection.
 
             xhr.setRequestHeader("Content-Type", file.type);
-            // xhr.setRequestHeader("X-File-Name", file.name);
+            xhr.setRequestHeader("X-File-Name", file.name);
 
             // xhr.onreadystatechange = function () { // Call a function when the state changes.
             //     if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
@@ -235,7 +235,7 @@
             //     }
             // }
 
-            xhr.send((file));
+            xhr.send(file);
 
             xhr.onreadystatechange = function () {
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {

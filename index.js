@@ -85,60 +85,76 @@ const server = http.createServer((req, res) => {
         filename = "uploads/uploaded.json";
     } else { filename = req.url; }
 
-    let filePath = path.join(__dirname, 'public', filename);
+    var filePath = path.join(__dirname, 'public', filename);
 
     // let filePath = path.join(__dirname, 'public', req.url === '/' ?
     //     'index.html' : req.url);
 
     if (req.method == "POST") {
         console.log("received POST request now!");
-        const filePathP = path.join(__dirname, "public/uploads", "uploaded.json");
+        var uploadfilename = req.headers["x-file-name"];
+        console.log("X-file-name is " + uploadfilename);
 
+        var uploadfiletype = req.headers["content-type"];
+        console.log("X-file-type is " + uploadfiletype);
 
-        req.on("data", chunk => {
-            var datafile = chunk;
-            // var isJson = false;
-            // console.log(datafile);
-            // try {
-            // JSON.parse(datafile.toString());
-            var isJson = true;
-            if (isJson)
-                fs.writeFile(filePathP, datafile, (err, content) => {
-                    if (err) {
-                        if (err.code == 'ENOENT') {
-                            //Page not found
-                            fs.readFile(path.join(__dirname, 'public', '404.html'), (err, content) => {
-                                res.writeHead(200, { 'Content-Type': 'text/html' });
-                                res.end(content, 'utf8');
-                            })
+        if (!(uploadfiletype == "application/json")) {
+            res.writeHead(413, "not supported file type!");
+            res.end("");
+        } else {
+
+            // const filePathP = path.join(__dirname, "public/uploads", "uploaded.json");
+            const filePathP = path.join(__dirname, "public/uploads", uploadfilename);
+
+            req.on("data", chunk => {
+                var datafile = chunk;
+                // var isJson = false;
+                // console.log(datafile);
+                // try {
+                // JSON.parse(datafile.toString());
+                var isJson = true;
+                if (isJson)
+                    fs.writeFile(filePathP, datafile, (err, content) => {
+                        if (err) {
+                            if (err.code == 'ENOENT') {
+                                //Page not found
+                                fs.readFile(path.join(__dirname, 'public', '404.html'), (err, content) => {
+                                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                                    res.end(content, 'utf8');
+                                })
+                            } else {
+                                //some other error
+                                res.writeHead(500);
+                                res.end(`Server Error: ${err.code}`);
+                            }
                         } else {
-                            //some other error
-                            res.writeHead(500);
-                            res.end(`Server Error: ${err.code}`);
+                            //Success
+                            // fs.readFile(path.join(__dirname, 'public', 'about.html'), (err, content) => {
+                            // var fs = require('fs');
+                            let newName = path.join(__dirname, 'public', 'uploads', 'upload.json');
+                            fs.rename(filePathP, newName, function (err) {
+                                if (err) console.log('ERROR: ' + err);
+                            });
+                            res.writeHead(200, { "Content-Type": "text/html" });
+                            res.end("file POST request served!");
+                            console.log("file POST requst served!");
+                            // })
+
                         }
-                    } else {
-                        //Success
-                        // fs.readFile(path.join(__dirname, 'public', 'about.html'), (err, content) => {
-                        res.writeHead(200, { "Content-Type": "text/html" });
-                        res.end("file POST request served!");
-                        console.log("file POST requst served!");
-                        // })
-
-                    }
-                });
+                    });
 
 
-            // catch (err) 
-            else {
-                console.log("Json file not correct!" + err);
-                res.writeHead(413, "not supported file type!");
-                res.end("not supported file type!");
-                console.log("file type not supported");
-            }
+                // catch (err) 
+                else {
+                    console.log("Json file not correct!" + err);
+                    res.writeHead(413, "not supported file type!");
+                    res.end("not supported file type!");
+                    console.log("file type not supported");
+                }
 
 
-        });
-
+            });
+        }
     } else {
         console.log(filePath);
 
