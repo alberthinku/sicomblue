@@ -102,12 +102,20 @@ const server = http.createServer((req, res) => {
 
     //Build file path
     let filename = req.url;
-    if (req.url === '/') {
-        filename = 'index.html';
-        // filename = 'application.html';
-    } else if (req.url === '/upload') {
-        filename = "uploads/uploaded.json";
-    } else { filename = req.url; }
+    switch (req.url) {
+        case "/": filename = "index.html"; break;
+        case "/upload": filename = "uploads/uploaded.json"; break;
+        case "/about": filename = "about.html"; break;
+        case "/help": filename = "readme.md"; break;
+        // filename = req.url;
+    }
+
+    // if (req.url === '/') {
+    //     filename = 'index.html';
+    //     // filename = 'application.html';
+    // } else if (req.url === '/upload') {
+    //     filename = "uploads/uploaded.json";
+    // } else { filename = req.url; }
 
     var filePath = path.join(__dirname, 'public', filename);
 
