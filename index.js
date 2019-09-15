@@ -130,11 +130,14 @@ const server = http.createServer((req, res) => {
             uploadfilename = "uploaded.json";//test only on this uploaded.json file.
             // const filePathP = path.join(__dirname, "public/uploads", "uploaded.json");
             const filePathP = path.join(__dirname, "public/uploads", uploadfilename);
-
+            var rawDin = "";
             req.on("data", chunk => {
                 var datafile = chunk;
+                rawDin += datafile.toString();
+            });
+            req.on("end", function () {
                 // console.log(datafile.toString());
-                let rawData = datafile.toString();
+                let rawData = rawDin;
                 let begN = rawData.indexOf("{");
                 let endM = rawData.lastIndexOf("}");
                 let newData = rawData.slice(begN, endM + 1);
