@@ -218,9 +218,9 @@
             // xhr.send(formData);
 
             xhr = new XMLHttpRequest();
-            xhr.upload.addEventListener('progress', onprogressHandler, false);
+            // xhr.upload.addEventListener('progress', onprogressHandler, false);
 
-            xhr.open("POST", "/uploads", true);
+            xhr.open("POST", "/uploads", true); //if call open for an existing open request, it will abort the connection.
 
             xhr.setRequestHeader("Content-Type", file.type);
             // xhr.setRequestHeader("X-File-Name", file.name);
@@ -237,11 +237,24 @@
 
             xhr.send((file));
 
-            function onprogressHandler(evt) {
-                var percent = evt.loaded / evt.total * 100;
-                console.log("upload progress:" + percent + "%");
-                if (percent == 100) selectProfile("uploaded", "uploads/");
+            xhr.onreadystatechange = function () {
+                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    selectProfile("uploaded", "uploads/");
+                    xhr.abort();
+                } else if (!(this.status == 200)) {
+                    console.log("new work request for .json failed with respone " + xhr.status + ": " + xhr.statusText);
+                    xhr.abort();
+                }
             }
+            // xhr.abort(); //since the request has been sent, so now it is time to abort it, otherwise xhr.open will trigger abort.
+
+            // function onprogressHandler(evt) {
+            //     var percent = evt.loaded / evt.total * 100;
+            //     console.log("upload progress:" + percent + "%");
+            //     if (percent == 100) {
+            //         selectProfile("uploaded", "uploads/");
+            //     }
+            // }
 
         }//custom profile upload
 
