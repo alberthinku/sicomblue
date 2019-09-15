@@ -239,7 +239,9 @@
 
             xhr.onreadystatechange = function () {
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                    selectProfile("uploaded", "uploads/");
+                    let ctmFileName = file.name.split('.')[0];
+                    console.log(ctmFileName);
+                    selectProfile(ctmFileName, "uploads/");
                     xhr.abort();
                 } else if (!(this.status == 200)) {
                     console.log("new work request for .json failed with respone " + xhr.status + ": " + xhr.statusText);

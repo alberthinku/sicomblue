@@ -131,10 +131,10 @@ const server = http.createServer((req, res) => {
                             //Success
                             // fs.readFile(path.join(__dirname, 'public', 'about.html'), (err, content) => {
                             // var fs = require('fs');
-                            let newName = path.join(__dirname, 'public', 'uploads', 'upload.json');
-                            fs.rename(filePathP, newName, function (err) {
-                                if (err) console.log('ERROR: ' + err);
-                            });
+                            // let newName = path.join(__dirname, 'public', 'uploads', 'upload.json');
+                            // fs.rename(filePathP, newName, function (err) {
+                            //     if (err) console.log('ERROR: ' + err);
+                            // });
                             res.writeHead(200, { "Content-Type": "text/html" });
                             res.end("file POST request served!");
                             console.log("file POST requst served!");
