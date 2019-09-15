@@ -162,9 +162,15 @@
                 <option value="ST_BLUEST_full">BLUEST_f</option>
                 <option value="ST_BlueNRG">BlueNRG</option>
             </select>
+        </form>
+        <form>
             <input class="small red button" type="reset" value="reset" onclick="reinit()" />
-            OR
-            <input class="small green button" type="file" id="file-input" value="add" onchange="addAprofile()" />
+        </form>
+        OR
+        <form method="POST">
+
+            <input class="small button" type="file" id="file-input" />
+            <input class="small green button" type="button" value="submit" onclick="addAprofile()" />
 
         </form>
         <!-- Take a look at <a href=deviceNo_1.realname target="_blank">profile details</a> -->
@@ -193,10 +199,15 @@
 
         function addAprofile() {
             console.log("adding a new Json profile!");
-            const files = document.getElementById('file-input').files;
-            const file = files[0];
+            var files = document.getElementById('file-input').files;
+            var file = files[0];
             if (file == null) {
                 return alert('No file selected.');
+            }
+
+            console.log(file.type);
+            if (!(file.type == 'application/json')) {
+                return alert("wrong file type!");
             }
 
             //multipart encoded:
@@ -208,7 +219,9 @@
 
             xhr = new XMLHttpRequest();
             xhr.upload.addEventListener('progress', onprogressHandler, false);
+
             xhr.open("POST", "/uploads", true);
+
             xhr.setRequestHeader("Content-Type", file.type);
             // xhr.setRequestHeader("X-File-Name", file.name);
 
