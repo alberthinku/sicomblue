@@ -117,7 +117,7 @@
 </head>
 
 <body>
-    <h1>Web Bluetooth SiCom ver 1.0.1</h1><a href="/about">release note</a>
+    <h1>Web Bluetooth SiCom ver 1.0.1</h1><a href="about">release note</a>
 
     <h2>Connection Status</h2>
 
@@ -169,7 +169,7 @@
             <!-- enctype="multipart/form-data" action="javascript:;" onsubmit="addAprofile(this)"
             method="POST"> -->
             <!-- action="javascript:;" onsubmit="myFunction(this)" -->
-            <input class="small button" type="file" id="file-input" name="userJson" />
+            <input class="small button" type="file" id="file-input" name="userJson">
             <input class="small green button" type="button" value="submit" name="submit" onclick="addAprofile()">
         </form>
 
@@ -309,7 +309,7 @@
 
         function mySelectedProfile(dirFix) {
             try {
-                document.getElementsByTagName("a")[0].setAttribute("href", dirFix + deviceNo_1.realname + ".JSON");
+                // document.getElementsByTagName("a")[0].setAttribute("href", dirFix + deviceNo_1.realname + ".JSON");
                 var xmlhttp = new XMLHttpRequest();
                 // xmlhttp.onreadystatechange = function () {
                 //     if (this.readyState == 4 && this.status == 200) {
@@ -332,6 +332,7 @@
                         document.getElementById("showJson").innerHTML = JSON.stringify(myObj);
                         myWindow = new refreshLayer(deviceNo_1.makeObjJson(myObj));
                         myWindow.refreshSelf(deviceNo_1);
+                        xmlhttp.abort();
                     } else {
                         console.log("new work request for .json failed with respone " + xmlhttp.status + ": " + xmlhttp.statusText);
                     }
