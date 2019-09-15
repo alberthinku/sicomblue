@@ -7,7 +7,59 @@
 </head>
 
 <body>
-    <h1>ver 1.0.0!</h1>
+    <h1> # Web Bluetooth SiCom </h1>
+    <h2>web bluetooth connection tool</h2>
+    <p>author: Albert Sun </p>
+    <p>projects >> <a href=https://alberthinku.githut.io> (V1.0.0) </a>, <a href=https://sicomblue.herokuapp.com>
+            (V1.0.1 and later version)</a> under<a href=license> GPL-3 lisense</a></p>
+
+
+    <p>this tool amid on the web based bluetooth development task, provide Json file interface for customized profile
+        selection. can scan, connect, acting on char seperately or simoutenously, and store the notificaiton data into
+        local drive for offline analysis.</p>
+
+    <h3>SiCom web bluetooth connection tool user environment:</h3>
+    <p>HARDWARE:
+        <p>PC/Mac/Laptop/Chromebook</p>
+        <p>SOFTWARE: </p>
+        <p>Chrome ver70 or later on Windows10 or</p>
+        <p>Chrome ver56 or later on Mac/Linux/Window7</p>
+
+        <h3>Bluetooth devices : </h3>
+        <p>Hardware : BBC microbit, STM32 Nucelo kit, SensorTile, or any device equipted with BLE 4.x or later<p>
+                <p>Firmware/Profile : BBC microbit V1_11, ST BlueST V4.3 or later/FunctionPack ALLMEMS/FLV/MOTENV </p>
+
+                <h3>Known Limitations for current version:</h3>
+                <p>1. the FP-SENSING1 (AI) can not be discovered and connected yet</p>
+                <p>2. long discover time for ST BlueST profile devices sometime took 20-30seconds</p>
+                <p>3. step.1 selectable profiles are not covering the whole original profile yet </p>
+                <p> step.1 selectable profile currently have :
+                    <p> BBC microbit -- on 3 services 4 chars included,
+                        <p> ST BlueST -- on 1 services upto 4 chars included,
+                            <p> ST BlueST_f -- on 1 service upto 14 chars included,
+                                <p> ST Bluenrg -- on 3 services 6 chars included,
+
+                                    <p>if you have any questions or suggestions, please feel free to leave your comments
+                                        or send an email to yahui.sun@gmail.com</p>
+
+                                    <h3>release notes:</h3>
+                                    <p>[150919] version 1.0.1 is on with new features:</p>
+                                    <p>1. user can choose 1 of the 4 default profiles or, they could upload their own
+                                        profile to the server
+                                        <p>2. started node.js server node on heroku.com
+
+                                            <p>[110919] version 1.0.0 is on</p>
+                                            <p>the current version (100919) is valid for BlueST (ST BlueST profile, on
+                                                https://github.com/STMicroelectronics/BlueSTSDK_Android) and Microbit
+                                                Bluetooth profile(lancaster university project
+                                                https://lancaster-university.github.io/microbit-docs/ble/profile/) only.
+                                                <p>The Web Bluetooth SiCom tool inspired by MartinWoolley' JSmeetup
+                                                    video
+                                                    (http://bluetooth-mdw.blogspot.com/2018/12/amsterdamjs-meetup.html)
+                                                    and tested demos included BBC Microbit V1.5 (or later) and
+                                                    STMicroelectronics Nucleo kits and SensorTile (on almost all the
+                                                    FP-ALLMEMs/FLV/MOTENV1 except FP-SENSING1(i.e. AI package) due to
+                                                    some discovery issue pending).
 
 </body>
 
