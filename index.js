@@ -1,10 +1,10 @@
 // const express = require('express');
 // const app = express();
-// const debug = require('debug')('myapp:server');
+// // const debug = require('debug')('myapp:server');
 // const path = require('path');
 // const multer = require('multer');
-// const logger = require('morgan');
-// const serveIndex = require('serve-index');
+// // const logger = require('morgan');
+// // const serveIndex = require('serve-index');
 
 // var storage = multer.diskStorage({
 //     destination: (req, file, cb) => {
@@ -15,11 +15,35 @@
 //     }
 // });
 
-// //will be using this for updating
-// const upload = multer({ storage: storage });
+// // //will be using this for updating
+// const upload = multer({ storage: storage }).single('userJson');
 
-// //get teh router
-// const userRouter = require('./public/routes/user.route');
+// // console.log(upload);
+
+// // //get teh router
+// // const userRouter = require('./public/routes/user.route');
+
+// app.use(express.static('./public'));
+// app.get('/', function (req, res) {
+//     res.sendFile(path.join(__dirname, 'public', "index.html"));
+// });
+
+// app.post('/upload', function (req, res) {
+//     upload(req, res, function (err) {
+//         if (err) {
+//             return res.end("Error uploading file.");
+//         }
+//         //     debug(req.file);
+//         console.log('storage time is ', Date.now());
+//         //     return res.send(req.file);
+//         res.status(200);
+//         // res.sendFile(path.join(__dirname, 'public', "index.html"));
+//     });
+// });
+
+// app.listen(3000,function(){
+//   console.log("Working on port 3000");
+// });
 
 
 // app.use(logger('tiny'));
@@ -98,23 +122,44 @@ const server = http.createServer((req, res) => {
         var uploadfiletype = req.headers["content-type"];
         console.log("X-file-type is " + uploadfiletype);
 
-        if (!(uploadfiletype == "application/json")) {
-            res.writeHead(413, "not supported file type!");
-            res.end("");
-        } else {
-
+        // if (!(uploadfiletype == "application/json")) {
+        //     res.writeHead(413, "not supported file type!");
+        //     res.end("");
+        // } else {
+        {
+            uploadfilename = "uploaded.json";//test only on this uploaded.json file.
             // const filePathP = path.join(__dirname, "public/uploads", "uploaded.json");
             const filePathP = path.join(__dirname, "public/uploads", uploadfilename);
 
             req.on("data", chunk => {
                 var datafile = chunk;
-                // var isJson = false;
-                // console.log(datafile);
-                // try {
-                // JSON.parse(datafile.toString());
-                var isJson = true;
-                if (isJson)
-                    fs.writeFile(filePathP, datafile, (err, content) => {
+                // console.log(datafile.toString());
+                let rawData = datafile.toString();
+                let begN = rawData.indexOf("{");
+                let endM = rawData.lastIndexOf("}");
+                let newData = rawData.slice(begN, endM + 1);
+                var isJson = false;
+
+                try {
+                    var jsonObj = JSON.parse(newData);
+                    // console.log(jsonObj);
+                    isJson = true;
+                }
+                catch (err) {
+                    isJson = false;
+                    console.log("Json file not correct!" + err);
+                    res.writeHead(413, "not supported file type!");
+                    res.end("not supported file type!");
+                    console.log("file type not supported");
+                };
+
+
+
+                if (isJson) {
+                    var jsonContent = JSON.stringify(jsonObj);
+                    // console.log(jsonContent);
+
+                    fs.writeFile(filePathP, jsonContent, (err, content) => {
                         if (err) {
                             if (err.code == 'ENOENT') {
                                 //Page not found
@@ -142,16 +187,7 @@ const server = http.createServer((req, res) => {
 
                         }
                     });
-
-
-                // catch (err) 
-                else {
-                    console.log("Json file not correct!" + err);
-                    res.writeHead(413, "not supported file type!");
-                    res.end("not supported file type!");
-                    console.log("file type not supported");
-                }
-
+                };
 
             });
         }

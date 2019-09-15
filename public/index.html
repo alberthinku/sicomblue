@@ -154,7 +154,7 @@
 
     <!-- <select id="mySelectedProfile" onchange="if (!(this.value==null)) deviceNo_1 = new webblue_phaseOne(1, this.value)"> -->
     <h2>Step.1 choose a profile
-        <form>
+        <form id="profileSelectForm" class="container">
             <select id="mySelectedProfile" onchange="selectProfile(this.value, 'libraries/')">
                 <option value="" selected="selected" disabled="true">Choose a profile</option>
                 <option value="BBC_Microbit">Microbit</option>
@@ -163,18 +163,19 @@
                 <option value="ST_BlueNRG">BlueNRG</option>
             </select>
         </form>
+        OR
+        <form id="uploadForm">
+            <!-- enctype="multipart/form-data" action="javascript:;" onsubmit="addAprofile(this)"
+            method="POST"> -->
+            <!-- action="javascript:;" onsubmit="myFunction(this)" -->
+            <input class="small button" type="file" id="file-input" name="userJson" />
+            <input class="small green button" type="button" value="submit" name="submit" onclick="addAprofile()">
+        </form>
+        <!-- Take a look at <a href=deviceNo_1.realname target="_blank">profile details</a> -->
+        Reset your choice by click
         <form>
             <input class="small red button" type="reset" value="reset" onclick="reinit()" />
         </form>
-        OR
-        <form method="POST">
-
-            <input class="small button" type="file" id="file-input" />
-            <input class="small green button" type="button" value="submit" onclick="addAprofile()" />
-
-        </form>
-        <!-- Take a look at <a href=deviceNo_1.realname target="_blank">profile details</a> -->
-
     </h2>
 
     <div class="xJSON" id="showJson" hidden="true"></div>
@@ -211,19 +212,20 @@
             }
 
             //multipart encoded:
-            // var formData = new FormData();
-            // xhr = new XMLHttpRequest();
-            // formData.append('file', file);
-            // xhr.open("POST", "uploads");
-            // xhr.send(formData);
+            formData = new FormData();
+            formData.append('file', file);
 
             xhr = new XMLHttpRequest();
+            xhr.open("POST", "uploads", true);
+            xhr.send(formData);
+
+            // xhr = new XMLHttpRequest();
             // xhr.upload.addEventListener('progress', onprogressHandler, false);
 
-            xhr.open("POST", "/uploads", true); //if call open for an existing open request, it will abort the connection.
+            // xhr.open("POST", "upload", true); //if call open for an existing open request, it will abort the connection.
 
-            xhr.setRequestHeader("Content-Type", file.type);
-            xhr.setRequestHeader("X-File-Name", file.name);
+            // xhr.setRequestHeader("Content-Type", file.type);
+            // xhr.setRequestHeader("X-File-Name", file.name);
 
             // xhr.onreadystatechange = function () { // Call a function when the state changes.
             //     if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
@@ -235,12 +237,13 @@
             //     }
             // }
 
-            xhr.send(file);
+            // xhr.send(file);
 
             xhr.onreadystatechange = function () {
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                     let ctmFileName = file.name.split('.')[0];
                     console.log(ctmFileName);
+                    ctmFileName = "uploaded"; //test only on the uploaded.json file.
                     selectProfile(ctmFileName, "uploads/");
                     xhr.abort();
                 } else if (!(this.status == 200)) {
@@ -288,10 +291,13 @@
         function reinit() {
             deviceNo_1.statusInit();
 
-            var options = document.querySelectorAll('#mySelectedProfile option');
-            for (var i = 0, l = options.length; i < l; i++) {
-                options[i].selected = options[i].defaultSelected;
-            }
+            // var options = document.querySelectorAll('#mySelectedProfile option');
+            // for (var i = 0, l = options.length; i < l; i++) {
+            //     options[i].selected = options[i].defaultSelected;
+            // }
+
+            document.getElementById("profileSelectForm").reset();
+            document.getElementById("uploadForm").reset();
 
             deviceNo_1 = undefined;
             myWindow = null;
