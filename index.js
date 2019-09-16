@@ -78,6 +78,7 @@ const http = require('http');
 // const https = require('https');
 const path = require('path');
 const fs = require('fs');
+const uuid = require('uuid');
 
 const server = http.createServer((req, res) => {
     // if (req.url === '/') {
@@ -124,9 +125,9 @@ const server = http.createServer((req, res) => {
 
     if (req.method == "POST") {
         console.log("received POST request now!");
-        var uploadfilename = req.headers["x-file-name"];
-        console.log("X-file-name is " + uploadfilename);
+        var uploadfilename = uuid.v4() + '-' + req.headers["x-file-name"];//generate a uuid plus updated filename
 
+        console.log("new X-file-name is " + uploadfilename);
         var uploadfiletype = req.headers["content-type"];
         console.log("X-file-type is " + uploadfiletype);
 
@@ -135,8 +136,8 @@ const server = http.createServer((req, res) => {
         //     res.end("");
         // } else {
         {
-            uploadfilename = "uploaded.json";//test only on this uploaded.json file.
-            // const filePathP = path.join(__dirname, "public/uploads", "uploaded.json");
+            // uploadfilename = "uploaded.json";//test only on this uploaded.json file.
+
             const filePathP = path.join(__dirname, "public/uploads", uploadfilename);
             var rawDin = "";
             req.on("data", chunk => {
@@ -192,6 +193,7 @@ const server = http.createServer((req, res) => {
                             //     if (err) console.log('ERROR: ' + err);
                             // });
                             res.writeHead(200, { "Content-Type": "text/html" });
+                            res.writeHead(200, { "X-File-Name": uploadfilename });//writeHead to transfer uploadfilename
                             res.end("file POST request served!");
                             console.log("file POST requst served!");
                             // })

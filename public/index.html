@@ -218,6 +218,7 @@
 
             xhr = new XMLHttpRequest();
             xhr.open("POST", "uploads", true);
+            xhr.setRequestHeader("X-File-Name", file.name);//pass the file.name to server for storage
             xhr.send(formData);
 
             // xhr = new XMLHttpRequest();
@@ -242,9 +243,10 @@
 
             xhr.onreadystatechange = function () {
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                    let ctmFileName = file.name.split('.')[0];
+                    // let ctmFileName = file.name.split('.')[0];
+                    ctmFileName = xhr.getResponseHeader('X-File-Name').split('.')[0];
                     console.log(ctmFileName);
-                    ctmFileName = "uploaded"; //test only on the uploaded.json file.
+                    // ctmFileName = "uploaded"; //test only on the uploaded.json file.
                     selectProfile(ctmFileName, "uploads/");
                     xhr.abort();
                 } else if (!(this.status == 200)) {
