@@ -139,6 +139,8 @@ const server = http.createServer((req, res) => {
             // uploadfilename = "uploaded.json";//test only on this uploaded.json file.
 
             const filePathP = path.join(__dirname, "public/uploads", uploadfilename);
+
+
             var rawDin = "";
             req.on("data", chunk => {
                 var datafile = chunk;
@@ -171,6 +173,21 @@ const server = http.createServer((req, res) => {
                     var jsonContent = JSON.stringify(jsonObj);
                     // console.log(jsonContent);
 
+                    let flieExistedJson = path.join(__dirname, 'public/uploads', "uploaded.json");//the file to be appended with new uploadfile contents
+                    fs.readFile(flieExistedJson, function (err, content) {
+                        if (err) throw err;
+                        let newJson = JSON.parse(content);
+                        let mergeJson = newJson;
+                        let obj = jsonObj;
+                        obj["filename"] = uploadfilename;//add the uploadfilename info onto the Json hist log file
+                        mergeJson.push(obj);
+                        if (mergeJson.length > 10) mergeJson = mergeJson.slice(-10);
+                        fs.writeFile(flieExistedJson, JSON.stringify(mergeJson), function (err) {
+                            if (err) throw err;
+                        });
+                    });
+
+
                     fs.writeFile(filePathP, jsonContent, (err, content) => {
                         if (err) {
                             if (err.code == 'ENOENT') {
@@ -199,6 +216,8 @@ const server = http.createServer((req, res) => {
                             // })
 
                         }
+
+
                     });
                 };
 
