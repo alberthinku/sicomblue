@@ -107,7 +107,7 @@ const server = http.createServer((req, res) => {
         case "/": filename = "index.html"; break;
         case "/upload": filename = "uploads/uploaded.json"; break;
         case "/about": filename = "about.html"; break;
-        case "/help": filename = "readme.md"; break;
+        case "/help": filename = "help.html"; break;
         // filename = req.url;
     }
 
