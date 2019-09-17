@@ -153,31 +153,31 @@
     <!-- <h2>Step.1 select profile you wanted to connect.</h2> -->
 
     <!-- <select id="mySelectedProfile" onchange="if (!(this.value==null)) deviceNo_1 = new webblue_phaseOne(1, this.value)"> -->
-    <h2>Step.1 choose a preloaded profile
-        <form id="profileSelectForm" class="container">
-            <select id="mySelectedProfile" onchange="selectProfile(this.value, 'libraries/')">
-                <option value="" selected="selected" disabled="true">Choose a profile</option>
-                <option value="BBC_Microbit">Microbit</option>
-                <option value="ST_BLUEST">BLUEST</option>
-                <option value="ST_BLUEST_full">BLUEST_f</option>
-                <option value="ST_BlueNRG">BlueNRG</option>
-            </select>
-            <!-- Take a look at <a href=deviceNo_1.realname target="_blank">profile details</a> -->
-        </form>
-        OR upload your own
-        <form id="uploadForm">
-            <!-- enctype="multipart/form-data" action="javascript:;" onsubmit="addAprofile(this)"
+    <h2>Step.1 choose a preloaded profile or upload your own</h2>
+    <form id="profileSelectForm" class="container">
+        <select class="grey button" id="mySelectedProfile" onchange="selectProfile(this.value, 'libraries/')">
+            <option value="" selected="selected" disabled="true">Choose a preloaded profile</option>
+            <option value="BBC_Microbit">BBC Microbit</option>
+            <option value="ST_BLUEST">ST BLUEST</option>
+            <option value="ST_BLUEST_full">ST BLUEST_f</option>
+            <option value="ST_BlueNRG">ST BlueNRG</option>
+        </select>
+        <!-- Take a look at <a href=deviceNo_1.realname target="_blank">profile details</a> -->
+    </form>
+    <!-- <small>OR upload your own</small> -->
+    <form id="uploadForm">
+        <!-- enctype="multipart/form-data" action="javascript:;" onsubmit="addAprofile(this)"
             method="POST"> -->
-            <!-- action="javascript:;" onsubmit="myFunction(this)" -->
-            <input class="small button" type="file" id="file-input" name="userJson">
-            <input class="small green button" type="button" value="submit" name="submit" onclick="addAprofile()">
-        </form>
-
-        Reset your choice by click
-        <form>
-            <input class="small red button" type="reset" value="reset" onclick="reinit()" />
-        </form>
-    </h2>
+        <!-- action="javascript:;" onsubmit="myFunction(this)" -->
+        <input type="file" class="small button" id="file-input" name="userJson" oninput="addAprofile()">
+        <!-- <input class="small green button" type="button" value="submit" name="submit" onclick="addAprofile()"> -->
+    </form>
+    <!-- <br> -->
+    <!-- <small>OR</small> -->
+    <form>
+        <input class="small red button" type="reset" value="reset choices" onclick="reinit()" />
+    </form>
+    <!-- <small>to reset your choice</small> -->
 
     <div class="xJSON" id="showJson" hidden="true"></div>
 
