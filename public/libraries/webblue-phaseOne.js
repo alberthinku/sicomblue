@@ -25,6 +25,7 @@ class webblue_phaseOne {
         this.connected = false;
         this.services_discovered = false;
         this.collectedData = [];
+        // this.targetServices = [];
 
         this.selected_device = null;
         this.connected_server = null;
@@ -159,7 +160,8 @@ class webblue_phaseOne {
             });
         this.parsedJsonObj.L1_Service
             .forEach(element => {
-                tmpFilter.push({ services: [element] })
+                tmpFilter.push({ services: [element] });
+                // this.targetServices.push(element);
             });
         var options = {
             filters:
@@ -629,10 +631,12 @@ class webblue_phaseOne {
 
     lockMySelectedProfile() {
         document.getElementById("mySelectedProfile").disabled = true;
+        document.getElementById("uploadForm").disabled = true;
     }//lock step.1 selection
 
     unlockMySelectedProfile() {
         document.getElementById("mySelectedProfile").disabled = false;
+        document.getElementById("uploadForm").disabled = false;
     }//lock step.1 selection
 
     connect() {
@@ -662,9 +666,12 @@ class webblue_phaseOne {
 
     discoverSvcsAndChars = function () {
         //         discoveredSvcsAndChars = [];
+        // setTimeout(function () { console.log("delay 500ms before service discover") }, 500);
         console.log("discoverSvcsAndChars server=" + this.connected_server);
         this.connected_server.getPrimaryServices()
             .then(services => {
+
+                // setTimeout(function () { console.log("delay 100ms between each service") }, 100);
 
                 this.has_selected_service = false;
 
@@ -684,35 +691,40 @@ class webblue_phaseOne {
                     this.discoveredSvcsAndChars.push({ serviceUUID });
 
 
-                    service.getCharacteristics().then(characteriscs => {
-                        console.log('> Service: ' + service.uuid);
-                        service_discovered++;
-                        var characteriscs_discovered = 0;
-                        var characterisc_count = characteriscs.length;
+                    service.getCharacteristics()
+                        .then(characteriscs => {
+                            console.log('> Service: ' + service.uuid);
+                            // setTimeout(function () { alert("delay 100ms between each Char") }, 100);
+                            service_discovered++;
+                            var characteriscs_discovered = 0;
+                            var characterisc_count = characteriscs.length;
 
-                        characteriscs.forEach(characterisc => {
-                            characteriscs_discovered++;
-                            var charUUID = characterisc.uuid;
-                            console.log('>> Characteristic: ' + charUUID);
+                            characteriscs.forEach(characterisc => {
+                                characteriscs_discovered++;
+                                var charUUID = characterisc.uuid;
+                                console.log('>> Characteristic: ' + charUUID);
 
-                            this.detected_Chars.push(characterisc);//collect all the discovered char handle
-                            this.detected_Chars_uuid.push(charUUID);
+                                this.detected_Chars.push(characterisc);//collect all the discovered char handle
+                                this.detected_Chars_uuid.push(charUUID);
 
-                            this.discoveredSvcsAndChars.push({ charUUID });
+                                this.discoveredSvcsAndChars.push({ charUUID });
 
-                            var index = this.parseObjJson_Char_uuid.indexOf(characterisc.uuid);//from parsedJson Obj, we shrink the range of selected_Char
+                                var index = this.parseObjJson_Char_uuid.indexOf(characterisc.uuid);//from parsedJson Obj, we shrink the range of selected_Char
 
-                            // if (!(index < 0)) { this.selected_Char[index] = characterisc; }
-                            if (!(index < 0)) {
-                                this.selected_Char.push(characterisc);
-                            }
+                                // if (!(index < 0)) { this.selected_Char[index] = characterisc; }
+                                if (!(index < 0)) {
+                                    this.selected_Char.push(characterisc);
+                                }
 
-                            if (service_discovered == service_count && characteriscs_discovered == characterisc_count) {
-                                console.log("FINISHED DISCOVERY");
-                                this.setDiscoveryStatus(true);
-                            }
+                                if (service_discovered == service_count && characteriscs_discovered == characterisc_count) {
+                                    console.log("FINISHED DISCOVERY");
+                                    this.setDiscoveryStatus(true);
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            console.log('error when get Chars!' + error);
                         });
-                    });
                 });
             })
             .catch(error => {

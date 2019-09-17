@@ -30,6 +30,11 @@
 <p>if you have any questions or suggestions, please feel free to leave your comments or send an email to yahui.sun@gmail.com</p>
 
 <h3>release notes:</h3>
+<p>[170919] version 1.0.2 is on with new features:</p>
+<p>1. user can use the write input box to process continuous write, Sicom tool will adapt to the long data and chunk them with appropriate GATT write action</p>
+<p>2. another try to discover the TAI devices but failed on discoveryPrimaryServices with or w/o setTimeout, seems after the navigator.bluetooth.requestDevice() options services scan, the target device changed its services list</p>
+
+
 <p>[150919] version 1.0.1 is on with new features:</p>
 <p>1. user can choose 1 of the 4 default profiles or, they could upload their own profile to the server
 <p>2. started node.js server node on heroku.com
