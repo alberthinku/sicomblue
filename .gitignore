@@ -3,6 +3,7 @@ reference
 logger.js
 person.js
 index-initback.js
+resetEnergy -- wait for actions.js
 fileupload.html
 public/pic
 

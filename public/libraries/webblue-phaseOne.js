@@ -275,9 +275,77 @@ class webblue_phaseOne {
     }
 
     getCharTextInput(uuid) {
-        var buffer = document.getElementById("TTin" + uuid).value;
+        var buffer = document.getElementById(this.UI_textInputDialogPrefix + uuid).value;
         return buffer;
     }
+
+    makeCharBufferForWrite(dataType, numberArray, strInput) {
+        let buffer = new ArrayBuffer;
+        let textencodeKey = "";
+
+        switch (dataType) {
+            case "Int16": {
+                textencodeKey = "Int16";
+                // buffer = new Int16Array([parseInt(strInput)]);
+                buffer = new Int16Array(numberArray.map(x => parseInt(x)));
+                break;
+            };
+            case "Int32": {
+                textencodeKey = "Int32";
+                // buffer = new Int16Array([parseInt(strInput)]);
+                buffer = new Int32Array(numberArray.map(x => parseInt(x)));
+                break;
+            };
+            case "Uint8": {
+                textencodeKey = "Uint8";
+                // buffer = new Uint8Array([parseInt(strInput)]);
+                buffer = new Uint8Array(numberArray.map(x => parseInt(x)));
+                break;
+            };
+            case "Int8": {
+                textencodeKey = "Int8";
+                // buffer = new Int8Array([parseInt(strInput)]);
+                buffer = new Int8Array(numberArray.map(x => parseInt(x)));
+                break;
+            };
+            case "Uint16": {
+                textencodeKey = "Uint16";
+                // buffer = new Uint16Array([parseInt(strInput)]);
+                buffer = new Uint16Array(numberArray.map(x => parseInt(x)));
+                break;
+            };
+            case "Utf8": {
+                textencodeKey = "utf-8";
+                buffer = new TextEncoder(textencodeKey).encode(strInput);
+                break;
+            }
+
+        }//Switch dataType
+
+        return buffer;
+    }
+
+    // writeAQue(characteristic, leftTries, buffer) {
+    //     // Writing 1 is the signal to reset energy expended.
+    //     //let resetEnergyExpended = Uint8Array.of(1);
+    //     // console.log("value writed");
+    //     //TODO to show accordingly
+    //     var uuid = characteristic.uuid;
+    //     var handle = document.getElementById(this.UI_labelPrefix + uuid);
+    //     handle.className = "danger";
+    //     handle.innerHTML = "Char writing>>" + uuid + "<=" + buffer;
+    //     return characteristic.writeValue(buffer.buffer)
+    //         .catch(error => {
+    //             leftTries--;
+    //             if (leftTries > 0) {
+    //                 console.log('try remaining:' + leftTries);
+    //                 // setTimeout(100);
+    //                 setTimeout(function () { writeAQue(characteristic, leftTries, buffer); }, 100);
+    //                 return
+    //             }
+    //             return Promise.reject(console.log('tries hit limited:' + error));
+    //         });
+    // }
 
     commitCharacteristicWrite(updated_Char_choice_W) {
         console.log("CharacteristicWriting");
@@ -288,78 +356,184 @@ class webblue_phaseOne {
             if (sChars == null) return;
             if ((updated_Char_choice_W.indexOf(sChars) < 0)) return;
 
-            var index = this.selected_Char.indexOf(sChars);
+            let index = this.selected_Char.indexOf(sChars);
             if ((index < 0)) return;
 
-            var dataType = this.parsedJsonObj.L2_Char_datatype[sChars.uuid];
-            var dataLength = this.parsedJsonObj.L2_Char_byteLength[sChars.uuid];
-            var byteOffset = this.parsedJsonObj.L2_Char_offset[sChars.uuid];
-            var littleEndian = this.parsedJsonObj.L2_Char_littleEndian[sChars.uuid];
-            var textencodeKey = "";
+            let dataType = this.parsedJsonObj.L2_Char_datatype[sChars.uuid];
+            let bufferDataLength = this.parsedJsonObj.L2_Char_byteLength[sChars.uuid];
 
-            var strInput = this.getCharTextInput(sChars.uuid);
-            var numberArray = strInput.split(",");
+            let dataLength = bufferDataLength;
+            if (bufferDataLength > 20) dataLength = 20;
+
+            let byteOffset = this.parsedJsonObj.L2_Char_offset[sChars.uuid];
+            let littleEndian = this.parsedJsonObj.L2_Char_littleEndian[sChars.uuid];
+            let textencodeKey = "";
+
+            let strInputBase = this.getCharTextInput(sChars.uuid);
+            let numberArrayBase = strInputBase.split(" ");
+
+            let strInput = strInputBase;
+            let numberArray = numberArrayBase;
+            let strInputRemain = strInputBase;
+            let numberArrayRemain = numberArrayBase;
+
+            let length = strInputRemain.length + numberArrayRemain.length;
+
+            // for (strInput.length+numberArray.length>0,)
 
             //TODO: should be the length overflowed, then process safely and completely the write.
+            while (length > 0) {
 
-            if (strInput.length > dataLength) strInput = strInput.substring(0, dataLength);
-            var buffer = new ArrayBuffer(1);
-            if (numberArray.length > dataLength) numberArray = numberArray.slice(0, dataLength);
+                if (strInputRemain.length > dataLength) {
+                    strInput = strInputRemain.substring(0, dataLength);//if string length is bigger than dataLength, cut it
+                    strInputRemain = strInputRemain.substring(dataLength);
+                } else {
+                    strInput = strInputRemain;
+                    strInputRemain = "";
+                }
 
-            if (dataType == "Int16") {
-                textencodeKey = "Int16";
-                // buffer = new Int16Array([parseInt(strInput)]);
-                buffer = new Int16Array(numberArray.map(x => parseInt(x)));
-            }
+                if (numberArrayRemain.length > dataLength) {
+                    numberArray = numberArrayRemain.slice(0, dataLength); //if numberArray length is bigger than dataLength, cut it
+                    numberArrayRemain = numberArrayRemain.slice(dataLength);
+                } else {
+                    numberArray = numberArrayRemain;
+                    numberArrayRemain = [];
+                }
 
-            if (dataType == "Int32") {
-                textencodeKey = "Int32";
-                // buffer = new Int16Array([parseInt(strInput)]);
-                buffer = new Int32Array(numberArray.map(x => parseInt(x)));
-            }
+                if (dataType == "Utf8") { length = strInputRemain.length; } else { length = numberArrayRemain.length; }
 
-            if (dataType == "Uint8") {
-                textencodeKey = "Uint8";
-                // buffer = new Uint8Array([parseInt(strInput)]);
-                buffer = new Uint8Array(numberArray.map(x => parseInt(x)));
-            }
+                let buffer = new ArrayBuffer(1);
+                buffer = this.makeCharBufferForWrite(dataType, numberArray, strInput);
 
-            if (dataType == "Int8") {
-                textencodeKey = "Int8";
-                // buffer = new Int8Array([parseInt(strInput)]);
-                buffer = new Int8Array(numberArray.map(x => parseInt(x)));
-            }
+                // switch (dataType) {
+                //     case "Int16": {
+                //         textencodeKey = "Int16";
+                //         // buffer = new Int16Array([parseInt(strInput)]);
+                //         buffer = new Int16Array(numberArray.map(x => parseInt(x)));
+                //         break;
+                //     };
+                //     case "Int32": {
+                //         textencodeKey = "Int32";
+                //         // buffer = new Int16Array([parseInt(strInput)]);
+                //         buffer = new Int32Array(numberArray.map(x => parseInt(x)));
+                //         break;
+                //     };
+                //     case "Uint8": {
+                //         textencodeKey = "Uint8";
+                //         // buffer = new Uint8Array([parseInt(strInput)]);
+                //         buffer = new Uint8Array(numberArray.map(x => parseInt(x)));
+                //         break;
+                //     };
+                //     case "Int8": {
+                //         textencodeKey = "Int8";
+                //         // buffer = new Int8Array([parseInt(strInput)]);
+                //         buffer = new Int8Array(numberArray.map(x => parseInt(x)));
+                //         break;
+                //     };
+                //     case "Uint16": {
+                //         textencodeKey = "Uint16";
+                //         // buffer = new Uint16Array([parseInt(strInput)]);
+                //         buffer = new Uint16Array(numberArray.map(x => parseInt(x)));
+                //         break;
+                //     };
+                //     case "Utf8": {
+                //         textencodeKey = "utf-8";
+                //         buffer = new TextEncoder(textencodeKey).encode(strInput);
+                //         break;
+                //     }
 
-            if (dataType == "Uint16") {
-                textencodeKey = "Uint16";
-                // buffer = new Uint16Array([parseInt(strInput)]);
-                buffer = new Uint16Array(numberArray.map(x => parseInt(x)));
-            }
+                // }//Switch dataType
 
-            if (dataType == "Utf8") {
-                textencodeKey = "utf-8";
-                buffer = new TextEncoder(textencodeKey).encode(strInput);
-            }
+                // if (dataType == "Int16") {
+                //     textencodeKey = "Int16";
+                //     // buffer = new Int16Array([parseInt(strInput)]);
+                //     buffer = new Int16Array(numberArray.map(x => parseInt(x)));
+                // }
 
-            console.log("writing: " + buffer.length + "bytes" + "=" + buffer);
+                // if (dataType == "Int32") {
+                //     textencodeKey = "Int32";
+                //     // buffer = new Int16Array([parseInt(strInput)]);
+                //     buffer = new Int32Array(numberArray.map(x => parseInt(x)));
+                // }
 
-            sChars.writeValue(buffer.buffer)
-                .then(_ => {
-                    console.log("value writed");
+                // if (dataType == "Uint8") {
+                //     textencodeKey = "Uint8";
+                //     // buffer = new Uint8Array([parseInt(strInput)]);
+                //     buffer = new Uint8Array(numberArray.map(x => parseInt(x)));
+                // }
+
+                // if (dataType == "Int8") {
+                //     textencodeKey = "Int8";
+                //     // buffer = new Int8Array([parseInt(strInput)]);
+                //     buffer = new Int8Array(numberArray.map(x => parseInt(x)));
+                // }
+
+                // if (dataType == "Uint16") {
+                //     textencodeKey = "Uint16";
+                //     // buffer = new Uint16Array([parseInt(strInput)]);
+                //     buffer = new Uint16Array(numberArray.map(x => parseInt(x)));
+                // }
+
+                // if (dataType == "Utf8") {
+                //     textencodeKey = "utf-8";
+                //     buffer = new TextEncoder(textencodeKey).encode(strInput);
+                // }
+
+                console.log("writing: " + buffer.length + "bytes" + "=" + buffer);
+
+                let uuid = sChars.uuid;
+                let handle = document.getElementById(this.UI_labelPrefix + uuid);
+                handle.className = "danger";
+                handle.innerHTML = "Char writing>>" + uuid + "<=" + buffer;
+
+                let writeTrys = 15;
+                writeAQue(sChars, writeTrys, buffer)
+                    .then(_ => {
+                        console.log('write processed.');
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+
+                // sChars.writeValue(buffer.buffer)
+                //     .then(_ => {
+                //         console.log("value writed");
+                //         //TODO to show accordingly
+                //         var uuid = sChars.uuid;
+                //         var handle = document.getElementById(this.UI_lablePrefix + uuid);
+                //         handle.className = "danger";
+                //         handle.innerHTML = "Char writing>>" + uuid + "<=" + buffer;
+                //     })
+                //     .catch(error => {
+                //         console.log('Error: ' + error);
+                //         alert('Error: ' + error);
+                //         return;
+                //     });
+                ///////////////////
+                // var UI_labelPrefix = this.UI_labelPrefix;
+                function writeAQue(characteristic, leftTries, buffer) {
+                    // Writing 1 is the signal to reset energy expended.
+                    //let resetEnergyExpended = Uint8Array.of(1);
+                    // console.log("value writed");
                     //TODO to show accordingly
-                    var uuid = sChars.uuid;
-                    var handle = document.getElementById(this.UI_labelPrefix + uuid);
-                    handle.className = "danger";
-                    handle.innerHTML = "Char writing>>" + uuid + "<=" + buffer;
-                })
-                .catch(error => {
-                    console.log('Error: ' + error);
-                    alert('Error: ' + error);
-                    return;
-                });
 
+                    return characteristic.writeValue(buffer.buffer)
+                        .catch(error => {
+                            leftTries--;
+                            if (leftTries > 0) {
+                                console.log('try remaining:' + leftTries);
+                                // setTimeout(100);
+                                setTimeout(function () { writeAQue(characteristic, leftTries, buffer); }, 100);
+                                return
+                            }
+                            return Promise.reject(console.log('tries hit limited:' + error));
+                        });
+                }
+                ///////////////////
+            }//while length>0
 
         });
+
 
     }
 
