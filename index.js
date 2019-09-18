@@ -80,6 +80,8 @@ const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid');
 
+var statusDeviceCount = 1;
+
 const server = http.createServer((req, res) => {
     // if (req.url === '/') {
     //     fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, content) => {
@@ -123,8 +125,10 @@ const server = http.createServer((req, res) => {
     // let filePath = path.join(__dirname, 'public', req.url === '/' ?
     //     'index.html' : req.url);
 
-    if (req.method == "POST") {
+    if (req.method == "POST" && req.url == "/uploads") {
         console.log("received POST request now!");
+        console.log("req url = ", req.url);
+        console.log("req headers = ", req.headers);
         var uploadfilename = uuid.v4() + '-' + req.headers["x-file-name"];//generate a uuid plus updated filename
 
         console.log("new X-file-name is " + uploadfilename);
@@ -223,6 +227,14 @@ const server = http.createServer((req, res) => {
 
             });
         }
+        // } else if (req.method == "GET" && req.url == "/addnodes") {
+        //     // && req.url == "/addnodes") {
+        //     console.log("req.url = ", req.url);
+        //     console.log("current nodes number is ", statusDeviceCount);
+        //     statusDeviceCount++;
+        //     addOneMoreNodes(statusDeviceCount);
+        //     res.writeHead(200, { 'Content-Type': 'text/html' });
+        //     res.end();
     } else {
         console.log(filePath);
 

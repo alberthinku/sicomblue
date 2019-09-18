@@ -3,11 +3,12 @@
 //UI checkbox : id = "CB" + uuid + "R/W/N"
 
 class refreshLayer {
-    constructor(obj) {
-        this.UI_textInputDialogPrefix = "TTin";
-        this.UI_labelPrefix = "LB";
-        this.UI_checkboxPrefix = "CB";//the UI_checkboxEndfix = "R/W/N" depending on the box
-        this.textG = document.getElementById("GATTShow");
+    constructor(obj, deviceId) {
+        this.deviceId = deviceId;
+        this.UI_textInputDialogPrefix = deviceId + "TTin";
+        this.UI_labelPrefix = deviceId + "LB";
+        this.UI_checkboxPrefix = deviceId + "CB";//the UI_checkboxEndfix = "R/W/N" depending on the box
+        this.textG = document.getElementById(deviceId + "GATTShow");
         this.textG.innerHTML = "";
         // document.getElementById
         this.L1_tagPre = "L1_Svc";
@@ -230,7 +231,7 @@ class refreshLayer {
         // }
         // else {
         checkinput.setAttribute("type", "checkbox");
-        checkinput.setAttribute("onclick", "checkBoxRWNAsst()");
+        checkinput.setAttribute("onclick", "checkBoxRWNAsst(" + tag.slice(0, 1) + ")");
         // checkinput.setAttribute("checked", "checked");
         // }
 
