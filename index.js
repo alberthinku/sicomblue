@@ -80,7 +80,12 @@ const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid');
 
-var statusDeviceCount = 1;
+var remoteIP = [];
+// fs.readFile(path.join(__dirname, 'public', 'remoteIP.store'), (content, err) => {
+//     if (err) console.log(err);
+//     console.log(content);
+//     remoteIP = content.toString('utf8').split(',');
+// });
 
 const server = http.createServer((req, res) => {
     // if (req.url === '/') {
@@ -106,11 +111,25 @@ const server = http.createServer((req, res) => {
     //Build file path
     let filename = req.url;
     switch (req.url) {
-        case "/": filename = "index.html"; break;
+        case "/": {
+            filename = "index.html";
+            // let rIP = req.headers['x-forwarded-for'];
+            let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+            let time = Date.now();
+            remoteIP.push(ip + ">" + time);
+            console.log("remoteIP is", ip, "at", time);
+            fs.writeFile(path.join(__dirname, 'public', 'remoteIP.store'), remoteIP, (err) => { if (err) throw err; });
+
+            break;
+        }
         case "/upload": filename = "uploads/uploaded.json"; break;
+        case "/remoteIP": filename = "remoteIP.store"; break;
         case "/about": filename = "about.html"; break;
         case "/help": filename = "help.html"; break;
-        // filename = req.url;
+
     }
 
     // if (req.url === '/') {

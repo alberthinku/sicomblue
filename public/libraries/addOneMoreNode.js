@@ -90,6 +90,7 @@ function addOneMoreNode(nodeCount) {
     oneMoreActionButton.setAttribute("id", "btn_notify" + nodeCount);
     oneMoreActionButton.setAttribute("class", "small button");
     oneMoreActionButton.setAttribute("onclick", "processAllCharSelections(deviceNo['" + nodeCount + "'])");
+    oneMoreActionButton.setAttribute("disabled", "true");
     oneMoreActionButton.append("ProcessAllCharSelections");
 
     step3AllAction.appendChild(oneMoreActionButton);//add oneMoreButton to btnScanButton as a child

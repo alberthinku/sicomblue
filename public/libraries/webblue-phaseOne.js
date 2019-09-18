@@ -15,6 +15,7 @@ class webblue_phaseOne {
         this.mySelectedProfile = 'mySelectedProfile' + this.name;
         this.uploadForm = 'uploadForm' + this.name;
         this.fileinput = 'file-input' + this.name;
+        this.buttonProcessAll = 'btn_notify' + this.name;
 
         this.device_name = 'NaN';
         this.btn_scan = 'btn_scan' + this.name;
@@ -637,12 +638,14 @@ class webblue_phaseOne {
         document.getElementById(this.mySelectedProfile).disabled = true;
         document.getElementById(this.uploadForm).disabled = true;
         document.getElementById(this.fileinput).disabled = true;
+        document.getElementById(this.buttonProcessAll).disabled = false;
     }//lock step.1 selection
 
     unlockMySelectedProfile() {
         document.getElementById(this.mySelectedProfile).disabled = false;
         document.getElementById(this.uploadForm).disabled = false;
         document.getElementById(this.fileinput).disabled = false;
+        document.getElementById(this.buttonProcessAll).disabled = true;
     }//lock step.1 selection
 
     connect() {
