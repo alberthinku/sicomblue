@@ -81,6 +81,7 @@ function addOneMoreNode(nodeCount) {
     oneMoreButton.setAttribute("id", "btn_scan" + nodeCount);
     oneMoreButton.setAttribute("class", "small button");
     oneMoreButton.setAttribute("onclick", "deviceDiscoverOrDisconnectCall(deviceNo['" + nodeCount + "'])");
+    oneMoreButton.setAttribute("disabled", true);
     oneMoreButton.append("discoverDevices");
 
     btnScanButton.appendChild(oneMoreButton);//add oneMoreButton to btnScanButton as a child
@@ -107,7 +108,7 @@ function addOneMoreNode(nodeCount) {
     let step3FinalShow = document.getElementById("step3FinalShow");
     let oneMoreGattShow = document.createElement("span");
     oneMoreGattShow.setAttribute("id", nodeCount + "GATTShow");
-
+    oneMoreGattShow.setAttribute("disabled", true);
     step3FinalShow.appendChild(oneMoreGattShow);
 
 

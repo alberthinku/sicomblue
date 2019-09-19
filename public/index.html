@@ -160,7 +160,7 @@
                             <option value="" selected="selected" disabled="true"></option>
                             <option value="BBC_Microbit">BBC Microbit</option>
                             <option value="ST_BLUEST">ST BLUEST</option>
-                            <option value="ST_BLUEST_full">ST BLUEST_f</option>
+                            <option value="ST_BLUEST_full">ST BLUEST_full</option>
                             <option value="ST_BlueNRG">ST BlueNRG</option>
                         </select>
                         <!-- Take a look at <a href=deviceNo_1.realname target="_blank">profile details</a> -->
@@ -216,8 +216,8 @@
 
     <h2>Step.2 Device Discovery and Connection</h2>
     <span id="btnScanButton">
-        <button class="small button" id="btn_scan1"
-            onclick="deviceDiscoverOrDisconnectCall(deviceNo['1'])">discoverDevices</button>
+        <button class="small button" id="btn_scan1" onclick="deviceDiscoverOrDisconnectCall(deviceNo['1'])"
+            disabled="true">discoverDevices</button>
     </span>
     <hr>
     <h2>Step.3 Customize your choices and run!</h2>
@@ -232,7 +232,7 @@
     </span>
 
     <label id="step3FinalShow">
-        <span id="1GATTShow"></span>
+        <span id="1GATTShow" disabled="true"></span>
 
     </label>
     <!-- <button class="container" id="btn_refresh" onclick="confirmAct()">Confirm!</button> -->
@@ -257,6 +257,14 @@
 
         // }
         function removeOneMoreNode(nodeCount) {
+            if (!(deviceNo[nodeCount] == undefined)) {
+
+                deviceNo[nodeCount].statusInit();
+                deviceNo[nodeCount] = undefined;
+                myWindow[nodeCount] = undefined;
+
+            }
+
             if (nodeCount > 0) {
                 document.getElementById("statusLine" + nodeCount).remove();
                 document.getElementById("btn_scan" + nodeCount).remove();
@@ -266,6 +274,7 @@
             }
             else { alert("no nodes exist!"); deviceCount = 0; }
         }
+
         function addAprofile(fileinputId) {
             console.log("adding a new Json profile!");
             var files = document.getElementById(fileinputId).files;
@@ -344,7 +353,7 @@
         }
         function processAllCharSelections(device) {
             console.log("processingAllCharSelections:", device.name)
-            myWindow[device.name].refreshSelf(device);
+            myWindow[device.name].refreshSelf(device, false);
             device.commitCharActions(true, [], [], []);
         }
 
@@ -368,7 +377,7 @@
                 device.statusInit();
                 document.getElementById("profileSelectForm" + device.name).reset();
                 document.getElementById("uploadForm" + device.name).reset();
-                // document.getElementById("btn_scan" + device.name).innerHTML = "";
+                document.getElementById("btn_scan" + device.name).disabled = true;
                 document.getElementById("showJson" + device.name).innerHTML = "";
                 // document.getElementById("btn_notify" + device.name).innerHTML = "";
                 // document.getElementById("chardatanotification" + device.name).innerHTML = "";
@@ -379,13 +388,6 @@
 
             deviceNo = [];
             myWindow = [];
-            // deviceNo['1'].statusInit();
-            // document.getElementById("profileSelectForm1").reset();
-            // document.getElementById("uploadForm1").reset();
-            // deviceNo['1'] = undefined;
-            // myWindow = null;
-            // chardatanotification1.innerHTML = "";
-            // document.getElementById("")
         }
 
         function mySelectedProfile(dirFix, deviceId) {
@@ -412,7 +414,7 @@
                         if (myObj == null) { alert('wrong profile type uploaded, please reselect!'); reinit(); return -1 }
                         document.getElementById("showJson" + deviceId).innerHTML = JSON.stringify(myObj);
                         myWindow[deviceId] = new refreshLayer(deviceNo[deviceId].makeObjJson(myObj), deviceId);///refresh deviceId
-                        myWindow[deviceId].refreshSelf(deviceNo[deviceId]);
+                        myWindow[deviceId].refreshSelf(deviceNo[deviceId], false);
                         xmlhttp.abort();
                     } else {
                         console.log("new work request for .json failed with respone " + xmlhttp.status + ": " + xmlhttp.statusText);
@@ -446,7 +448,7 @@
 
     <script>
         checkBoxRWNAsst = function (deviceId) {
-            myWindow[deviceId].refreshSelf(deviceNo[deviceId]);
+            myWindow[deviceId].refreshSelf(deviceNo[deviceId], true);
         }
 
         checkBoxImmyActAsst = function (tag) {

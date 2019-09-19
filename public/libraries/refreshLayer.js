@@ -13,6 +13,7 @@ class refreshLayer {
         // document.getElementById
         this.L1_tagPre = "L1_Svc";
         this.L2_tagPre = "L2_Chr";
+        this.L1_refreshed = false;
         if (!(obj == null)) {
             this.obj = obj;
             //obj is the parsedJson which contains fully info of the profile!
@@ -32,21 +33,28 @@ class refreshLayer {
     }
 
     L1_Service_refresh(dev, obj) {
-        // if (this.L1_Service_Status[0].checked) console.log("read!");
-        // this.textGATT.appendChild(this.L1_Service_Status[0]);
-        var status = false;
-        // for (var i = 0; i < this.L1_Service_Status.length; i++) {
-        //     status = document.getElementById(this.L1_tagPre + i + "ckbox_R").checked;
-        //     if (status) console.log("Service " + obj.L1_Service_name[i] + ">reading");
-        //     status = document.getElementById(this.L1_tagPre + i + "ckbox_W").checked;
-        //     if (status) console.log("Service " + obj.L1_Service_name[i] + ">writing");
-        //     status = document.getElementById(this.L1_tagPre + i + "ckbox_N").checked;
-        //     if (status) console.log("Service " + obj.L1_Service_name[i] + ">notifying");
 
-        // }
+        this.L1_refreshed = true;
+
+        obj.L1_Service.forEach(uuid => {
+            let index = dev.selected_Service.indexOf(uuid);
+            if (index < 0) {
+                let Srv_dev_UUID_span = document.getElementById("Service" + this.deviceId + uuid);
+                Srv_dev_UUID_span.remove();
+            }
+        });
+
+        dev.selected_Char.forEach(selected_C => {
+            let uuid_Srv = selected_C.service.uuid;
+            let uuid_Char = selected_C.uuid;
+            let Char_dev_UUID_span = document.getElementById("Char" + this.deviceId + uuid_Char);
+            let Srv_dev_UUID_span = document.getElementById("Service" + this.deviceId + uuid_Srv);
+            Srv_dev_UUID_span.appendChild(Char_dev_UUID_span);//put the related Char under its Service
+        });
 
         //TODO service connection status check
     }
+
     L2_Char_outputRestore(name, uuid) {
         var outputRestore = ">>Char name - " + name + " > UUID : " + uuid;
         var handle = document.getElementById(this.UI_labelPrefix + uuid);
@@ -70,24 +78,23 @@ class refreshLayer {
             if (this.Listed_L2_Char[i]) {
                 try {
 
-                    var uuid = obj.L2_Char[i];//comparing each L2 char UUID
+                    let uuid = obj.L2_Char[i];//comparing each L2 char UUID
 
-                    var name = obj.L2_Char_name[i];
+                    let name = obj.L2_Char_name[i];
                     this.L2_Char_outputRestore(name, uuid);
 
-                    var index = tmp_selected_Char_uuid.indexOf(uuid);
+                    let index = tmp_selected_Char_uuid.indexOf(uuid);
 
                     if (!(index < 0)) {
-                        var selected_C = dev.selected_Char[index];
+                        let selected_C = dev.selected_Char[index];
                         if (!(selected_C == null)) {
                             //sometime discovery service will put empty char in the array
+                            let selected_Char_properties = selected_C.properties;
 
-                            var selected_Char_properties = selected_C.properties;
-
-                            var tagCB = this.UI_checkboxPrefix + uuid;// the tagCB should seach each of the each L2 uuid and comparing it with selected_C
+                            let tagCB = this.UI_checkboxPrefix + uuid;// the tagCB should seach each of the each L2 uuid and comparing it with selected_C
 
                             status = document.getElementById(tagCB + "ckbox_R");
-                            var statusback = document.getElementById(tagCB + "ckbox_R" + "backbutton");
+                            let statusback = document.getElementById(tagCB + "ckbox_R" + "backbutton");
 
                             if (status.checked && selected_Char_properties.read) {
                                 console.log("Char " + obj.L2_Char_name[i] + ">reading");
@@ -98,6 +105,7 @@ class refreshLayer {
                                 status.checked = false;
                                 status.disabled = true;
                                 statusback.disabled = true;
+
                             }
                             // status.disabled = !(selected_Char_properties.read);//disable the checkbox if not in the selected_Char_properties.read
 
@@ -116,6 +124,7 @@ class refreshLayer {
                                 status.checked = false;
                                 status.disabled = true;
                                 statusback.disabled = true;
+
                             }
                             else {
                                 document.getElementById(this.UI_textInputDialogPrefix + selected_C.uuid).disabled = true;
@@ -135,8 +144,8 @@ class refreshLayer {
                                 status.checked = false;
                                 status.disabled = true;
                                 statusback.disabled = true;
+
                             }
-                            // status.disabled = !(selected_Char_properties.notify);//disable the checkbox if not in the selected_Char_properties.notify
 
                         }
                         else {
@@ -150,7 +159,6 @@ class refreshLayer {
                 catch (error) {
                     console.log(error);
                     alert(error);
-                    // this.RWN_boxclear(i);
                 }//catch
 
             }//if
@@ -163,7 +171,7 @@ class refreshLayer {
     }
 
     RWN_textinputplacement(tagName, element, inputDatatype) {
-        var textinputW = document.createElement("input");
+        let textinputW = document.createElement("input");
         textinputW.setAttribute("id", tagName);
         textinputW.setAttribute("type", "text");
         textinputW.setAttribute("class", "small button");
@@ -175,7 +183,7 @@ class refreshLayer {
 
     RWN_boxclear = function (i, uuid) {
 
-        var tagCB = this.UI_checkboxPrefix + uuid;
+        let tagCB = this.UI_checkboxPrefix + uuid;
 
         this.Listed_L2_Char[i] = false;
 
@@ -193,11 +201,16 @@ class refreshLayer {
 
         var tag_RWN_textinput = this.UI_textInputDialogPrefix + uuid;//this.L2_tagPre + i.toString() + "text";
         document.getElementById(tag_RWN_textinput).disabled = true;
+
+        let id = "Char" + this.deviceId + uuid;
+        document.getElementById(id).remove();
+
     }
 
-    refreshSelf = function (connected_dev) {
+    refreshSelf = function (connected_dev, needL1refresh) {
+        //if needL1refresh = true, L1 refresh will be processed, otherwise will not
+        if (!this.L1_refreshed && needL1refresh) this.L1_Service_refresh(connected_dev, this.obj);
         if (connected_dev.has_selected_service) {
-            this.L1_Service_refresh(connected_dev, this.obj);
             this.L2_Char_refresh(connected_dev, this.obj);
         }
         else {
@@ -218,13 +231,17 @@ class refreshLayer {
     }
 
     RWN_placement(RWNlable, tag) {
-        var newLable = document.createElement("lable");
+        //tag = this.UIcheckBoxprefix + uuid + ckbx123 = [deviceID] + "CB" + [uuid] + "1234567";
+        let Char_dev_UUID_span = document.getElementById('Char' + this.deviceId + tag.slice(-43, -7));
+
+        let newLable = document.createElement("lable");
         newLable.setAttribute("class", "container");
 
-        var checkinput = document.createElement("input");
+        let checkinput = document.createElement("input");
         checkinput.setAttribute("class", "small button");
         checkinput.setAttribute("name", RWNlable);
         checkinput.setAttribute("id", tag);
+        checkinput.setAttribute("disabled", true);//disable it when created
         // if (RWNlable == "ActImmy") {
         //     checkinput.setAttribute("type", "button");
         //     checkinput.setAttribute("onclick", "checkBoxImmyActAsst()");
@@ -235,25 +252,30 @@ class refreshLayer {
         // checkinput.setAttribute("checked", "checked");
         // }
 
-        var tmp = document.createElement("button");
+        let tmp = document.createElement("button");
         tmp.setAttribute("class", "small blue button");
         tmp.setAttribute("id", tag + "backbutton");
+        // tmp.setAttribute("disabled", true);
 
-        var strRWN = RWNlable + " ";
+        let strRWN = RWNlable + " ";
         tmp.append(strRWN);
 
         tmp.appendChild(checkinput);
         newLable.appendChild(tmp);
 
-        this.textGATT.appendChild(newLable);
+        // this.textGATT.appendChild(newLable);
+        Char_dev_UUID_span.appendChild(newLable);
 
     }
 
     RWN_ActImmyPlacement(RWNlable, tag) {
-        var newLable = document.createElement("lable");
+        //tag is coming from the this.UI_checkboxprefix+uuid
+        let Char_dev_UUID_span = document.getElementById('Char' + this.deviceId + tag.slice(-36));
+
+        let newLable = document.createElement("lable");
         newLable.setAttribute("class", "container");
 
-        var checkinput = document.createElement("button");
+        let checkinput = document.createElement("button");
 
         checkinput.setAttribute("class", "small button");
         checkinput.setAttribute("name", RWNlable);
@@ -262,20 +284,22 @@ class refreshLayer {
         checkinput.setAttribute("type", "button");
         checkinput.setAttribute("onclick", "checkBoxImmyActAsst('" + tag + "')");
 
-        var tmp = document.createElement("text");
+        let tmp = document.createElement("text");
         // // tmp.setAttribute("class", "checkmark");
 
-        var strRWN = RWNlable;
+        let strRWN = RWNlable;
         tmp.append(strRWN);
 
         newLable.appendChild(checkinput);
         checkinput.appendChild(tmp);
 
-        this.textGATT.appendChild(newLable);
+        // this.textGATT.appendChild(newLable);
+        Char_dev_UUID_span.appendChild(newLable);
 
     }
 
     RWN_checkbox = function (RWN_tag) {
+        //RWN_tag = this.UIcheckboxprefix + uuid
         this.RWN_placement("N", RWN_tag + "ckbox_N");
         this.RWN_placement("R", RWN_tag + "ckbox_R");
         this.RWN_placement("W", RWN_tag + "ckbox_W");
@@ -285,6 +309,10 @@ class refreshLayer {
 
     L1_Service_Show(subj, subj_name) {
         for (var i in subj) {
+            let Srv_dev_UUID_span = document.createElement("span");
+            Srv_dev_UUID_span.setAttribute("id", "Service" + this.deviceId + subj[i])
+            this.textGATT.appendChild(Srv_dev_UUID_span);
+
             var newLable = document.createElement("lable");
             newLable.setAttribute("id", this.UI_labelPrefix + subj[i]);
             newLable.setAttribute("name", subj_name[i]);
@@ -296,25 +324,31 @@ class refreshLayer {
             // L1_Service_info.
             newLable.insertAdjacentText("beforeend", L1_Service_info);
 
-            this.textGATT.appendChild(newLable);
+            // this.textGATT.appendChild(newLable);
+            Srv_dev_UUID_span.appendChild(newLable);
 
             this.L1_Service_Status.push(L1_Service_info);
 
             // var L1_tag = document.createElement("");
             var line = document.createElement("br");
-            this.textGATT.appendChild(line);//Display the line
+            // this.textGATT.appendChild(line);//Display the line
+            Srv_dev_UUID_span.appendChild(line);
         }
     }
 
     L2_Char_Show(subj, subj_name) {
-        for (var i in subj) {
+        for (let i in subj) {
+            let Char_dev_UUID_span = document.createElement("span");
+            Char_dev_UUID_span.setAttribute("id", "Char" + this.deviceId + subj[i]);
+            this.textGATT.appendChild(Char_dev_UUID_span);
 
             var tag_RWN_textinput = this.UI_textInputDialogPrefix + subj[i];
             //this.L2_tagPre + i.toString() + "text";
             var L2_Char_inputDatatype = this.obj.L2_Char_datatype[subj[i]];
 
             //textInputinterface
-            this.RWN_textinputplacement(tag_RWN_textinput, this.textGATT, L2_Char_inputDatatype);
+            // this.RWN_textinputplacement(tag_RWN_textinput, this.textGATT, L2_Char_inputDatatype);
+            this.RWN_textinputplacement(tag_RWN_textinput, Char_dev_UUID_span, L2_Char_inputDatatype);
 
             this.RWN_checkbox(this.UI_checkboxPrefix + subj[i]);
             // this.L2_tagPre + i.toString()
@@ -328,11 +362,12 @@ class refreshLayer {
             newLable.setAttribute("class", "label info");
             var L2_Char_info = ">>Char name - " + subj_name[i] + " > UUID : " + subj[i];
             newLable.insertAdjacentText("beforeend", L2_Char_info);
-            this.textGATT.appendChild(newLable);
+            // this.textGATT.appendChild(newLable);
+            Char_dev_UUID_span.appendChild(newLable);
 
             var line = document.createElement("br");
-            this.textGATT.appendChild(line);
-
+            // this.textGATT.appendChild(line);
+            Char_dev_UUID_span.appendChild(line);
 
         }
     }

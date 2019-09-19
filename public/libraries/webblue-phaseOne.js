@@ -16,6 +16,8 @@ class webblue_phaseOne {
         this.uploadForm = 'uploadForm' + this.name;
         this.fileinput = 'file-input' + this.name;
         this.buttonProcessAll = 'btn_notify' + this.name;
+        this.buttonDiscover = 'btn_scan' + this.name;
+        this.GattShow = this.name + 'GATTShow';
 
         this.device_name = 'NaN';
         this.btn_scan = 'btn_scan' + this.name;
@@ -41,6 +43,9 @@ class webblue_phaseOne {
         this.detected_Chars_uuid = [];//will collect all the detected uuid in chars' discovery sequence.
         this.selected_Service_uuid = "";
 
+        this.parseObjJson_Service_uuid = [];//the service uuid collection of the user inputed profile
+        this.selected_Service = [];//the collection after matching discovered service with parseObjJson_service_uuid
+
         this.parseObjJson_Char_uuid = [];//should collect all the characteristic uuid, note this uuid list comes from parsedJsonObj file, it not matching to selected_Char after the discovery process!
 
         this.selected_Char = []; //should collect all the selected characteristic handle
@@ -51,6 +56,7 @@ class webblue_phaseOne {
 
         this.has_selected_service = false;
         this.has_selected_Char = false;
+        document.getElementById(this.buttonDiscover).disabled = false;
         this.statusInit();
 
     }//webblue_phaseOne constructor
@@ -95,8 +101,13 @@ class webblue_phaseOne {
 
         if (index > -1) {
             this.selected_Service_uuid = this.scanObj.Service[0].UUID;//note this Service[0] stored the only services array matched by prefix name, as we put name options in same prefix array instead of split
+
+            for (let sel in this.scanObj.Service) {
+                this.parseObjJson_Service_uuid.push(this.scanObj.Service[sel].UUID);
+            }
             //TODO may need to think about a better way to match the prefix and services.//TODO
-            for (var sel in this.scanObj.Char) {
+
+            for (let sel in this.scanObj.Char) {
                 this.parseObjJson_Char_uuid.push(this.scanObj.Char[sel].UUID);
             }
         }
@@ -638,7 +649,14 @@ class webblue_phaseOne {
         document.getElementById(this.mySelectedProfile).disabled = true;
         document.getElementById(this.uploadForm).disabled = true;
         document.getElementById(this.fileinput).disabled = true;
+
         document.getElementById(this.buttonProcessAll).disabled = false;
+        let spanL2 = document.getElementById(this.GattShow);
+        let elements = spanL2.getElementsByTagName("*");
+        for (let i = 0, len = elements.length; i < len; ++i) {
+            if (elements[i].type == "checkbox") elements[i].disabled = false;
+        }
+        // elements.forEach(element => { element.readOnly = false; });
     }//lock step.1 selection
 
     unlockMySelectedProfile() {
@@ -646,6 +664,14 @@ class webblue_phaseOne {
         document.getElementById(this.uploadForm).disabled = false;
         document.getElementById(this.fileinput).disabled = false;
         document.getElementById(this.buttonProcessAll).disabled = true;
+        let spanL2 = document.getElementById(this.GattShow);
+        let elements = spanL2.getElementsByTagName("*");
+
+        for (let i = 0, len = elements.length; i < len; ++i) {
+            if (elements[i].type == "checkbox") elements[i].disabled = true;
+        }
+        // elements.forEach(element => { element.readOnly = true; });
+
     }//lock step.1 selection
 
     connect() {
@@ -690,7 +716,13 @@ class webblue_phaseOne {
 
                 services.forEach(service => {
                     var serviceUUID = service.uuid;
-                    if (serviceUUID == this.selected_Service_uuid) {
+                    // if (serviceUUID == this.selected_Service_uuid) {
+                    //     this.has_selected_service = true;
+                    // }
+
+                    let indexService = this.parseObjJson_Service_uuid.indexOf(serviceUUID);//from parsedJson Obj, we shrink the range of selected_Service
+                    if (!(indexService < 0)) {
+                        this.selected_Service.push(serviceUUID);//profile selected service has been discovered!
                         this.has_selected_service = true;
                     }
 
