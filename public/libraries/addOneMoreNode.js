@@ -1,6 +1,15 @@
 function addOneMoreNode(nodeCount) {
 
-    if (nodeCount > nodeMax) { alert("out of number!"); deviceCount = nodeMax; return }
+    document.getElementById("minusNode").disabled = false;
+
+    if (nodeCount > nodeMax) {
+        alert("out of number!");
+        deviceCount = nodeMax;
+        return
+    } else if (nodeCount == nodeMax) {
+        document.getElementById("addNode").disabled = true;
+    }
+
     console.log("add one more node!");
     let statusTable = document.getElementById("statusTbody");
     let oneMoreLine = document.createElement("tr");
@@ -106,9 +115,12 @@ function addOneMoreNode(nodeCount) {
 
 
     let step3FinalShow = document.getElementById("step3FinalShow");
+    // let addOneMoreLine = document.createElement("hr");
+    // step3FinalShow.appendChild(addOneMoreLine);
     let oneMoreGattShow = document.createElement("span");
     oneMoreGattShow.setAttribute("id", nodeCount + "GATTShow");
     oneMoreGattShow.setAttribute("disabled", true);
+    // oneMoreGattShow.append("device_no.", nodeCount);
     step3FinalShow.appendChild(oneMoreGattShow);
 
 

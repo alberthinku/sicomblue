@@ -180,9 +180,9 @@
         </tbody>
     </table>
     <form>
-        <input class="small button" type="button" value="+Node" name="+oneMoreLine"
+        <input class="small button" id="addNode" type="button" value="+Node" name="+oneMoreLine"
             onclick="addOneMoreNode(++deviceCount)">
-        <input class="small red button" type="button" value="-Node" name="+oneMoreLine"
+        <input class="small red button" id="minusNode" type="button" value="-Node" name="+oneMoreLine"
             onclick="removeOneMoreNode(deviceCount--)">
     </form>
     <!-- <h2>Step.1 select profile you wanted to connect.</h2> -->
@@ -272,7 +272,11 @@
                 document.getElementById("chardatanotification" + nodeCount).remove();
                 document.getElementById(nodeCount + "GATTShow").remove();
             }
-            else { alert("no nodes exist!"); deviceCount = 0; }
+            else {
+                alert("no nodes exist!"); deviceCount = 0;
+            }
+            if (nodeCount == 1) { document.getElementById("minusNode").disabled = true; }
+            document.getElementById("addNode").disabled = false;
         }
 
         function addAprofile(fileinputId) {
@@ -372,8 +376,13 @@
         // }
 
         function reinit() {
+
+            if (deviceNo == []) return;
+
             let dev = deviceNo.slice(1); //deviceNo[0] = empty, so cut it off
+
             dev.forEach(device => {
+                if (device == undefined) return;
                 device.statusInit();
                 document.getElementById("profileSelectForm" + device.name).reset();
                 document.getElementById("uploadForm" + device.name).reset();
@@ -452,9 +461,9 @@
         }
 
         checkBoxImmyActAsst = function (tag) {
-            let uuid = tag.slice(3);//tag = [deviceId]+["CB"]+uuid
-            console.log(uuid);
-            let deviceId = tag.slice(0, 1);
+            let uuid = tag.slice(-36);//tag = [deviceId]+[">CB"]+uuid
+            // console.log(uuid);
+            let deviceId = tag.split(">", 1);
             if (deviceNo[deviceId] == null) return;
             deviceNo[deviceId].commitCharActionsImmy(uuid);
         }

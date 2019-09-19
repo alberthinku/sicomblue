@@ -5,9 +5,9 @@
 class refreshLayer {
     constructor(obj, deviceId) {
         this.deviceId = deviceId;
-        this.UI_textInputDialogPrefix = deviceId + "TTin";
-        this.UI_labelPrefix = deviceId + "LB";
-        this.UI_checkboxPrefix = deviceId + "CB";//the UI_checkboxEndfix = "R/W/N" depending on the box
+        this.UI_textInputDialogPrefix = deviceId + ">TTin";
+        this.UI_labelPrefix = deviceId + ">LB";
+        this.UI_checkboxPrefix = deviceId + ">CB";//the UI_checkboxEndfix = "R/W/N" depending on the box
         this.textG = document.getElementById(deviceId + "GATTShow");
         this.textG.innerHTML = "";
         // document.getElementById
@@ -248,7 +248,8 @@ class refreshLayer {
         // }
         // else {
         checkinput.setAttribute("type", "checkbox");
-        checkinput.setAttribute("onclick", "checkBoxRWNAsst(" + tag.slice(0, 1) + ")");
+        // checkinput.setAttribute("onclick", "checkBoxRWNAsst(" + tag.slice(0, 1) + ")");
+        checkinput.setAttribute("onclick", "checkBoxRWNAsst(" + tag.split(">", 1) + ")");
         // checkinput.setAttribute("checked", "checked");
         // }
 
@@ -319,7 +320,7 @@ class refreshLayer {
             newLable.setAttribute("class", "label warning");
 
             var L1_Service_info = "";
-            L1_Service_info = "Service Name - " + subj_name[i] + " > UUID : " + subj[i];
+            L1_Service_info = "#" + this.deviceId + ": Service Name - " + subj_name[i] + " > UUID : " + subj[i];
 
             // L1_Service_info.
             newLable.insertAdjacentText("beforeend", L1_Service_info);

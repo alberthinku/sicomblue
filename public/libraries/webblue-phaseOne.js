@@ -23,9 +23,9 @@ class webblue_phaseOne {
         this.btn_scan = 'btn_scan' + this.name;
         this.discoveredSvcsAndChars = [];
 
-        this.UI_textInputDialogPrefix = this.name + "TTin";
-        this.UI_labelPrefix = this.name + "LB";
-        this.UI_checkboxPrefix = this.name + "CB";//the UI_checkboxEndfix = "R/W/N" depending on the box
+        this.UI_textInputDialogPrefix = this.name + ">TTin";
+        this.UI_labelPrefix = this.name + ">LB";
+        this.UI_checkboxPrefix = this.name + ">CB";//the UI_checkboxEndfix = "R/W/N" depending on the box
 
         this.parsedJsonObj = new parseJson(null);
 
@@ -68,6 +68,10 @@ class webblue_phaseOne {
             this.selected_device.gatt.disconnect();
             this.unlockMySelectedProfile();
         }//if device is connected, then disconnect it
+
+        // if (this.service_discovered){
+        //     this.unlock();
+        // }
 
         this.resetUI();
         // document.getElementById(this.status_connected).innerHTML = "false";
@@ -150,6 +154,7 @@ class webblue_phaseOne {
 
     setDiscoveryStatus(status) {
         this.has_selected_service = status;
+        // if (status) this.unlockMyActionStep3();
         document.getElementById(this.status_discovered).innerHTML = status;
     }//setDiscoveryStatus
 
@@ -651,11 +656,7 @@ class webblue_phaseOne {
         document.getElementById(this.fileinput).disabled = true;
 
         document.getElementById(this.buttonProcessAll).disabled = false;
-        let spanL2 = document.getElementById(this.GattShow);
-        let elements = spanL2.getElementsByTagName("*");
-        for (let i = 0, len = elements.length; i < len; ++i) {
-            if (elements[i].type == "checkbox") elements[i].disabled = false;
-        }
+
         // elements.forEach(element => { element.readOnly = false; });
     }//lock step.1 selection
 
@@ -666,13 +667,20 @@ class webblue_phaseOne {
         document.getElementById(this.buttonProcessAll).disabled = true;
         let spanL2 = document.getElementById(this.GattShow);
         let elements = spanL2.getElementsByTagName("*");
-
         for (let i = 0, len = elements.length; i < len; ++i) {
             if (elements[i].type == "checkbox") elements[i].disabled = true;
         }
         // elements.forEach(element => { element.readOnly = true; });
 
     }//lock step.1 selection
+
+    unlockMyActionStep3() {
+        let spanL2 = document.getElementById(this.GattShow);
+        let elements = spanL2.getElementsByTagName("*");
+        for (let i = 0, len = elements.length; i < len; ++i) {
+            if (elements[i].type == "checkbox") elements[i].disabled = false;
+        }
+    }
 
     connect() {
         if (this.connected == false) {
@@ -760,6 +768,7 @@ class webblue_phaseOne {
                                 if (service_discovered == service_count && characteriscs_discovered == characterisc_count) {
                                     console.log("FINISHED DISCOVERY");
                                     this.setDiscoveryStatus(true);
+                                    this.unlockMyActionStep3();
                                 }
                             });
                         })
