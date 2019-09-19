@@ -30,6 +30,11 @@
 <p>if you have any questions or suggestions, please feel free to leave your comments or send an email to yahui.sun@gmail.com</p>
 
 <h3>release notes:</h3>
+<p>[190919] version 1.1.1 is on with new features:</p>
+<p>1. matching the service and char and regrouped them after discovery process</p>
+<p>2. filter out the unavailable char or services when finished discovery process</p>
+<p>3. improved ui, for lock and unlock to prevent unexpected input resulting crash</p>
+
 <p>[180919] version 1.1.0 is on with new features:</p>
 <p>1. enabled multi nodes (upto 3 right now) to be connected simutenously</p>
 <p>2. improved ui so that multi nodes display and action much more easier</p>

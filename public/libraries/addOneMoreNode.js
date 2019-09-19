@@ -60,7 +60,7 @@ function addOneMoreNode(nodeCount) {
     lineBoxSelectProfileOptionBlueSTfull.append("ST BlueST_full");
     let lineBoxSelectProfileOptionBlueNRG = document.createElement("option");
     lineBoxSelectProfile.appendChild(lineBoxSelectProfileOptionBlueNRG);//append profileOption as child of profile
-    lineBoxSelectProfileOptionBlueNRG.setAttribute("value", "ST_BLUENRG");
+    lineBoxSelectProfileOptionBlueNRG.setAttribute("value", "ST_BlueNRG");
     lineBoxSelectProfileOptionBlueNRG.append("ST BlueNRG");
 
     let lineBoxUploadProfileTd = document.createElement("td"); //start to draw the upload profile form
