@@ -79,6 +79,7 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid');
+const moment = require('moment');
 
 var remoteIP = [];
 // fs.readFile(path.join(__dirname, 'public', 'remoteIP.store'), (content, err) => {
@@ -114,15 +115,6 @@ const server = http.createServer((req, res) => {
         case "/": {
             filename = "index.html";
             // let rIP = req.headers['x-forwarded-for'];
-            let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||
-                req.connection.remoteAddress ||
-                req.socket.remoteAddress ||
-                req.connection.socket.remoteAddress;
-            let time = Date.now();
-            remoteIP.push(ip + ">" + time);
-            console.log("remoteIP is", ip, "at", time);
-            fs.writeFile(path.join(__dirname, 'public', 'remoteIP.store'), remoteIP, (err) => { if (err) throw err; });
-
             break;
         }
         case "/upload": filename = "uploads/uploaded.json"; break;
@@ -279,6 +271,28 @@ const server = http.createServer((req, res) => {
             case '.jpg':
                 contentType = 'img/jpg';
                 break;
+            case '.store':
+                {
+                    contentType = 'text/plain';
+                    let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||
+                        req.connection.remoteAddress ||
+                        req.socket.remoteAddress ||
+                        req.connection.socket.remoteAddress;
+                    let time = moment().format(moment.defaultFormat);
+                    remoteIP = ip + "-AT-" + time;
+                    let content = fs.readFileSync(path.join(__dirname, 'public', 'remoteIP.store'), "utf8");
+                    let contentArray = content.split(',')
+                    console.log("remoteIP is", ip, "at", time);
+                    contentArray.push(remoteIP);
+                    let visitorCount = contentArray.length;
+                    // let contstr = JSON.stringify({remoteIP+visitorCount});
+                    console.log(contentArray);
+                    fs.writeFile(path.join(__dirname, 'public', 'remoteIP.store'), contentArray, (err) => { if (err) throw err; });
+                    fs.readFile(path.join(__dirname, 'public', 'visitorCount.num'), (err, counter) => { if (err) throw err; if (counter > visitorCount) visitorCount = counter + 1; });
+                    fs.writeFile(path.join(__dirname, 'public', 'visitorCount.num'), visitorCount, (err) => { if (err) throw err; });
+                    break;
+                }
+            case '.num': contentType = 'text/plain'; break
         }
 
         // read file
@@ -300,9 +314,17 @@ const server = http.createServer((req, res) => {
                 res.writeHead(200, { 'Content-Type': contentType });
                 res.end(content, 'utf8');
             }
-        })
-        // console.log(filePath);
-        // res.end();
+        });
+
+        // let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||
+        //     req.connection.remoteAddress ||
+        //     req.socket.remoteAddress ||
+        //     req.connection.socket.remoteAddress;
+        // let time = Date.now();
+        // remoteIP.push(ip + ">" + time);
+        // console.log("remoteIP is", ip, "at", time);
+        // fs.writeFile(path.join(__dirname, 'public', 'remoteIP.store'), remoteIP, (err) => { if (err) throw err; });
+
 
     }
 

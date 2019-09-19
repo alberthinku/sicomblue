@@ -116,9 +116,42 @@
 
 </head>
 
-<body>
-    <h1>Web Bluetooth SiCom ver 1.1.1</h1><a href="about">release note</a> & <a href="help">profile example</a>
+<body onload="GETIP()">
+    <h1>Web Bluetooth SiCom</h1>
+    <p>ver 1.1.1</p>
+    <a href="about">release note</a> & <a href="help">profile example</a>
 
+    <p id="welcomeIP"></p>
+    <script>
+        GETIP = function () {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "remoteIP", true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    let xhrresp = xhr.responseText.split(',');
+                    console.log("xhr reponseText is :", xhrresp);
+                    document.getElementById("welcomeIP").innerHTML = "welcome the visitor from " + xhrresp[xhrresp.length - 1];
+                } else {
+                    console.log("new work request for .json failed with respone " + xhr.status + ": " + xhr.statusText);
+                }
+            }
+            xhr.send();
+
+            // xmlhttp.responseType = 'json';
+            //     var myObj;
+
+            //     xmlhttp.onload = function () {
+            //         if (xmlhttp.status === 200) {
+            //             myObj = xmlhttp.response;
+
+            //         } else {
+            //             console.log("new work request for .json failed with respone " + xmlhttp.status + ": " + xmlhttp.statusText);
+            //         }
+            //     }
+
+        }
+
+    </script>
     <h2>Connection Status</h2>
 
     <table id="statusTable">
