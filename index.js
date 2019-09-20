@@ -279,18 +279,18 @@ const server = http.createServer((req, res) => {
                         req.connection.remoteAddress ||
                         req.socket.remoteAddress ||
                         req.connection.socket.remoteAddress;
-                    let time = moment().format(moment.defaultFormat);
+                    let time = moment().format();
                     remoteIP = ip + "-AT-" + time;
-                    let content = fs.readFileSync(path.join(__dirname, 'public', 'remoteIP.store'), "utf8");
-                    let contentArray = content.split(',')
+                    // let content = fs.readFileSync(path.join(__dirname, 'public', 'remoteIP.store'), "utf8");
+                    // let contentArray = content.split(',')
                     console.log("remoteIP is", ip, "at", time);
-                    contentArray.push(remoteIP);
-                    let visitorCount = contentArray.length;
+                    // contentArray.push(remoteIP);
+                    // let visitorCount = contentArray.length;
                     // let contstr = JSON.stringify({remoteIP+visitorCount});
-                    console.log(contentArray);
-                    fs.writeFile(path.join(__dirname, 'public', 'remoteIP.store'), contentArray, (err) => { if (err) throw err; });
-                    fs.readFile(path.join(__dirname, 'public', 'visitorCount.num'), (err, counter) => { if (err) throw err; if (counter > visitorCount) visitorCount = counter + 1; });
-                    fs.writeFile(path.join(__dirname, 'public', 'visitorCount.num'), visitorCount, (err) => { if (err) throw err; });
+                    // console.log(contentArray);
+                    fs.writeFileSync(path.join(__dirname, 'public', 'remoteIP.store'), remoteIP, (err) => { if (err) throw err; });
+                    // fs.readFile(path.join(__dirname, 'public', 'visitorCount.num'), (err, counter) => { if (err) throw err; if (counter > visitorCount) visitorCount = counter + 1; });
+                    // fs.writeFile(path.join(__dirname, 'public', 'visitorCount.num'), visitorCount, (err) => { if (err) throw err; });
                     break;
                 }
             case '.num': contentType = 'text/plain'; break
