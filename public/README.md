@@ -30,6 +30,10 @@
 <p>if you have any questions or suggestions, please feel free to leave your comments or send an email to yahui.sun@gmail.com</p>
 
 <h3>release notes:</h3>
+<p>[240919] version 1.1.2 is on with new features:</p>
+<p>1. add one more profile example into profile example page</p>
+<p>2. kick off the DnD feature preparation but yet to be released on version 1.1.3</p>
+
 <p>[190919] version 1.1.1 is on with new features:</p>
 <p>1. matching the service and char and regrouped them after discovery process</p>
 <p>2. filter out the unavailable char or services when finished discovery process</p>
