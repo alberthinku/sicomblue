@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Web Bluetooth SiCom</title>
+    <link rel="stylesheet" type="text/css" href="css/tableCss.css">
+    <link rel="stylesheet" type="text/css" href="css/smallbuttonsCss.css">
+
+    <style>
+        /* div {
+            margin: 0em;
+            padding: 2em;
+        } */
+
+        /* #src_copy,
+        #src_move {
+            color: blue;
+            border: 5px solid black;
+            width: 300px;
+            height: 15;
+        } */
+
+
+
+        button {
+            color: black;
+            /* This is a single-line comment */
+            text-align: center;
+        }
+
+        p {
+            color: black;
+            background-color: azure;
+            background-clip: content-box;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            /* This is a single-line comment */
+            text-align: left;
+        }
+
+        h1,
+        h2 {
+            color: black;
+            /* This is a single-line comment */
+            font-size: 14px;
+            text-align: left;
+        }
+
+        div {
+            background-color: #0ff;
+            /* background-color: black; */
+            color: #e7e7e7;
+            font: lighter;
+            width: flex;
+            height: 20px;
+            border: 2px;
+            overflow: auto;
+        }
+
+        #dest_copy,
+        #dest_move,
+        #dest_copy_then {
+            border: 2px dashed blue;
+            background-color: black;
+            color: azure;
+            width: 120px;
+            height: 60px;
+        }
+
+        .notification {
+            background-color: black;
+            font-size: 13px;
+            width: fit-content;
+            height: 15px;
+            overflow: hidden;
+        }
+
+        .xJSON {
+            background-color: black;
+            font-size: 16px;
+            height: 40px;
+        }
+
+        .label {
+            color: white;
+            padding: 2px;
+            font-family: Arial;
+        }
+
+        .success {
+            background-color: #4CAF50;
+
+        }
+
+        /* Green */
+        .info {
+            background-color: black;
+            /* background-color: #2196f3; */
+            font-size: 15px;
+            color: white;
+
+        }
+
+        /* Blue */
+        .warning {
+            background-color: goldenrod;
+            /* background-color: #ff9800; */
+            font-size: 10px;
+        }
+
+        /* Orange */
+        .danger {
+            background-color: #f44336;
+        }
+
+        /* Red */
+        .other {
+            background-color: #e7e7e7;
+            color: black;
+            font-size: 12px;
+        }
+
+        /* Gray */
+    </style>
+    <script src="libraries/addOneMoreNode.js"></script>
+    <script src="libraries/webblue-phaseOne.js"></script>
+    <script src="libraries/parseJson.js"></script>
+    <script src="libraries/refreshLayer.js"></script>
+    <script src="libraries/DragDroplib.js"></script>
+
+    <script>var myWindow = []; var deviceCount = 1; var nodeMax = 30; var deviceNo = [];</script>
+
+</head>
+
+<body onload="GETIP()">
+    <h1>Web Bluetooth SiCom</h1>
+    <p>ver 1.1.1</p>
+    <a href="about">release note</a> & <a href="help">profile example</a> & <a href="/manual">manual</a>
+
+    <p id="welcomeIP"></p>
+    <script>
+        GETIP = function () {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "remoteIP", true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    let xhrresp = xhr.responseText.split(',');
+                    // console.log("xhr reponseText is :", xhrresp);
+                    document.getElementById("welcomeIP").innerHTML = "welcome the visitor from " + xhrresp[xhrresp.length - 1];
+                } else {
+                    console.log("new work request for .json failed with respone " + xhr.status + ": " + xhr.statusText);
+                }
+            }
+            xhr.send();
+
+
+        }
+
+    </script>
+    <h2>Connection Status</h2>
+
+    <table id="statusTable">
+        <tbody id="statusTbody">
+            <tr id="statusHead">
+                <td>
+                    <b>Device No.</b>
+                </td>
+                <td>
+                    <b>Connected</b>
+                </td>
+                <td>
+                    <b>Device Name.</b>
+                </td>
+
+                <td>
+                    <b>Services Discovery Completed</b>
+                </td>
+                <td>
+                    <b>Notifications status</b>
+                </td>
+                <td>
+                    <b>select profile</b>
+                </td>
+                <td>
+                    <b>upload your own profile</b>
+                </td>
+            </tr>
+            <tr id="statusLine1">
+                <td>1</td>
+                <td id="status_connected1">false</td>
+                <td id="device_name1">NA</td>
+                <td id="status_discovered1">false</td>
+                <td id="status_notifications1">false</td>
+                <td>
+                    <form id="profileSelectForm1">
+                        <select class="small grey button" id="mySelectedProfile1"
+                            onchange="selectProfile(this.value, 'libraries/', 1)">
+                            <option value="" selected="selected" disabled="true"></option>
+                            <option value="BBC_Microbit">BBC Microbit</option>
+                            <option value="ST_BLUEST">ST BLUEST</option>
+                            <option value="ST_BLUEST_full">ST BLUEST_full</option>
+                            <option value="ST_BlueNRG">ST BlueNRG</option>
+                        </select>
+                    </form>
+                </td>
+                <td>
+                    <form id="uploadForm1">
+
+                        <input type="file" id="file-input1" name="userJson" oninput="addAprofile('file-input1')">
+
+                    </form>
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <form>
+        <input class="small button" id="addNode" type="button" value="+Node" name="+oneMoreLine"
+            onclick="addOneMoreNode(++deviceCount)">
+        <input class="small red button" id="minusNode" type="button" value="-Node" name="+oneMoreLine"
+            onclick="removeOneMoreNode(deviceCount--)">
+    </form>
+
+    <h2>Step.1 choose a preloaded profile or upload your own profile from above table</h2>
+
+    <form>
+        <input class="small red button" type="reset" value="reset choices" onclick="reinit()" />
+    </form>
+
+    <span id="showJsonFile">
+        <div class="xJSON" id="showJson1" hidden="true"></div>
+    </span>
+
+    <h2>Step.2 Device Discovery and Connection</h2>
+    <span id="btnScanButton">
+        <button class="small button" id="btn_scan1" onclick="deviceDiscoverOrDisconnectCall(deviceNo['1'])"
+            disabled="true">discoverDevices</button>
+    </span>
+    <hr>
+    <h2>Step.3 Customize your choices and run!</h2>
+    <span id="step3AllAction">
+        <button class="small button" id="btn_notify1" disabled="true"
+            onclick="processAllCharSelections(deviceNo['1'])">Dev_1:ProcessAllChar</button>
+    </span>
+
+    <span id="charDataArea">
+        <div class="notification" id="chardatanotification1"></div>
+    </span>
+
+    <label id="step3FinalShow">
+        <span id="1GATTShow" disabled="true"></span>
+
+    </label>
+    <script>
+
+    </script>
+
+    <script src="libraries/initAddOnelib.js"></script>
+    <script src="libraries/saveit.js"></script>
+    <script src="libraries/checkBoxlib.js"></script>
+
+    <script>
+
+    </script>
+    <p>
+        SiCom web bluetooth connection tool user environment:<br>
+        HARDWARE: PC/Mac/Laptop/Chromebook, <br>
+        SOFTWARE: Chrome ver70 or later on Windows10 or Chrome ver56 or later on
+        Mac/Linux/Window7</p>
+    <p>
+        Bluetooth devices :<br>
+        HARDWARE : BBC microbit, STM32 Nucelo kit, SensorTile, or any device equipted with BLE 4.x or later<br>
+        FIRMWARE/PROFILE : BBC microbit V1_11, ST BlueST V4.3 or later/FunctionPack ALLMEMS/FLV/MOTENV<br>
+    </p>
+
+    <form>
+        <h1>choose if condition</h1>
+        <div class="info" id="dest_copy" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
+        </div>
+        <select class="small grey button" id="mySelectedCharMix" onchange="selectCharMix(this.value)">
+            <option value=">" selected="selected">bigger than</option>
+            <option value="==">equal to</option>
+            <option value="<">less than</option>
+        </select>
+
+        <input id="conditionOfCharMix" type="text" value="utf8">
+
+        <h1>choose then option</h1>
+        <div class=" info" id="dest_copy_then" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
+        </div>
+
+        <button class="small button" name="Act!" id="mixCharAction" type="button"
+            onclick="letCharMix()"><text>Act!</text></button>
+    </form>
+    <text id="ifContent"></text>
+    <text id="thenContent"></text>
+
+    <script>
+        var operator = "";
+        selectCharMix = function (sel) {
+            console.log(sel);
+            operator = sel;
+        }
+
+        letCharMix = function () {
+            console.log("yes we can");
+            let inputChar = document.getElementById("ifContent").innerText;
+            let outputChar = document.getElementById("thenContent").innerText;
+            checkBoxImmyActAsst(inputChar);
+            // if condition match, then 
+            checkBoxImmyActAsst(outputChar);
+        }
+    </script>
+    <!-- <div class="info" id="dest_copy" ondrop="drop_handler(event);" ondragover="dragover_handler(event);"></div>
+
+    <div class="info" id="dest_copy_then" ondrop="drop_handler(event);" ondragover="dragover_handler(event);"> </div>-->
+
+
+
+
+</body>
+
+</html>

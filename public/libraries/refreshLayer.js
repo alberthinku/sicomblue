@@ -357,10 +357,16 @@ class refreshLayer {
             this.Listed_L2_Char.push(true);
 
 
+            // var newLable = document.createElement("div");
             var newLable = document.createElement("lable");
             newLable.setAttribute("id", this.UI_labelPrefix + subj[i]);
             newLable.setAttribute("name", subj_name[i]);
             newLable.setAttribute("class", "label info");
+            // make the text dragdroppable
+            newLable.setAttribute("droppable", "true");
+            newLable.setAttribute("ondragstart", "dragstart_handler(event);");
+            newLable.setAttribute("ondragend", "dragend_handler(event);");
+
             var L2_Char_info = ">>Char name - " + subj_name[i] + " > UUID : " + subj[i];
             newLable.insertAdjacentText("beforeend", L2_Char_info);
             // this.textGATT.appendChild(newLable);
