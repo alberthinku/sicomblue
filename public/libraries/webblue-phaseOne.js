@@ -56,6 +56,7 @@ class webblue_phaseOne {
 
         this.has_selected_service = false;
         this.has_selected_Char = false;
+        this.last_EularRadian = {};
         document.getElementById(this.buttonDiscover).disabled = false;
         this.statusInit();
 
@@ -277,7 +278,7 @@ class webblue_phaseOne {
                     var TS = -1;
 
                     var handle = document.getElementById(this.UI_labelPrefix + uuid);
-                    handle.className = "danger";
+                    handle.className = "label danger";
 
                     if (wTS) {
                         var TS = dataRcv.getUint16(0, this.parsedJsonObj.L2_Char_littleEndian[uuid]);
@@ -506,7 +507,7 @@ class webblue_phaseOne {
 
                 let uuid = sChars.uuid;
                 let handle = document.getElementById(this.UI_labelPrefix + uuid);
-                handle.className = "danger";
+                handle.className = "label danger";
                 handle.innerHTML = "Char writing>>" + uuid + "<=" + buffer;
 
                 let writeTrys = 15;
@@ -817,31 +818,101 @@ class webblue_phaseOne {
 
 
     onSelectedCharData = function (event) {
-        var node = this;
+        let node = this;
         // function onFeatureSensorData(event) {
         // console.log(node);
-        var uuid = event.currentTarget.uuid;
+        let uuid = event.currentTarget.uuid;
 
-        var buffer = event.target.value.buffer;
-        var dataview = new DataView(buffer);
-        var TS = dataview.getUint16(0, true);
+        let buffer = event.target.value.buffer;
+        let dataview = new DataView(buffer);
+        let TS = dataview.getUint16(0, true);
 
-        var readoutData = this.readDataview(uuid, dataview);
+        let readoutData = this.readDataview(uuid, dataview);
         // var rowData = TextDecoderStream()
         document.getElementById(node.chardatanotification).innerHTML = uuid + ":" + readoutData;
 
-        var wTS = node.parsedJsonObj.L2_Char_wTS[uuid];
-        var bufferIn = new Uint8Array(buffer).buffer;
-        var bufferInhex = this.buf2hex(bufferIn);
+        let wTS = node.parsedJsonObj.L2_Char_wTS[uuid];
+        let bufferIn = new Uint8Array(buffer).buffer;
+        let bufferInhex = this.buf2hex(bufferIn);
 
         // console.log(bufferInhex); // 
-        var handle = document.getElementById(node.UI_labelPrefix + uuid);
-        handle.className = "danger";
+        let handle = document.getElementById(node.UI_labelPrefix + uuid);
+        handle.className = "label danger";
         handle.innerHTML = "Char Notifying>>" + uuid + ":" + wTS + "TS=" + TS + ">" + readoutData;
 
         node.collectedData.push({ uuid, bufferInhex, wTS, TS, readoutData });
         // return motionSensorData;
-
+        try {
+            //incase ifContent has the uuid label, process the function accordinly
+            let ifContent = document.getElementById('ifContent').innerText;
+            if (ifContent.slice(-36) == uuid) {
+                //process the then function
+                node.processAlgorithm(uuid, readoutData);
+            }
+            //incase ifRawContent has the uuid label, process the function accordinly
+            let ifRawContent = document.getElementById('ifRawContent').innerText;
+            if (ifRawContent.slice(-36) == uuid) {
+                //process the then function
+                node.processAlgorithmRaw(uuid, readoutData);
+            }
+        }
+        catch (err) {
+            return (err);
+        }
     }//onSelectedChar
+
+
+    processAlgorithm = function (uuid, params) {
+        // console.log('selected char to be further deployed');
+        let outp = document.getElementById('thenContent');
+        let eularAngle = [];
+        for (let i = 0; i < params.length; i += 3) {
+            let quarternionElement = params.slice(i, i + 3);
+            let qi = quarternionElement[0] / 10000;//BlueST defines the Qi,j,k output with real Int16*10000
+            let qj = quarternionElement[1] / 10000;
+            let qk = quarternionElement[2] / 10000;
+            // console.log('first elements is : ', qi, '/', qj, '/', qk);
+            let qW = Math.sqrt(1 - qi * qi - qj * qj - qk * qk);
+            let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);
+            let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
+            let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
+            let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
+            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0); }
+            else loop(delta_yaw, delta_pitch, delta_roll);
+            //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
+            this.last_EularRadian = eularRadian;
+            eularAngle.push(eularRadian);
+            // console.log('first eular angle is : ', eularAngle);
+
+        }
+        outp.innerText = JSON.stringify(eularAngle);
+        let drawWindow = document.getElementById('drawCube');
+        drawWindow.hidden = false;
+    }
+
+    processAlgorithmRaw = function (uuid, params) {
+        // if is 9 axis data in, process with related filter and fusion
+        let outp = document.getElementById('thenContent');
+        // let eularAngle = [];
+
+        let eularRadian = IMUSO3Thread(params);
+        console.log(eularRadian);
+
+
+        let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
+        let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
+        let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
+        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0); }
+        else loop(delta_yaw, delta_pitch, delta_roll);
+        //     //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
+        this.last_EularRadian = eularRadian;
+        // eularAngle.push(eularRadian);
+        // console.log('first eular angle is : ', eularAngle);
+
+        // }
+        outp.innerText = JSON.stringify(eularRadian);
+        let drawWindow = document.getElementById('drawCube');
+        drawWindow.hidden = false;
+    }
 
 }//webblue-phaseOne

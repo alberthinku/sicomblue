@@ -5,128 +5,21 @@
     <title>Web Bluetooth SiCom</title>
     <link rel="stylesheet" type="text/css" href="css/tableCss.css">
     <link rel="stylesheet" type="text/css" href="css/smallbuttonsCss.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 
-    <style>
-        /* div {
-            margin: 0em;
-            padding: 2em;
-        } */
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Cube</title>
 
-        /* #src_copy,
-        #src_move {
-            color: blue;
-            border: 5px solid black;
-            width: 300px;
-            height: 15;
-        } */
-
-
-
-        button {
-            color: black;
-            /* This is a single-line comment */
-            text-align: center;
-        }
-
-        p {
-            color: black;
-            background-color: azure;
-            background-clip: content-box;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
-            /* This is a single-line comment */
-            text-align: left;
-        }
-
-        h1,
-        h2 {
-            color: black;
-            /* This is a single-line comment */
-            font-size: 14px;
-            text-align: left;
-        }
-
-        div {
-            background-color: #0ff;
-            /* background-color: black; */
-            color: #e7e7e7;
-            font: lighter;
-            width: flex;
-            height: 20px;
-            border: 2px;
-            overflow: auto;
-        }
-
-        #dest_copy,
-        #dest_move,
-        #dest_copy_then {
-            border: 2px dashed blue;
-            background-color: black;
-            color: azure;
-            width: 120px;
-            height: 60px;
-        }
-
-        .notification {
-            background-color: black;
-            font-size: 13px;
-            width: fit-content;
-            height: 15px;
-            overflow: hidden;
-        }
-
-        .xJSON {
-            background-color: black;
-            font-size: 16px;
-            height: 40px;
-        }
-
-        .label {
-            color: white;
-            padding: 2px;
-            font-family: Arial;
-        }
-
-        .success {
-            background-color: #4CAF50;
-
-        }
-
-        /* Green */
-        .info {
-            background-color: black;
-            /* background-color: #2196f3; */
-            font-size: 15px;
-            color: white;
-
-        }
-
-        /* Blue */
-        .warning {
-            background-color: goldenrod;
-            /* background-color: #ff9800; */
-            font-size: 10px;
-        }
-
-        /* Orange */
-        .danger {
-            background-color: #f44336;
-        }
-
-        /* Red */
-        .other {
-            background-color: #e7e7e7;
-            color: black;
-            font-size: 12px;
-        }
-
-        /* Gray */
-    </style>
     <script src="libraries/addOneMoreNode.js"></script>
     <script src="libraries/webblue-phaseOne.js"></script>
     <script src="libraries/parseJson.js"></script>
     <script src="libraries/refreshLayer.js"></script>
     <script src="libraries/DragDroplib.js"></script>
+    <script src="libraries/filter/filter.js"></script>
+    <script src="libraries/filter/imu.js"></script>
+    <script src="libraries/filter/CrazePonyIMUo3.js"></script>
+    <script src="libraries/filter/fusionQuaternion2Eular.js"></script>
 
     <script>var myWindow = []; var deviceCount = 1; var nodeMax = 30; var deviceNo = [];</script>
 
@@ -134,8 +27,10 @@
 
 <body onload="GETIP()">
     <h1>Web Bluetooth SiCom</h1>
-    <p>ver 1.1.1</p>
+    <p>ver 1.1.3 -cube </p>
     <a href="about">release note</a> & <a href="help">profile example</a> & <a href="/manual">manual</a>
+
+    <canvas id="drawCube" width="100" height="100" hidden="true"></canvas>
 
     <p id="welcomeIP"></p>
     <script>
@@ -200,6 +95,8 @@
                             <option value="ST_BLUEST">ST BLUEST</option>
                             <option value="ST_BLUEST_full">ST BLUEST_full</option>
                             <option value="ST_BlueNRG">ST BlueNRG</option>
+                            <option value="ST_BLUEST_fusion">ST Fusion</option>
+
                         </select>
                     </form>
                 </td>
@@ -274,19 +171,19 @@
     </p>
 
     <form>
-        <h1>choose if condition</h1>
+        <h1>drag SensorFusionCompact Char here</h1>
         <div class="info" id="dest_copy" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
         </div>
-        <select class="small grey button" id="mySelectedCharMix" onchange="selectCharMix(this.value)">
+        <!-- <select class="small grey button" id="mySelectedCharMix" onchange="selectCharMix(this.value)">
             <option value=">" selected="selected">bigger than</option>
             <option value="==">equal to</option>
             <option value="<">less than</option>
         </select>
 
-        <input id="conditionOfCharMix" type="text" value="utf8">
+        <input id="conditionOfCharMix" type="text" value="utf8"> -->
 
-        <h1>choose then option</h1>
-        <div class=" info" id="dest_copy_then" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
+        <h1>put raw 9 axis char here</h1>
+        <div class=" info" id="dest_copy_raw" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
         </div>
 
         <button class="small button" name="Act!" id="mixCharAction" type="button"
@@ -294,29 +191,59 @@
     </form>
     <text id="ifContent"></text>
     <text id="thenContent"></text>
+    <text id="ifRawContent"></text>
 
     <script>
-        var operator = "";
-        selectCharMix = function (sel) {
-            console.log(sel);
-            operator = sel;
-        }
+        // var operator = "";
+        // selectCharMix = function (sel) {
+        //     console.log(sel);
+        //     operator = sel;
+        // }
+
+        // window.addEventListener('load', function () {
+        //     let inputChar = document.getElementById("ifContent").innerText;
+        //     let element = document.getElementById(inputChar);
+        //     // var element = document.getElementById('div');
+        //     fusionDataIn = function (element) {
+        //         let rawData = element.innerHTML;
+        //         console.log(rawData);
+
+        //     }
+        //     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        //     var observer = new MutationObserver(fusionDataIn(element));
+        //     observer.observe(element, {
+        //         childList: true
+        //     });
+
+        // });
 
         letCharMix = function () {
+            // let drawWindow = document.getElementById('drawCube');
+            // drawWindow.hidden = false;
+
             console.log("yes we can");
             let inputChar = document.getElementById("ifContent").innerText;
-            let outputChar = document.getElementById("thenContent").innerText;
+            // let targetChar = document.getElementById(inputChar);
+            // targetChar.onchange = function () { console.log("fusion" + targetChar.innerText) };
             checkBoxImmyActAsst(inputChar);
-            // if condition match, then 
-            checkBoxImmyActAsst(outputChar);
+            //tag = [deviceId]+[">CB"]+uuid
+            // checkBoxImmyActAsst(outputChar);
+
+            inputChar = document.getElementById("ifRawContent").innerText;
+            // targetChar = document.getElementById(inputChar);
+            // targetChar.onchange = function () { "raw" + console.log(targetChar.innerText) };
+            checkBoxImmyActAsst(inputChar);
         }
+
+
     </script>
     <!-- <div class="info" id="dest_copy" ondrop="drop_handler(event);" ondragover="dragover_handler(event);"></div>
 
     <div class="info" id="dest_copy_then" ondrop="drop_handler(event);" ondragover="dragover_handler(event);"> </div>-->
 
+    <!-- </div> -->
 
-
+    <script src="libraries/filter/drawCube.js"></script>
 
 </body>
 

@@ -58,7 +58,7 @@ class refreshLayer {
     L2_Char_outputRestore(name, uuid) {
         var outputRestore = ">>Char name - " + name + " > UUID : " + uuid;
         var handle = document.getElementById(this.UI_labelPrefix + uuid);
-        handle.className = "info";
+        handle.className = "label info";
         handle.innerHTML = (outputRestore);
 
     }//L2_Char_outputRestore
@@ -358,10 +358,12 @@ class refreshLayer {
 
 
             // var newLable = document.createElement("div");
-            var newLable = document.createElement("lable");
+            // var newLable = document.createElement("lable");
+            var newLable = document.createElement("TEXTAREA");
             newLable.setAttribute("id", this.UI_labelPrefix + subj[i]);
             newLable.setAttribute("name", subj_name[i]);
             newLable.setAttribute("class", "label info");
+            // newLable.setAttribute("wide", "flex");//TEXTAREA
             // make the text dragdroppable
             newLable.setAttribute("droppable", "true");
             newLable.setAttribute("ondragstart", "dragstart_handler(event);");

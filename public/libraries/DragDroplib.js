@@ -4,7 +4,8 @@ function dragstart_handler(ev) {
     // ev.currentTarget.style.border = "dashed";
     // Add the id of the drag source element to the drag data payload so
     // it is available when the drop event is fired
-    ev.dataTransfer.setData("text", ev.target.parentElement.id);
+    // ev.dataTransfer.setData("text", ev.target.parentElement.id);//if it is label object, use this
+    ev.dataTransfer.setData("text", ev.target.id);//if it is textarea object, use this
     // Tell the browser both copy and move are possible
     ev.effectAllowed = "copyMove";
 }
@@ -35,6 +36,14 @@ function drop_handler(ev) {
         // let nodeCopy = document.createElement("text");
         // nodeCopy.setAttribute("id", "ifContent");
         let nodeCopy = document.getElementById("ifContent");
+        nodeCopy.innerHTML = id;
+        ev.target.appendChild(nodeCopy);
+    }
+
+    else if (ev.target.id == "dest_copy_raw") {
+        // let nodeCopy = document.createElement("text");
+        // nodeCopy.setAttribute("id", "ifContent");
+        let nodeCopy = document.getElementById("ifRawContent");
         nodeCopy.innerHTML = id;
         ev.target.appendChild(nodeCopy);
     }
