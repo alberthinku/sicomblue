@@ -1,8 +1,6 @@
-body{
-    background: #ffffff;
-    color: #333333;
+/* <style> */
 
-}
+
 
 button {
     color: black;
@@ -39,6 +37,16 @@ div {
     overflow: auto;
 }
 
+#dest_copy,
+#dest_copy_raw,
+#dest_copy_then {
+    border: 2px dashed blue;
+    background-color: white;
+    color: azure;
+    width: 100px;
+    height: 30px;
+}
+
 .notification {
     background-color: black;
     font-size: 13px;
@@ -57,6 +65,9 @@ div {
     color: white;
     padding: 2px;
     font-family: Arial;
+    /* box-flex: initial; */
+    width: 800px;
+    height: 20px;
 }
 
 .success {
@@ -93,8 +104,25 @@ div {
 }
 
 /* Gray */
+/* </style> */
 
-/* This is
-            a multi-line
-            comment */
+
+/* <style> */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+
+canvas {
+    height: 50%;
+    position: fixed;
+    width: 50%;
+}
+/* </style> */
 

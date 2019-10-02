@@ -30,6 +30,12 @@
 <p>if you have any questions or suggestions, please feel free to leave your comments or send an email to yahui.sun@gmail.com</p>
 
 <h3>release notes:</h3>
+
+<p>[021019] version 1.1.3 -cube is on with new features & bugs:</p>
+<p>1. add drag and drop feature for char selection - for fusion cube</p>
+<p>2. enabled 3D cube draw when perform cube action while only one cube can be draw today</p>
+
+
 <p>[240919] version 1.1.2 is on with new features:</p>
 <p>1. add one more profile example into profile example page</p>
 <p>2. kick off the DnD feature preparation but yet to be released on version 1.1.3</p>
