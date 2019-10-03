@@ -877,8 +877,8 @@ class webblue_phaseOne {
             let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
             let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
             let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
-            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0); }
-            else loop(delta_yaw, delta_pitch, delta_roll);
+            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube1); }
+            else loop(delta_yaw, delta_pitch, delta_roll, cube1);
             //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
             this.last_EularRadian = eularRadian;
             eularAngle.push(eularRadian);
@@ -902,8 +902,8 @@ class webblue_phaseOne {
         let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
         let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
         let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
-        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0); }
-        else loop(delta_yaw, delta_pitch, delta_roll);
+        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube2); }
+        else loop(delta_yaw, delta_pitch, delta_roll, cube2);
         //     //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
         this.last_EularRadian = eularRadian;
         // eularAngle.push(eularRadian);

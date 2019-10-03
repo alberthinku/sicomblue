@@ -56,7 +56,7 @@ var canvas = document.getElementById("drawCube");
 var context = canvas.getContext("2d");
 var pointer = new Point2D(0, 0);
 
-var cube = new Cube(0, 0, 400, 200);
+// var cube = new Cube(0, 0, 400, 200);
 // var divFrame = document.getElementById("divFrame");
 var height = canvas.clientHeight;
 var width = canvas.clientWidth;
@@ -72,15 +72,23 @@ function project(points3d, width, height) {
     }
     return points2d;
 }
-function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001) {
-    // window.requestAnimationFrame(loop);
+
+function initDraw(cube) {
+    startX = 0;
+    startY = 0;
     height = canvas.clientHeight;
     width = canvas.clientWidth;
+    if (cube.x > 0) { startX = width; }
     context.canvas.height = height;
     context.canvas.width = width;
     context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, width, height);
+    context.fillRect(startX, startY, width, height);
     context.strokeStyle = "#000000";
+}
+
+function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube) {
+    // window.requestAnimationFrame(loop);
+    initDraw(cube);
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
 

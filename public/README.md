@@ -31,6 +31,11 @@
 
 <h3>release notes:</h3>
 
+<p>[031019] version 1.1.4 -cube is on with new features & bugs:</p>
+<p>1. normalized the acc, gyro reading to match crazepony algorithm needs, now 9axis cube turn looks ok</p>
+<p>2. reset button will clear the 3D canvas so that ui recovered</p>
+
+
 <p>[021019] version 1.1.3 -cube is on with new features & bugs:</p>
 <p>1. add drag and drop feature for char selection - for fusion cube</p>
 <p>2. enabled 3D cube draw when perform cube action while only one cube can be draw today</p>
