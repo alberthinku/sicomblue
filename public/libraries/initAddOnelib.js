@@ -102,6 +102,8 @@ function reinit() {
 
     });
 
+    document.getElementById("drawCube").hidden = true;//hide the canvas when reset
+
     deviceNo = [];
     myWindow = [];
 }
