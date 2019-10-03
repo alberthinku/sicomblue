@@ -31,6 +31,16 @@ const IMU_SAMPLE_RATE = 166; //as pre the TS of BLUEST output calculated, not a 
 
 const IMU_FILTER_CUTOFF_FREQ = 30;
 
+const CrazePony_Gyro_Max = 2000;
+const CrazePony_Acc_Max = 8;
+
+const GYRO_SCALE = 2000; //dps, BLUEST's output fullscale rating for gyro, since it is equal to CrazePony's algorithm request, so no need to rescale
+const gyro_rps = Math.PI / 180; //rad per degree
+const gyro_scale_rps_rate = GYRO_SCALE * gyro_rps / CrazePony_Gyro_Max;//to match to the algorithm normalization
+
+const ACC_SCALE = 2; //g, BLUEST's output fullscale rate for acc, since CrazePony is using 8g as full scale, so need to down grade the acc reading of 4
+const acc_scale_rate = ACC_SCALE / CrazePony_Acc_Max;//to match to the algorithm normalization
+
 function IMU_Init() {
     // #ifdef IMU_SW		//软解需要先校陀螺
     imu.ready = 0;
@@ -62,13 +72,13 @@ function ReadIMUSensorHandle(param) {
     // imu.accb[1] = LPF2pApply_2(imu.accRaw[1] - imu.accOffset[1]);
     // imu.accb[2] = LPF2pApply_3(imu.accRaw[2] - imu.accOffset[2]);
 
-    imu.accRaw[0] = param[0] / 1000; //g
-    imu.accRaw[1] = param[1] / 1000;
-    imu.accRaw[2] = param[2] / 1000;
-    imu.gyroRaw[0] = param[3] / 10; //dps
-    imu.gyroRaw[1] = param[4] / 10;
-    imu.gyroRaw[2] = param[5] / 10;
-    imu.magRaw[0] = param[6] / 1000;//gauss
+    imu.accRaw[0] = param[0] / 1000 * acc_scale_rate; //mg -> g with scale matching
+    imu.accRaw[1] = param[1] / 1000 * acc_scale_rate;
+    imu.accRaw[2] = param[2] / 1000 * acc_scale_rate;
+    imu.gyroRaw[0] = param[3] / 10 * gyro_scale_rps_rate; //dps->rps with scale matching
+    imu.gyroRaw[1] = param[4] / 10 * gyro_scale_rps_rate;
+    imu.gyroRaw[2] = param[5] / 10 * gyro_scale_rps_rate;
+    imu.magRaw[0] = param[6] / 1000;//mg -> gauss
     imu.magRaw[1] = param[7] / 1000;
     imu.magRaw[2] = param[8] / 1000;
 
