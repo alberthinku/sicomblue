@@ -34,9 +34,11 @@
 <body onload="GETIP()">
     <h1>Web Bluetooth SiCom</h1>
     <p>ver 1.1.4 -cube </p>
-    <a href="about">release note</a> & <a href="help">profile example</a> & <a href="/manual">manual</a>
+    <a href="about">release note</a> & <a href="help">profile example</a> & <a href="manual">manual</a> & <a
+        href="/">return</a>
 
-    <canvas id="drawCube" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 600px; top: 00px" id="drawCube" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 600px; top: 350px" id="drawCube9Axis" width="100" height="100" hidden="true"></canvas>
 
     <p id="welcomeIP"></p>
     <script>
@@ -177,7 +179,7 @@
     </p>
 
     <form>
-        <h1>drag SensorFusionCompact Char here</h1>
+        <h1>drag SensorFusionCompact Char into box 1</h1>
         <div class="info" id="dest_copy" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
         </div>
         <!-- <select class="small grey button" id="mySelectedCharMix" onchange="selectCharMix(this.value)">
@@ -188,8 +190,8 @@
 
         <input id="conditionOfCharMix" type="text" value="utf8"> -->
 
-        <h1>put raw 9 axis char here</h1>
-        <div class=" info" id="dest_copy_raw" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
+        <h1>drag raw 9 axis Char into box 2</h1>
+        <div class="info" id="dest_copy_raw" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
         </div>
 
         <button class="small button" name="Act!" id="mixCharAction" type="button"
@@ -237,9 +239,12 @@
             //tag = [deviceId]+[">CB"]+uuid
             // checkBoxImmyActAsst(outputChar);
 
+
             inputChar = document.getElementById("ifRawContent").innerText;
             // targetChar = document.getElementById(inputChar);
             // targetChar.onchange = function () { "raw" + console.log(targetChar.innerText) };
+
+
             checkBoxImmyActAsst(inputChar);
         }
 
@@ -254,8 +259,8 @@
     <script src="libraries/filter/drawCube.js">
     </script>
     <script>
-        var cube1 = new Cube(00, 0, 400, 200);
-        var cube2 = new Cube(00, 0, 400, 200);
+        var cubeSFCompact = new Cube(00, 0, 400, 200, "SFCompact", "drawCube");
+        var cube9Axis = new Cube(00, 0, 400, 200, "9Axis", "drawCube9Axis");
     </script>
 
 </body>

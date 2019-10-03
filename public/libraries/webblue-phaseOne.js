@@ -57,6 +57,7 @@ class webblue_phaseOne {
         this.has_selected_service = false;
         this.has_selected_Char = false;
         this.last_EularRadian = {};
+        this.last_EularRadian_Raw = {};
         document.getElementById(this.buttonDiscover).disabled = false;
         this.statusInit();
 
@@ -139,6 +140,15 @@ class webblue_phaseOne {
             notification_status_output += uuidforN + ":" + this.notification_enabled[uuidforN] + "<br>";
         });
         document.getElementById(this.status_notifications).innerHTML = notification_status_output;
+
+        if (document.getElementById('ifContent').innerText.slice(-36) == uuid) {
+            document.getElementById(cubeSFCompact.elementID).hidden = !(status);
+        };
+
+        if (document.getElementById('ifRawContent').innerText.slice(-36) == uuid) {
+            document.getElementById(cube9Axis.elementID).hidden = !(status);
+        };
+
     }//setNotificationStatus
 
     setConnectedStatus(status) {
@@ -845,13 +855,14 @@ class webblue_phaseOne {
         try {
             //incase ifContent has the uuid label, process the function accordinly
             let ifContent = document.getElementById('ifContent').innerText;
+
+            //incase ifRawContent has the uuid label, process the function accordinly
+            let ifRawContent = document.getElementById('ifRawContent').innerText;
+
             if (ifContent.slice(-36) == uuid) {
                 //process the then function
                 node.processAlgorithm(uuid, readoutData);
-            }
-            //incase ifRawContent has the uuid label, process the function accordinly
-            let ifRawContent = document.getElementById('ifRawContent').innerText;
-            if (ifRawContent.slice(-36) == uuid) {
+            } else if (ifRawContent.slice(-36) == uuid) {
                 //process the then function
                 node.processAlgorithmRaw(uuid, readoutData);
             }
@@ -877,17 +888,16 @@ class webblue_phaseOne {
             let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
             let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
             let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
-            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube1); }
-            else loop(delta_yaw, delta_pitch, delta_roll, cube1);
+            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cubeSFCompact); }
+            else loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact);
             //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
             this.last_EularRadian = eularRadian;
             eularAngle.push(eularRadian);
             // console.log('first eular angle is : ', eularAngle);
 
         }
-        outp.innerText = JSON.stringify(eularAngle);
-        let drawWindow = document.getElementById('drawCube');
-        drawWindow.hidden = false;
+        // outp.innerText = JSON.stringify(eularAngle);
+
     }
 
     processAlgorithmRaw = function (uuid, params) {
@@ -896,23 +906,22 @@ class webblue_phaseOne {
         // let eularAngle = [];
 
         let eularRadian = IMUSO3Thread(params);
-        console.log(eularRadian);
+//         console.log(eularRadian);
 
 
-        let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
-        let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
-        let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
-        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube2); }
-        else loop(delta_yaw, delta_pitch, delta_roll, cube2);
-        //     //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
-        this.last_EularRadian = eularRadian;
+        let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian_Raw.eurla_yaw;
+        let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian_Raw.eurla_pitch;
+        let delta_roll = eularRadian.eurla_roll - this.last_EularRadian_Raw.eurla_roll;
+        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube9Axis); }
+        else loop(-delta_yaw, -delta_pitch, -delta_roll, cube9Axis);
+        //due to the algorithm is output opsite to FSCompact, we reverse teh delta_xxxx for the loop.
+
+        this.last_EularRadian_Raw = eularRadian;
         // eularAngle.push(eularRadian);
         // console.log('first eular angle is : ', eularAngle);
 
         // }
-        outp.innerText = JSON.stringify(eularRadian);
-        let drawWindow = document.getElementById('drawCube');
-        drawWindow.hidden = false;
+        // outp.innerText = JSON.stringify(eularRadian);
     }
 
 }//webblue-phaseOne

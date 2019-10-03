@@ -308,9 +308,9 @@ IMUSO3Thread = function (param) {
     acc[1] = -imu.accb[1];
     acc[2] = -imu.accb[2];
 
-    mag[0] = imu.magRaw[0];
-    mag[1] = imu.magRaw[1];
-    mag[2] = imu.magRaw[2];
+    // mag[0] = imu.magRaw[0];
+    // mag[1] = imu.magRaw[1];
+    // mag[2] = imu.magRaw[2];
 
     // NOTE : Accelerometer is reversed.
     // Because proper mount of PX4 will give you a reversed accelerometer readings.

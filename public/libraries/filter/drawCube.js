@@ -3,9 +3,11 @@ const Point3D = function (x, y, z) { this.x = x; this.y = y; this.z = z; };
 
 //Cube is defining the cube to be drawed as the center coordination is (x,y,z) related to the camera=(0,0,0) 
 //while the size is the size of the cube in the drawing plane
-const Cube = function (x, y, z, size) {
+const Cube = function (x, y, z, size, name, elementID) {
     Point3D.call(this, x, y, z);
     size *= 0.5;
+    this.name = name;
+    this.elementID = elementID;
     this.vertices = [new Point3D(x - size, y - size, z - size),
     new Point3D(x + size, y - size, z - size),
     new Point3D(x + size, y + size, z - size),
@@ -52,14 +54,15 @@ Cube.prototype = {
         }
     }
 };
-var canvas = document.getElementById("drawCube");
-var context = canvas.getContext("2d");
-var pointer = new Point2D(0, 0);
+// var canvas = document.getElementById("drawCube");
+// var context = canvas.getContext("2d");
+// var pointer = new Point2D(0, 0);
 
-// var cube = new Cube(0, 0, 400, 200);
-// var divFrame = document.getElementById("divFrame");
-var height = canvas.clientHeight;
-var width = canvas.clientWidth;
+// // var cube = new Cube(0, 0, 400, 200);
+// // var divFrame = document.getElementById("divFrame");
+// var height = canvas.clientHeight;
+// var width = canvas.clientWidth;
+// var pointer = new Point2D(0, 0);
 
 function project(points3d, width, height) {
     var points2d = new Array(points3d.length);
@@ -73,22 +76,43 @@ function project(points3d, width, height) {
     return points2d;
 }
 
-function initDraw(cube) {
+// function initDraw(cube) {
+//     //if cube == 
+//     var canvas = document.getElementById(cube.elementID);
+//     var context = canvas.getContext("2d");
+//     var height = canvas.clientHeight;
+//     var width = canvas.clientWidth;
+
+//     startX = 0;
+//     startY = 0;
+//     height = canvas.clientHeight;
+//     width = canvas.clientWidth;
+//     // if (cube.x > 0) { startX = width; }
+//     context.canvas.height = height;
+//     context.canvas.width = width;
+//     context.fillStyle = "#ffffff";
+//     context.fillRect(startX, startY, width, height);
+//     context.strokeStyle = "#000000";
+// }
+
+function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube) {
+    // window.requestAnimationFrame(loop);
+    // initDraw(cube);
+    var canvas = document.getElementById(cube.elementID);
+    var context = canvas.getContext("2d");
+    var height = canvas.clientHeight;
+    var width = canvas.clientWidth;
+
     startX = 0;
     startY = 0;
     height = canvas.clientHeight;
     width = canvas.clientWidth;
-    if (cube.x > 0) { startX = width; }
+    // if (cube.x > 0) { startX = width; }
     context.canvas.height = height;
     context.canvas.width = width;
     context.fillStyle = "#ffffff";
     context.fillRect(startX, startY, width, height);
     context.strokeStyle = "#000000";
-}
-
-function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube) {
-    // window.requestAnimationFrame(loop);
-    initDraw(cube);
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
 

@@ -37,6 +37,7 @@ function drop_handler(ev) {
         // nodeCopy.setAttribute("id", "ifContent");
         let nodeCopy = document.getElementById("ifContent");
         nodeCopy.innerHTML = id;
+        ev.target.clearData;
         ev.target.appendChild(nodeCopy);
     }
 
@@ -45,6 +46,7 @@ function drop_handler(ev) {
         // nodeCopy.setAttribute("id", "ifContent");
         let nodeCopy = document.getElementById("ifRawContent");
         nodeCopy.innerHTML = id;
+        ev.target.clearData;
         ev.target.appendChild(nodeCopy);
     }
 }

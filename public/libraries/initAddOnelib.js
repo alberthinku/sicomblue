@@ -102,7 +102,8 @@ function reinit() {
 
     });
 
-    document.getElementById("drawCube").hidden = true;//hide the canvas when reset
+    document.getElementById(cubeSFCompact.elementID).hidden = true;//hide the canvas when reset
+    document.getElementById(cube9Axis.elementID).hidden = true;//hide the canvas when reset
 
     deviceNo = [];
     myWindow = [];
