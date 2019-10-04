@@ -91,4 +91,6 @@ function ReadIMUSensorHandle(param) {
     imu.gyro[1] = LPF2pApply_5(imu.gyroRaw[1]);
     imu.gyro[2] = LPF2pApply_6(imu.gyroRaw[2]);
 
+    // if (isNaN(imu.gyro[0] + imu.gyro[1] + imu.gyro[2])) return false;
+    // else return true;
 }
