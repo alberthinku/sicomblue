@@ -231,35 +231,79 @@ class webblue_phaseOne {
 
         var bufferArray = [];
 
-        if (dataType == "Int16") {
-            // textencodeKey = "Int16";
-            bufferArray = new Int16Array(dataview.buffer, byteOffset, byteLength / 2);
-        }
+        switch (dataType) {
+            case "Int16": {
+                bufferArray = new Int16Array(dataview.buffer, byteOffset, byteLength / 2);
+                break;
+            }
+            case "Int32": {
+                // textencodeKey = "Int16";
+                bufferArray = new Int32Array(dataview.buffer, byteOffset, byteLength / 4);
+                break;
+            }
+            case "Uint8": {
+                // textencodeKey = "Uint8";
+                bufferArray = new Uint8Array(dataview.buffer, byteOffset, byteLength);
+                break;
+            }
+            case "Int8": {
+                // textencodeKey = "Int8";
+                bufferArray = new Int8Array(dataview.buffer, byteOffset, byteLength);
+                break;
+            }
 
-        if (dataType == "Int32") {
-            // textencodeKey = "Int16";
-            bufferArray = new Int32Array(dataview.buffer, byteOffset, byteLength / 4);
-        }
+            case "Uint16": {
+                // textencodeKey = "Uint16";
+                bufferArray = new Uint16Array(dataview.buffer, byteOffset, byteLength / 2);
+                break;
+            }
+            case "Utf8": {
+                // textencodeKey = "utf-8";
+                bufferArray = new Uint8Array(dataview.buffer, byteOffset, byteLength);
+                break;
+            }
+            case "Float32": {
+                // textencodeKey = "utf-8";
+                bufferArray = new Float32Array(dataview.buffer, byteOffset, byteLength);
+                break
+            }
 
-        if (dataType == "Uint8") {
-            // textencodeKey = "Uint8";
-            bufferArray = new Uint8Array(dataview.buffer, byteOffset, byteLength);
-        }
+        } //swith
 
-        if (dataType == "Int8") {
-            // textencodeKey = "Int8";
-            bufferArray = new Int8Array(dataview.buffer, byteOffset, byteLength);
-        }
+        // if (dataType == "Int16") {
+        //     // textencodeKey = "Int16";
+        //     bufferArray = new Int16Array(dataview.buffer, byteOffset, byteLength / 2);
+        // }
 
-        if (dataType == "Uint16") {
-            // textencodeKey = "Uint16";
-            bufferArray = new Uint16Array(dataview.buffer, byteOffset, byteLength / 2);
-        }
+        // if (dataType == "Int32") {
+        //     // textencodeKey = "Int16";
+        //     bufferArray = new Int32Array(dataview.buffer, byteOffset, byteLength / 4);
+        // }
 
-        if (dataType == "Utf8") {
-            // textencodeKey = "utf-8";
-            bufferArray = new Uint8Array(dataview.buffer, byteOffset, byteLength);
-        }
+        // if (dataType == "Uint8") {
+        //     // textencodeKey = "Uint8";
+        //     bufferArray = new Uint8Array(dataview.buffer, byteOffset, byteLength);
+        // }
+
+        // if (dataType == "Int8") {
+        //     // textencodeKey = "Int8";
+        //     bufferArray = new Int8Array(dataview.buffer, byteOffset, byteLength);
+        // }
+
+        // if (dataType == "Uint16") {
+        //     // textencodeKey = "Uint16";
+        //     bufferArray = new Uint16Array(dataview.buffer, byteOffset, byteLength / 2);
+        // }
+
+        // if (dataType == "Utf8") {
+        //     // textencodeKey = "utf-8";
+        //     bufferArray = new Uint8Array(dataview.buffer, byteOffset, byteLength);
+        // }
+
+        // if (dataType == "Float32") {
+        //     // textencodeKey = "utf-8";
+        //     bufferArray = new Float32Array(dataview.buffer, byteOffset, byteLength);
+        // }
 
         return bufferArray;
     }//readDataview
@@ -352,7 +396,13 @@ class webblue_phaseOne {
                 textencodeKey = "utf-8";
                 buffer = new TextEncoder(textencodeKey).encode(strInput);
                 break;
+            };
+            case "Float32": {
+                textencodeKey = "Float32";
+                buffer = new Float32Array(numberArray.map(x => parseInt(x)));
+                break;
             }
+
 
         }//Switch dataType
 
@@ -882,7 +932,7 @@ class webblue_phaseOne {
             let qi = quarternionElement[0] / 10000;//BlueST defines the Qi,j,k output with real Int16*10000
             let qj = quarternionElement[1] / 10000;
             let qk = quarternionElement[2] / 10000;
-            // console.log('first elements is : ', qi, '/', qj, '/', qk);
+            // console.log('SFC elements is : ', qi, '/', qj, '/', qk);
             let qW = Math.sqrt(1 - qi * qi - qj * qj - qk * qk);
             let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);
             let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
@@ -906,7 +956,7 @@ class webblue_phaseOne {
         // let eularAngle = [];
 
         let eularRadian = IMUSO3Thread(params);
-//         console.log(eularRadian);
+        //         console.log(eularRadian);
 
 
         let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian_Raw.eurla_yaw;
