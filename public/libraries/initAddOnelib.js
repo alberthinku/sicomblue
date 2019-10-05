@@ -101,12 +101,20 @@ function reinit() {
         device = undefined;
 
     });
-
-    document.getElementById(cubeSFCompact.elementID).hidden = true;//hide the canvas when reset
-    document.getElementById(cube9Axis.elementID).hidden = true;//hide the canvas when reset
+    if (cubeEnabled) {
+        document.getElementById(cubeSFCompact.elementID).hidden = true;//hide the canvas when reset
+        document.getElementById(cube9Axis.elementID).hidden = true;//hide the canvas when reset
+        document.getElementById("ifContent").innerText = "";
+        document.getElementById("ifRawContent").innerText = "";
+        document.getElementById("thenContent").innerText = "";
+        cubeSFCompact = new Cube(00, 0, 400, 200, "SFCompact", "drawCube");
+        cube9Axis = new Cube(00, 0, 400, 200, "9Axis", "drawCube9Axis");
+        IMU_Init();
+    }
 
     deviceNo = [];
     myWindow = [];
+
 }
 
 function mySelectedProfile(dirFix, deviceId) {

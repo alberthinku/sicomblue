@@ -72,6 +72,13 @@ function addOneMoreNode(nodeCount) {
     lineBoxSelectProfileOptionBlueNRG.setAttribute("value", "ST_BlueNRG");
     lineBoxSelectProfileOptionBlueNRG.append("ST BlueNRG");
 
+    if (cubeEnabled) {
+        let lineBoxSelectProfileOptionBlueSTFusion = document.createElement("option");
+        lineBoxSelectProfile.appendChild(lineBoxSelectProfileOptionBlueSTFusion);//append profileOption as child of profile
+        lineBoxSelectProfileOptionBlueSTFusion.setAttribute("value", "ST_BLUEST_fusion");
+        lineBoxSelectProfileOptionBlueSTFusion.append("ST fusion");
+    };
+
     let lineBoxUploadProfileTd = document.createElement("td"); //start to draw the upload profile form
     oneMoreLine.append(lineBoxUploadProfileTd); //append upload profile td to oneMoreLine
     let lineBoxUploadProfileForm = document.createElement("form");
