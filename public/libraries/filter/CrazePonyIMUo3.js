@@ -242,7 +242,8 @@ IMU_Init();
 // var tPrev = 0;
 var tPrev = 0, startTime = 0;	//us
 var gyro_offsets_sum = [0.0, 0.0, 0.0]; // gyro_offsets[3] = { 0.0f, 0.0f, 0.0f },
-var acc_offset_sum = [0, 0, 0]//for the acc offset
+var acc_offset_sum = [0, 0, 0];//for the acc offset
+var mag_offset_sum = [0, 0, 0];//for mag offset
 var offset_count = 0;
 
 //函数名：IMUSO3Thread(void)
@@ -308,6 +309,12 @@ IMUSO3Thread = function (param) {
         acc_offset_sum[1] += imu.accRaw[1];
         acc_offset_sum[2] += imu.accRaw[2];
         //try end
+
+        //try to add acc_offset as well
+        mag_offset_sum[0] += imu.magRaw[0];
+        mag_offset_sum[1] += imu.magRaw[1];
+        mag_offset_sum[2] += imu.magRaw[2];
+        //try end
         offset_count++;
 
         if (now > startTime + GYRO_CALC_TIME) {
@@ -319,6 +326,12 @@ IMUSO3Thread = function (param) {
             imu.accOffset[1] = acc_offset_sum[1] / offset_count;
             imu.accOffset[2] = acc_offset_sum[2] / offset_count - Constant_G;
 
+
+            imu.magOffset[0] = mag_offset_sum[0] / offset_count;
+            imu.magOffset[1] = mag_offset_sum[1] / offset_count;
+            imu.magOffset[2] = mag_offset_sum[2] / offset_count;
+
+
             offset_count = 0;
             gyro_offsets_sum[0] = 0;
             gyro_offsets_sum[1] = 0;
@@ -327,6 +340,10 @@ IMUSO3Thread = function (param) {
             acc_offset_sum[0] = 0;
             acc_offset_sum[1] = 0;
             acc_offset_sum[2] = 0;
+
+            mag_offset_sum[0] = 0;
+            mag_offset_sum[1] = 0;
+            mag_offset_sum[2] = 0;
 
             imu.ready = 1;
             startTime = 0;
@@ -344,9 +361,17 @@ IMUSO3Thread = function (param) {
     acc[1] = imu.accb[1] - imu.accOffset[1];
     acc[2] = imu.accb[2] - imu.accOffset[2];
 
-    // mag[0] = imu.magRaw[0];
-    // mag[1] = imu.magRaw[1];
-    // mag[2] = imu.magRaw[2];
+    //     mag[0] = imu.magRaw[0] - imu.magOffset[0]; //remove offset
+    //     mag[1] = imu.magRaw[1] - imu.magOffset[1];
+    //     mag[2] = imu.magRaw[2] - imu.magOffset[2];
+
+    //     if (!(mag == [0, 0, 0])) {
+    //         let recipNorm = invSqrt(mag[0] * mag[0] + mag[1] * mag[1] + mag[2] * mag[2]);
+    //         mag[0] *= recipNorm;
+    //         mag[1] *= recipNorm;
+    //         mag[2] *= recipNorm;
+    // //         console.log(mag);
+    //     }
 
     // NOTE : Accelerometer is reversed.
     // Because proper mount of PX4 will give you a reversed accelerometer readings.
@@ -367,7 +392,7 @@ IMUSO3Thread = function (param) {
     Rot_matrix[6] = 2. * (q1 * q3 + q0 * q2);	// 31
     Rot_matrix[7] = 2. * (q2 * q3 - q0 * q1);	// 32
     Rot_matrix[8] = q0q0 - q1q1 - q2q2 + q3q3;// 33
-
+    // console.log("9Axis Fusion is : ", q0, '/', q1, '/', q2, '/', q3);
     //1-2-3 Representation.
     //Equation (290)
     //Representing Attitude: Euler Angles, Unit Quaternions, and Rotation Vectors, James Diebel.

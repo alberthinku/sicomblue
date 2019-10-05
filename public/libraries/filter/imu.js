@@ -10,6 +10,7 @@ class IMU_tt {
         this.magRaw = [];    //
         this.accOffset = []; //m/s^2
         this.gyroOffset = [];
+        this.magOffset = [];
         this.accb = []; //filted, in body frame
         this.accg = [];
         this.gyro = [];
