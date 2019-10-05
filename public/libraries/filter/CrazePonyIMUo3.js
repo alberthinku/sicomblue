@@ -27,6 +27,7 @@ const GYRO_CALC_TIME = 3000000;	//us
 const localGravity = 9.81259;// sensorsone.com, latitude=52.486244, height=100m.
 const standGravity = 9.8;// based on Acc standard output 1000mg = 9.8m/s^2
 const Constant_G = localGravity / standGravity;
+const fixpoint = 1;// to show the 4 number of decimal
 
 //! Auxiliary variables to reduce number of repeated operations
 var q0 = 1.0, q1 = 0.0, q2 = 0.0, q3 = 0.0;	/** quaternion of sensor frame relative to auxiliary frame */
@@ -268,7 +269,7 @@ IMUSO3Thread = function (param) {
     let eurla_roll = 0;
     let eurla_pitch = 0;
     let eurla_yaw = 0;
-
+    let eurla_pitch_Angle = eurla_roll_Angle = eurla_yaw_Angle = 0;
 
     // let now = micros();//time of now in microSeconds
     // now = Date.now();//now is time in miliSeconds
@@ -349,7 +350,7 @@ IMUSO3Thread = function (param) {
             startTime = 0;
 
         }
-        return ({ eurla_pitch, eurla_roll, eurla_yaw });
+        return ({ eurla_pitch, eurla_roll, eurla_yaw, eurla_pitch_Angle, eurla_roll_Angle, eurla_yaw_Angle });
     }
 
 
@@ -360,6 +361,10 @@ IMUSO3Thread = function (param) {
     acc[0] = imu.accb[0] - imu.accOffset[0]; //remove offset
     acc[1] = imu.accb[1] - imu.accOffset[1];
     acc[2] = imu.accb[2] - imu.accOffset[2];
+
+    // acc[0] = imu.accb[0];
+    // acc[1] = imu.accb[1];
+    // acc[2] = imu.accb[2];
 
     //     mag[0] = imu.magRaw[0] - imu.magOffset[0]; //remove offset
     //     mag[1] = imu.magRaw[1] - imu.magOffset[1];
@@ -420,6 +425,10 @@ IMUSO3Thread = function (param) {
     eurla_pitch = euler[1];
     eurla_yaw = euler[2];
 
+    eurla_pitch_Angle = imu.pitch.toFixed(fixpoint);
+    eurla_roll_Angle = imu.roll.toFixed(fixpoint);
+    eurla_yaw_Angle = imu.yaw.toFixed(fixpoint);
 
-    return ({ eurla_pitch, eurla_roll, eurla_yaw });
+
+    return ({ eurla_pitch, eurla_roll, eurla_yaw, eurla_pitch_Angle, eurla_roll_Angle, eurla_yaw_Angle });
 }

@@ -95,7 +95,7 @@ function project(points3d, width, height) {
 //     context.strokeStyle = "#000000";
 // }
 
-function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube) {
+function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube, imuAngle) {
     // window.requestAnimationFrame(loop);
     // initDraw(cube);
     var canvas = document.getElementById(cube.elementID);
@@ -103,16 +103,28 @@ function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube) {
     var height = canvas.clientHeight;
     var width = canvas.clientWidth;
 
+
+
     startX = 0;
     startY = 0;
-    height = canvas.clientHeight;
-    width = canvas.clientWidth;
+    // height = canvas.clientHeight;
+    // width = canvas.clientWidth;
     // if (cube.x > 0) { startX = width; }
     context.canvas.height = height;
     context.canvas.width = width;
     context.fillStyle = "#ffffff";
     context.fillRect(startX, startY, width, height);
     context.strokeStyle = "#000000";
+
+    context.fillStyle = "black";
+    context.font = "20px Arial";
+    context.fillText(cube.name, 0, 30);
+
+    context.fillStyle = "blue";
+    context.font = "25px Arial";
+    let outp = 'P>' + imuAngle.eurla_pitch_Angle + '/ R>' + imuAngle.eurla_roll_Angle + '/ Y>' + imuAngle.eurla_yaw_Angle;
+    context.fillText(outp, 0, 50);
+
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
 
@@ -143,6 +155,11 @@ function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube) {
             context.closePath();
             context.fill();
             context.stroke();
+
+            // context.fillStyle = "red";
+            // context.font = "20px Arial";
+            // context.fillText(cube.elementID, 0, height / 2);
+
         }
     }
 }

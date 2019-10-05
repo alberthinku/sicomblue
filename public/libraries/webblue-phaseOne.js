@@ -56,8 +56,8 @@ class webblue_phaseOne {
 
         this.has_selected_service = false;
         this.has_selected_Char = false;
-        this.last_EularRadian = {};
-        this.last_EularRadian_Raw = {};
+        this.last_EularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+        this.last_EularRadian_Raw = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         document.getElementById(this.buttonDiscover).disabled = false;
         this.statusInit();
 
@@ -147,6 +147,7 @@ class webblue_phaseOne {
 
         if (document.getElementById('ifRawContent').innerText.slice(-36) == uuid) {
             document.getElementById(cube9Axis.elementID).hidden = !(status);
+            IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
         };
 
     }//setNotificationStatus
@@ -927,6 +928,7 @@ class webblue_phaseOne {
         // console.log('selected char to be further deployed');
         let outp = document.getElementById('thenContent');
         let eularAngle = [];
+        let eularRadianSum = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         for (let i = 0; i < params.length; i += 3) {
             let quarternionElement = params.slice(i, i + 3);
             let qi = quarternionElement[0] / 10000;//BlueST defines the Qi,j,k output with real Int16*10000
@@ -935,17 +937,29 @@ class webblue_phaseOne {
             // console.log('SFC elements is : ', qi, '/', qj, '/', qk);
             let qW = Math.sqrt(1 - qi * qi - qj * qj - qk * qk);
             let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);
+            //     eularRadianSum.eurla_roll += eularRadian.eurla_roll;
+            //     eularRadianSum.eurla_pitch += eularRadian.eurla_pitch;
+            //     eularRadianSum.eurla_yaw += eularRadian.eurla_yaw;
+            // }
+            // let eularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+            // eularRadian.eurla_roll = eularRadianSum.eurla_roll / params.length;
+            // eularRadian.eurla_pitch = eularRadianSum.eurla_pitch / params.length;
+            // eularRadian.eurla_yaw = eularRadianSum.eurla_yaw / params.length;
+
             let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
             let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
             let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
-            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cubeSFCompact); }
-            else loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact);
+            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cubeSFCompact, eularRadian); }
+            else loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact, eularRadian);
             //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
             this.last_EularRadian = eularRadian;
-            eularAngle.push(eularRadian);
-            // console.log('first eular angle is : ', eularAngle);
+
+            // let r2d = 180 / Math.PI;
+            // let eAngle = [eularRadian.eurla_yaw * r2d, eularRadian.eurla_pitch * r2d, eularRadian.eurla_roll * r2d];
+            // eularAngle.push(eAngle);
 
         }
+
         // outp.innerText = JSON.stringify(eularAngle);
 
     }
@@ -962,8 +976,8 @@ class webblue_phaseOne {
         let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian_Raw.eurla_yaw;
         let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian_Raw.eurla_pitch;
         let delta_roll = eularRadian.eurla_roll - this.last_EularRadian_Raw.eurla_roll;
-        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube9Axis); }
-        else loop(-delta_yaw, -delta_pitch, -delta_roll, cube9Axis);
+        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube9Axis, eularRadian); }
+        else loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);
         //due to the algorithm is output opsite to FSCompact, we reverse teh delta_xxxx for the loop.
 
         this.last_EularRadian_Raw = eularRadian;
