@@ -37,7 +37,7 @@ function fusionQuaternion2Eular(w, qi, qj, qk) {
 
     let eurla_roll_Angle = (eurla_roll * s2d).toFixed(fixpoint);
     let eurla_pitch_Angle = (eurla_pitch * s2d).toFixed(fixpoint);
-    let eurla_yaw_Angle = (eurla_pitch * s2d).toFixed(fixpoint);
+    let eurla_yaw_Angle = (eurla_yaw * s2d).toFixed(fixpoint);
 
     return ({ eurla_pitch, eurla_roll, eurla_yaw, eurla_pitch_Angle, eurla_roll_Angle, eurla_yaw_Angle });
 }
