@@ -39,8 +39,8 @@ const GYRO_SCALE = 2000; //dps, BLUEST's output fullscale rating for gyro, since
 const gyro_rps = Math.PI / 180; //rad per degree
 const gyro_scale_rps_rate = GYRO_SCALE * gyro_rps / CrazePony_Gyro_Max;//to match to the algorithm normalization
 
-const ACC_SCALE = 2; //g, BLUEST's output fullscale rate for acc, since CrazePony is using 8g as full scale, so need to down grade the acc reading of 4
-const acc_scale_rate = ACC_SCALE / CrazePony_Acc_Max;//to match to the algorithm normalization
+const ACC_SCALE = CrazePony_Acc_Max; //g, BLUEST's output fullscale rate for acc, since CrazePony is using 8g as full scale, so need to down grade the acc reading of 4
+const acc_scale_rate = ACC_SCALE / CrazePony_Acc_Max;//since the raw 9Axis are absolute g data (instead of ADC reading), so the scale does not need to be justified as it was for the ADC reading case, scale should be 1 for the BlueST 9Axis Raw 
 
 function IMU_Init() {
     // #ifdef IMU_SW		//软解需要先校陀螺
