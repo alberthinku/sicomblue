@@ -936,7 +936,8 @@ class webblue_phaseOne {
             let qk = quarternionElement[2] / 10000;
             // console.log('SFC elements is : ', qi, '/', qj, '/', qk);
             let qW = Math.sqrt(1 - qi * qi - qj * qj - qk * qk);
-            let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);
+            let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);//
+
             //     eularRadianSum.eurla_roll += eularRadian.eurla_roll;
             //     eularRadianSum.eurla_pitch += eularRadian.eurla_pitch;
             //     eularRadianSum.eurla_yaw += eularRadian.eurla_yaw;
