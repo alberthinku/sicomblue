@@ -41,6 +41,9 @@
     <canvas style="left: 600px; top: 00px" id="drawCube" width="100" height="100" hidden="true"></canvas>
     <canvas style="left: 600px; top: 350px" id="drawCube9Axis" width="100" height="100" hidden="true"></canvas>
 
+    <canvas style="left: 00px; top: 00px" id="drawArm" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 00px; top: 350px" id="drawArm9Axis" width="100" height="100" hidden="true"></canvas>
+
     <p id="welcomeIP"></p>
     <script>
         GETIP = function () {
@@ -259,9 +262,39 @@
 
     <script src="libraries/filter/drawCube.js">
     </script>
+
+    <script src="libraries/filter/drawArm.js">
+    </script>
+
     <script>
-        var cubeSFCompact = new Cube(00, 0, 400, 200, "SFCompact", "drawCube");
-        var cube9Axis = new Cube(00, 0, 400, 200, "9Axis", "drawCube9Axis");
+        let armW = document.getElementById("drawArm");
+        var armLength = 0.1 * Math.sqrt(armW.width * armW.width / 4 + armW.height * armW.height / 4);
+        var cubeSFCompact;
+        //  = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
+        var cube9Axis;
+        //  = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
+
+        var armSFCompact;
+        //  = new Arm(armLength, 0, 10 * armLength, 25, "armSFCompact", "drawArm");
+        var arm9Axis;
+        //  = new Arm(armLength, 0, 10 * armLength, 25, "arm9Axis", "drawArm9Axis");
+        function cubeInit() {
+            cubeSFCompact = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
+            cube9Axis = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
+
+            // var armSFCompact = new Arm(armLength, 0, 10 * armLength, 25, "armSFCompact", "drawArm");
+            // var arm9Axis = new Arm(armLength, 0, 10 * armLength, 25, "arm9Axis", "drawArm9Axis");
+        };
+        function armInit() {
+            //     var cubeSFCompact = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
+            // var cube9Axis = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
+
+            armSFCompact = new Arm(armLength, 0, 10 * armLength, 25, 25, armLength, "armSFCompact", "drawArm");
+            arm9Axis = new Arm(armLength, 0, 10 * armLength, 25, 25, armLength, "arm9Axis", "drawArm9Axis");
+        };
+        cubeInit();
+        armInit();
+
     </script>
 
 </body>
