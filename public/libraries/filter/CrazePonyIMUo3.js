@@ -358,13 +358,13 @@ IMUSO3Thread = function (param) {
     gyro[1] = imu.gyro[1] - imu.gyroOffset[1];
     gyro[2] = imu.gyro[2] - imu.gyroOffset[2];
 
-    acc[0] = imu.accb[0] - imu.accOffset[0]; //remove offset
-    acc[1] = imu.accb[1] - imu.accOffset[1];
-    acc[2] = imu.accb[2] - imu.accOffset[2];
+    // acc[0] = imu.accb[0] - imu.accOffset[0]; //remove offset
+    // acc[1] = imu.accb[1] - imu.accOffset[1];
+    // acc[2] = imu.accb[2] - imu.accOffset[2];
 
-    // acc[0] = imu.accb[0];
-    // acc[1] = imu.accb[1];
-    // acc[2] = imu.accb[2];
+    acc[0] = imu.accb[0]; // incase the level cannot be found ,it is better to leave the offset there otherwise created manual drift by remove G
+    acc[1] = imu.accb[1];
+    acc[2] = imu.accb[2];
 
     //     mag[0] = imu.magRaw[0] - imu.magOffset[0]; //remove offset
     //     mag[1] = imu.magRaw[1] - imu.magOffset[1];

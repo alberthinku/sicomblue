@@ -143,10 +143,13 @@ class webblue_phaseOne {
 
         if (document.getElementById('ifContent').innerText.slice(-36) == uuid) {
             document.getElementById(cubeSFCompact.elementID).hidden = !(status);
+            document.getElementById(armSFCompact.elementID).hidden = !(status);
+
         };
 
         if (document.getElementById('ifRawContent').innerText.slice(-36) == uuid) {
             document.getElementById(cube9Axis.elementID).hidden = !(status);
+            document.getElementById(arm9Axis.elementID).hidden = !(status);
             IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
         };
 
@@ -950,8 +953,14 @@ class webblue_phaseOne {
             let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
             let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
             let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
-            if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cubeSFCompact, eularRadian); }
-            else loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact, eularRadian);
+            if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
+                loop(0, 0, 0, cubeSFCompact, eularRadian);
+                armLoop(0, 0, 0, armSFCompact, eularRadian)
+            }
+            else {
+                loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact, eularRadian);//drawCube
+                armLoop(delta_yaw, delta_pitch, delta_roll, armSFCompact, eularRadian);//drawArm
+            }
             //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
             this.last_EularRadian = eularRadian;
 
@@ -977,8 +986,15 @@ class webblue_phaseOne {
         let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian_Raw.eurla_yaw;
         let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian_Raw.eurla_pitch;
         let delta_roll = eularRadian.eurla_roll - this.last_EularRadian_Raw.eurla_roll;
-        if (isNaN(delta_pitch + delta_yaw + delta_roll)) { loop(0, 0, 0, cube9Axis, eularRadian); }
-        else loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);
+        if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
+            loop(0, 0, 0, cube9Axis, eularRadian);
+            armLoop(0, 0, 0, arm9Axis, eularRadian);
+        }
+        else {
+            loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);//drawCube
+            armLoop(delta_yaw, delta_pitch, delta_roll, arm9Axis, eularRadian);//drawArm
+        }
+
         //due to the algorithm is output opsite to FSCompact, we reverse teh delta_xxxx for the loop.
 
         this.last_EularRadian_Raw = eularRadian;

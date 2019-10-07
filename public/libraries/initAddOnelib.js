@@ -104,11 +104,22 @@ function reinit() {
     if (cubeEnabled) {
         document.getElementById(cubeSFCompact.elementID).hidden = true;//hide the canvas when reset
         document.getElementById(cube9Axis.elementID).hidden = true;//hide the canvas when reset
+
+        document.getElementById(armSFCompact.elementID).hidden = true;//hide the canvas when reset
+        document.getElementById(arm9Axis.elementID).hidden = true;//hide the canvas when reset
+
         document.getElementById("ifContent").innerText = "";
         document.getElementById("ifRawContent").innerText = "";
         document.getElementById("thenContent").innerText = "";
-        cubeSFCompact = new Cube(00, 0, 400, 200, "SFCompact", "drawCube");
-        cube9Axis = new Cube(00, 0, 400, 200, "9Axis", "drawCube9Axis");
+
+        cubeInit();
+        armInit();
+
+        // cubeSFCompact = new Cube(00, 0, 400, 200, "SFCompact", "drawCube");
+        // cube9Axis = new Cube(00, 0, 400, 200, "9Axis", "drawCube9Axis");
+
+        // armSFCompact = new Arm(armLength, 0, 400, 25, "armSFCompact", "drawArm");
+        // arm9Axis = new Arm(armLength, 0, -400, 25, "arm9Axis", "drawArm9Axis");
         IMU_Init();
     }
 

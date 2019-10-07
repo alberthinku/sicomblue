@@ -54,15 +54,6 @@ Cube.prototype = {
         }
     }
 };
-// var canvas = document.getElementById("drawCube");
-// var context = canvas.getContext("2d");
-// var pointer = new Point2D(0, 0);
-
-// // var cube = new Cube(0, 0, 400, 200);
-// // var divFrame = document.getElementById("divFrame");
-// var height = canvas.clientHeight;
-// var width = canvas.clientWidth;
-// var pointer = new Point2D(0, 0);
 
 function project(points3d, width, height) {
     var points2d = new Array(points3d.length);
@@ -76,24 +67,6 @@ function project(points3d, width, height) {
     return points2d;
 }
 
-// function initDraw(cube) {
-//     //if cube == 
-//     var canvas = document.getElementById(cube.elementID);
-//     var context = canvas.getContext("2d");
-//     var height = canvas.clientHeight;
-//     var width = canvas.clientWidth;
-
-//     startX = 0;
-//     startY = 0;
-//     height = canvas.clientHeight;
-//     width = canvas.clientWidth;
-//     // if (cube.x > 0) { startX = width; }
-//     context.canvas.height = height;
-//     context.canvas.width = width;
-//     context.fillStyle = "#ffffff";
-//     context.fillRect(startX, startY, width, height);
-//     context.strokeStyle = "#000000";
-// }
 
 function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube, imuAngle) {
     // window.requestAnimationFrame(loop);
@@ -127,15 +100,10 @@ function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube, imuAngle) {
 
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
-
-    // cube.rotateX(pointer.y * 0.0001);
-    // cube.rotateY(-pointer.x * 0.0001);
-    // cube.rotateX(0.0003);
-    // cube.rotateY(-0.001);
     cube.rotateZ(Roll);
     cube.rotateX(Pitch);
     cube.rotateY(-Yaw);
-    // context.fillStyle = "#0080f0";
+
     var vertices = project(cube.vertices, width, height);
     for (let index = cube.faces.length - 1; index > -1; --index) {
         let face = cube.faces[index];
@@ -156,15 +124,6 @@ function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube, imuAngle) {
             context.fill();
             context.stroke();
 
-            // context.fillStyle = "red";
-            // context.font = "20px Arial";
-            // context.fillText(cube.elementID, 0, height / 2);
-
         }
     }
 }
-// loop(0.0001, 0, 0);
-// window.addEventListener("click", (event) => {
-//     pointer.x = event.pageX - width * 0.5;
-//     pointer.y = event.pageY - height * 0.5;
-// });

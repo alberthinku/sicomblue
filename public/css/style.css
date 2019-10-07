@@ -120,9 +120,9 @@ body {
 }
 
 canvas {
-    height: 50%;
+    height: 40%;
     position: fixed;
-    width: 50%;
+    width: 40%;
 }
 /* </style> */
 
