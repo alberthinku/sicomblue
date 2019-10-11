@@ -268,7 +268,7 @@
 
     <script>
         let armW = document.getElementById("drawArm");
-        var armLength = 0.1 * Math.sqrt(armW.width * armW.width / 4 + armW.height * armW.height / 4);
+        var armLength = Math.sqrt(armW.width * armW.width / 4 + armW.height * armW.height / 4);
         var cubeSFCompact;
         //  = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
         var cube9Axis;
@@ -288,9 +288,18 @@
         function armInit() {
             //     var cubeSFCompact = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
             // var cube9Axis = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
-
-            armSFCompact = new Arm(armLength, 0, 10 * armLength, 25, 25, armLength, "armSFCompact", "drawArm");
-            arm9Axis = new Arm(armLength, 0, 10 * armLength, 25, 25, armLength, "arm9Axis", "drawArm9Axis");
+            var rCx = 0;
+            var rCy = 0;
+            var rCz = 0;
+            let bCx = rCx;
+            // armLength / 2 + rCx;
+            let bCy = rCy;
+            let bCz = armLength / 2 + rCz;
+            let sizeX = 25;
+            let sizeY = 25;
+            let sizeZ = armLength;
+            armSFCompact = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, "armSFCompact", "drawArm", rCx, rCy, rCz);
+            arm9Axis = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, "arm9Axis", "drawArm9Axis", rCx, rCy, rCz);
         };
         cubeInit();
         armInit();

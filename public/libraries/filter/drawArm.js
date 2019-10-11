@@ -3,11 +3,14 @@
 
 //Arm is defining the arm to be drawed as the center coordination is (x,y,z) related to the camera=(0,0,0) 
 //while the size is the size of the arm in the drawing plane
-const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID) {
+const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID, rCx, rCy, rCz) {
     Point3D.call(this, x, y, z);
     sizeW *= 0.5;
     sizeL *= 0.5;
     sizeH *= 0.5;
+    this.rCx = rCx;
+    this.rCy = rCy;
+    this.rCz = rCz;
     this.W = sizeW;
     this.L = sizeL;
     this.H = sizeH;
@@ -31,25 +34,19 @@ Arm.prototype = {
     rotateX: function (radian) {
         var cosine = Math.cos(radian);
         var sine = Math.sin(radian);
-        // this.y = this.vertices[8].y - this.L;
-        // this.z = this.vertices[8].z - this.H;
+
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
             // let y = (p.y - this.y) * cosine - (p.z - this.z) * sine;
             // let z = (p.y - this.y) * sine + (p.z - this.z) * cosine;
-            // //not only the vertice but also the center of the cube to be rotated
-            // this.y = this.y * cosine - this.z * sine;
-            // this.z = this.y * sine + this.z * cosine;
 
             // p.y = y + this.y;
             // p.z = z + this.z;
-            let y = (p.y) * cosine - (p.z) * sine;
-            let z = (p.y) * sine + (p.z) * cosine;
-            p.y = y;
-            p.z = z;
+            let y = (p.y - this.rCy) * cosine - (p.z - this.rCz) * sine;
+            let z = (p.y - this.rCy) * sine + (p.z - this.rCz) * cosine;
+            p.y = y + this.rCy;
+            p.z = z + this.rCz;
         }
-        // this.center[1] = this.center[1] * cosine - this.center[2] * sine;
-        // this.center[2] = this.center[1] * sine + this.center[2] * cosine;
 
     },
     rotateY: function (radian) {
@@ -60,23 +57,16 @@ Arm.prototype = {
 
             // let x = (p.z - this.z) * sine + (p.x - this.x) * cosine;
             // let z = (p.z - this.z) * cosine - (p.x - this.x) * sine;
-            // //not only the vertice but also the center of the cube to be rotated
-
-            // this.x = this.z * sine + this.x * cosine;
-            // this.z = this.z * cosine - this.x * sine;
 
             // p.x = x + this.x;
             // p.z = z + this.z;
 
-            let x = (p.z) * sine + (p.x) * cosine;
-            let z = (p.z) * cosine - (p.x) * sine;
-            p.x = x;
-            p.z = z;
+            let x = (p.z - this.rCz) * sine + (p.x - this.rCx) * cosine;
+            let z = (p.z - this.rCz) * cosine - (p.x - this.rCx) * sine;
+            p.x = x + this.rCx;
+            p.z = z + this.rCz;
         }
-        // this.center[0] = this.center[2] * sine + this.center[0] * cosine;
-        // this.center[2] = this.center[2] * cosine - this.center[0] * sine;
-        // this.x = this.vertices[8].x;
-        // this.z = this.vertices[8].z;
+
     },
     rotateZ: function (radian) {
         var cosine = Math.cos(radian);
@@ -86,22 +76,14 @@ Arm.prototype = {
             // let x = (p.y - this.y) * sine + (p.x - this.x) * cosine;
             // let y = (p.y - this.y) * cosine - (p.x - this.x) * sine;
 
-            // //not only the vertice but also the center of the cube to be rotated
-            // this.x = this.y * sine + this.x * cosine;
-            // this.y = this.y * cosine - this.x * sine;
-
             // p.x = x + this.x;
             // p.y = y + this.y;
 
-            let x = (p.y) * sine + (p.x) * cosine;
-            let y = (p.y) * cosine - (p.x) * sine;
-            p.x = x;
-            p.y = y;
+            let x = (p.y - this.rCy) * sine + (p.x - this.rCx) * cosine;
+            let y = (p.y - this.rCy) * cosine - (p.x - this.rCx) * sine;
+            p.x = x + this.rCx;
+            p.y = y + this.rCy;
         }
-        // this.center[0] = this.center[1] * sine + this.center[0] * cosine;
-        // this.center[1] = this.center[1] * cosine - this.center[0] * sine;
-        // this.x = this.vertices[8].x;
-        // this.y = this.vertices[8].y;
 
     }
 };
@@ -109,13 +91,17 @@ Arm.prototype = {
 function armProject(points3d, width, height) {
     var points2d = new Array(points3d.length);
     var focal_length = 200;
+    var Px = 00;
+    var Py = 00;
+    var Pz = 200;
+
     for (let index = points3d.length - 1; index > -1; --index) {
         let p = points3d[index];
-        let x = (p.x * (focal_length / p.z) + width * 0.5);
-        let y = (p.y * (focal_length / p.z) + height * 0.5);
+        // let x = (p.x * (focal_length / p.z) + width * 0.5);
+        // let y = (p.y * (focal_length / p.z) + height * 0.5);
 
-        // let x = p.x * (focal_length / p.z) + width * 0.5;
-        // let y = p.y * (focal_length / p.z) + height * 0.5;
+        let x = (Px * p.z - p.x * Pz) / (p.z - Pz) + width * 0.5;
+        let y = (Py * p.z - p.y * Pz) / (p.z - Pz) + height * 0.5;
 
         points2d[index] = new Point2D(x, y);
     }
@@ -171,10 +157,13 @@ function armLoop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, arm, imuAngle) {
 
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
+    // arm.rotateZ(Yaw);
+    // arm.rotateX(Roll);
+    // arm.rotateY(Pitch);
+
     arm.rotateZ(Roll);
     arm.rotateX(Pitch);
     arm.rotateY(-Yaw);
-
     var vertices = armProject(arm.vertices, width, height);
 
     for (let index = arm.faces.length - 1; index > -1; --index) {
@@ -182,13 +171,16 @@ function armLoop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, arm, imuAngle) {
         let p1 = arm.vertices[face[0]];
         let p2 = arm.vertices[face[1]];
         let p3 = arm.vertices[face[2]];
-        let v1 = new Point3D(p2.x, p2.y, p2.z);
-        let v2 = new Point3D(p3.x, p3.y, p3.z);
+        // let v1 = new Point3D(p2.x, p2.y, p2.z);
+        // let v2 = new Point3D(p3.x, p3.y, p3.z);
 
+        let v1 = new Point3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
+        let v2 = new Point3D(-p3.x + p1.x, -p3.y + p1.y, -p3.z + p1.z);
         // let v1 = new Point3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
         // let v2 = new Point3D(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
         let n = new Point3D(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
-        if (-p1.x * n.x + -p1.y * n.y + -p1.z * n.z <= 0) {
+        // if (-(p1.x) * n.x + -(p1.y) * n.y + -(p1.z) * n.z > 0) {
+        if ((p1.x - arm.vertices[8].x) * n.x + (p1.y - arm.vertices[8].y) * n.y + (p1.z - arm.vertices[8].z) * n.z > 0) {
             context.fillStyle = arm.faces_fillstyle[index];
             context.beginPath();
             context.moveTo(vertices[face[0]].x, vertices[face[0]].y);
