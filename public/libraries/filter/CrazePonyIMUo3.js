@@ -24,10 +24,12 @@ Part of this algrithom is referred from pixhawk.
 
 const ACC_CALC_TIME = 3000; //ms
 const GYRO_CALC_TIME = 3000000;	//us
-const localGravity = 9.81259;// sensorsone.com, latitude=52.486244, height=100m.
+// const localGravity = 9.81259;// sensorsone.com, latitude=52.486244, height=100m.
+// var localGravity = document.getElementById("GravValue").placeholder;
 const standGravity = 9.8;// based on Acc standard output 1000mg = 9.8m/s^2
 const Constant_G = localGravity / standGravity;
 const fixpoint = 1;// to show the 4 number of decimal
+const floatpoint = 8;// to make quaternion shoren
 
 //! Auxiliary variables to reduce number of repeated operations
 var q0 = 1.0, q1 = 0.0, q2 = 0.0, q3 = 0.0;	/** quaternion of sensor frame relative to auxiliary frame */
@@ -57,6 +59,9 @@ invSqrt = function (number) {
     return (1 / Math.sqrt(number));
 }
 
+roundup = function (number, floatpoint) {
+    return (Math.round(number << floatpoint) >> floatpoint);
+}
 //! Using accelerometer, sense the gravity vector.
 //! Using magnetometer, sense yaw.
 NonlinearSO3AHRSinit = function (ax, ay, az, mx, my, mz) {
@@ -88,10 +93,16 @@ NonlinearSO3AHRSinit = function (ax, ay, az, mx, my, mz) {
     cosHeading = Math.cos(initialHdg * 0.5);
     sinHeading = Math.sin(initialHdg * 0.5);
 
-    q0 = cosRoll * cosPitch * cosHeading + sinRoll * sinPitch * sinHeading;
-    q1 = sinRoll * cosPitch * cosHeading - cosRoll * sinPitch * sinHeading;
-    q2 = cosRoll * sinPitch * cosHeading + sinRoll * cosPitch * sinHeading;
-    q3 = cosRoll * cosPitch * sinHeading - sinRoll * sinPitch * cosHeading;
+    q0 = (cosRoll * cosPitch * cosHeading + sinRoll * sinPitch * sinHeading);
+    q1 = (sinRoll * cosPitch * cosHeading - cosRoll * sinPitch * sinHeading);
+    q2 = (cosRoll * sinPitch * cosHeading + sinRoll * cosPitch * sinHeading);
+    q3 = (cosRoll * cosPitch * sinHeading - sinRoll * sinPitch * cosHeading);
+
+    // q0 = roundup(cosRoll * cosPitch * cosHeading + sinRoll * sinPitch * sinHeading, floatpoint);
+    // q1 = roundup(sinRoll * cosPitch * cosHeading - cosRoll * sinPitch * sinHeading, floatpoint);
+    // q2 = roundup(cosRoll * sinPitch * cosHeading + sinRoll * cosPitch * sinHeading, floatpoint);
+    // q3 = roundup(cosRoll * cosPitch * sinHeading - sinRoll * sinPitch * cosHeading, floatpoint);
+
 
     // auxillary variables to reduce number of repeated operations, for 1st pass
     q0q0 = q0 * q0;
@@ -222,6 +233,11 @@ NonlinearSO3AHRSupdate = function (gx, gy, gz, ax, ay, az, mx, my, mz, twoKp, tw
     q2 *= recipNorm;
     q3 *= recipNorm;
 
+    // q0 = roundup(q0, floatpoint);
+    // q1 = roundup(q1, floatpoint);
+    // q2 = roundup(q2, floatpoint);
+    // q3 = roundup(q3, floatpoint);
+
     // Auxiliary variables to avoid repeated arithmetic
     q0q0 = q0 * q0;
     q0q1 = q0 * q1;
@@ -236,7 +252,7 @@ NonlinearSO3AHRSupdate = function (gx, gy, gz, ax, ay, az, mx, my, mz, twoKp, tw
 }
 
 const so3_comp_params_Kp = 1.0;
-const so3_comp_params_Ki = 0.05;
+const so3_comp_params_Ki = 0.05;//0.05
 const M_PI_F = Math.PI;
 var imu = new IMU_tt;
 IMU_Init();
@@ -246,14 +262,16 @@ var gyro_offsets_sum = [0.0, 0.0, 0.0]; // gyro_offsets[3] = { 0.0f, 0.0f, 0.0f 
 var acc_offset_sum = [0, 0, 0];//for the acc offset
 var mag_offset_sum = [0, 0, 0];//for mag offset
 var offset_count = 0;
+var lastAcc = [];
+var deltaTs = 0; //=TS-lastTS; note TS from BlueST is in the 10 miliseconds, ie TS=1 means 10mili
 
 //函数名：IMUSO3Thread(void)
 //描述：姿态软件解算融合函数
 //该函数对姿态的融合是软件解算，Crazepony现在不使用DMP硬件解算
 //对应的硬件解算函数为IMU_Process()
-IMUSO3Thread = function (param) {
+IMUSO3Thread = function (param, TS) {
     //! Time constant
-    let dt = 0.01;		//s
+    let dt = deltaTs / 100;		//s
     let now;
     let i;
 
@@ -275,9 +293,12 @@ IMUSO3Thread = function (param) {
     // now = Date.now();//now is time in miliSeconds
     now = performance.now() * 1000;
     dt = (tPrev > 0) ? (now - tPrev) / 1000000.0 : 0;
+    if (dt > 0) LPFset(10 / dt, 30); //due to the BLE connection datarate, LPFset need to have at least 100hz, so use 10/dt. ie. we are manipulating the LPF samples rate by x10.
     tPrev = now;
 
-    ReadIMUSensorHandle(param);
+    // console.log(dt, "/", deltaTs / 1000, '=', Date.now());
+
+    ReadIMUSensorHandle(param, TS);
     // if (!sensorReady) return;
 
     if (!imu.ready) {
@@ -306,9 +327,14 @@ IMUSO3Thread = function (param) {
         //here above the original way
 
         //try to add acc_offset as well
+        // acc_offset_sum[0] += imu.accb[0];
+        // acc_offset_sum[1] += imu.accb[1];
+        // acc_offset_sum[2] += imu.accb[2];
+
         acc_offset_sum[0] += imu.accRaw[0];
         acc_offset_sum[1] += imu.accRaw[1];
         acc_offset_sum[2] += imu.accRaw[2];
+
         //try end
 
         //try to add acc_offset as well
@@ -358,28 +384,41 @@ IMUSO3Thread = function (param) {
     gyro[1] = imu.gyro[1] - imu.gyroOffset[1];
     gyro[2] = imu.gyro[2] - imu.gyroOffset[2];
 
-    // acc[0] = imu.accb[0] - imu.accOffset[0]; //remove offset
-    // acc[1] = imu.accb[1] - imu.accOffset[1];
-    // acc[2] = imu.accb[2] - imu.accOffset[2];
+    lastAcc = acc;
 
-    acc[0] = imu.accb[0]; // incase the level cannot be found ,it is better to leave the offset there otherwise created manual drift by remove G
-    acc[1] = imu.accb[1];
-    acc[2] = imu.accb[2];
+    acc[0] = imu.accb[0] - imu.accOffset[0]; //remove offset
+    acc[1] = imu.accb[1] - imu.accOffset[1];
+    acc[2] = imu.accb[2] - imu.accOffset[2];
 
-    //     mag[0] = imu.magRaw[0] - imu.magOffset[0]; //remove offset
-    //     mag[1] = imu.magRaw[1] - imu.magOffset[1];
-    //     mag[2] = imu.magRaw[2] - imu.magOffset[2];
+    // acc[0] = imu.accb[0]; // incase the level cannot be found ,it is better to leave the offset there otherwise created manual drift by remove G
+    // acc[1] = imu.accb[1];
+    // acc[2] = imu.accb[2];
 
-    //     if (!(mag == [0, 0, 0])) {
-    //         let recipNorm = invSqrt(mag[0] * mag[0] + mag[1] * mag[1] + mag[2] * mag[2]);
-    //         mag[0] *= recipNorm;
-    //         mag[1] *= recipNorm;
-    //         mag[2] *= recipNorm;
-    // //         console.log(mag);
-    //     }
+    // mag[0] = (imu.magRaw[0] - imu.magOffset[0]) * 0.1; //remove offset
+    // mag[1] = (imu.magRaw[1] - imu.magOffset[1]) * 0.1;
+    // mag[2] = (imu.magRaw[2] - imu.magOffset[2]) * 0.1;
+    let magRate = 1;
+    let gyroRate = 1;
+    if ((lastAcc[0] - acc[0]) * (lastAcc[1] - acc[1]) * (lastAcc[2] - acc[2]) < 0.0000001) { magRate = 0; }
+
+    gyro[0] *= gyroRate;
+    gyro[1] *= gyroRate;
+    gyro[2] *= gyroRate;
+
+    mag[0] = imu.mag[0] * magRate; //remove offset
+    mag[1] = imu.mag[1] * magRate;
+    mag[2] = imu.mag[2] * magRate;
+    // if (!(mag == [0, 0, 0])) {
+    //     let recipNorm = invSqrt(mag[0] * mag[0] + mag[1] * mag[1] + mag[2] * mag[2]);
+    //     mag[0] *= recipNorm;
+    //     mag[1] *= recipNorm;
+    //     mag[2] *= recipNorm;
+    //     //         console.log(mag);
+    // }
 
     // NOTE : Accelerometer is reversed.
     // Because proper mount of PX4 will give you a reversed accelerometer readings.
+    // dt = deltaTs / 100;
     NonlinearSO3AHRSupdate(gyro[0], gyro[1], gyro[2],
         acc[0], acc[1], acc[2],
         mag[0], mag[1], mag[2],
@@ -397,7 +436,8 @@ IMUSO3Thread = function (param) {
     Rot_matrix[6] = 2. * (q1 * q3 + q0 * q2);	// 31
     Rot_matrix[7] = 2. * (q2 * q3 - q0 * q1);	// 32
     Rot_matrix[8] = q0q0 - q1q1 - q2q2 + q3q3;// 33
-    // console.log("9Axis Fusion is : ", q0, '/', q1, '/', q2, '/', q3);
+    console.log("9Axis Fusion is : ", q0, '/', q1, '/', q2, '/', q3);
+    console.log(acc);
     //1-2-3 Representation.
     //Equation (290)
     //Representing Attitude: Euler Angles, Unit Quaternions, and Rotation Vectors, James Diebel.
@@ -405,7 +445,7 @@ IMUSO3Thread = function (param) {
     euler[0] = Math.atan2(Rot_matrix[5], Rot_matrix[8]);	//! Roll
     euler[1] = -safe_asin(Rot_matrix[2]);									//! Pitch
     // euler[1] = Math.asin(Rot_matrix[2]);									//! why asin is so much concerned??
-    euler[2] = Math.atan2(Rot_matrix[1], Rot_matrix[0]);
+    euler[2] = Math.atan2(Rot_matrix[0], Rot_matrix[1]);
 
     //DCM . ground to body
     // for (i = 0; i < 9; i++) {

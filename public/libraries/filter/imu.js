@@ -14,6 +14,7 @@ class IMU_tt {
         this.accb = []; //filted, in body frame
         this.accg = [];
         this.gyro = [];
+        this.mag = [];
         this.DCMgb = [];//DCMgb = [3][3]
         this.q = [];
         this.roll = 0; //deg
@@ -30,7 +31,7 @@ class IMU_tt {
 //现在使用软件解算，不再使用MPU6050的硬件解算单元DMP，IMU_SW在SysConfig.h中定义
 const IMU_SAMPLE_RATE = 166; //as pre the TS of BLUEST output calculated, not a fixed rate so far, this will impact the digital filter
 
-const IMU_FILTER_CUTOFF_FREQ = 30;
+const IMU_FILTER_CUTOFF_FREQ = 45;
 
 const CrazePony_Gyro_Max = 2000;
 const CrazePony_Acc_Max = 8;
@@ -42,6 +43,14 @@ const gyro_scale_rps_rate = GYRO_SCALE * gyro_rps / CrazePony_Gyro_Max;//to matc
 const ACC_SCALE = CrazePony_Acc_Max; //g, BLUEST's output fullscale rate for acc, since CrazePony is using 8g as full scale, so need to down grade the acc reading of 4
 const acc_scale_rate = ACC_SCALE / CrazePony_Acc_Max;//since the raw 9Axis are absolute g data (instead of ADC reading), so the scale does not need to be justified as it was for the ADC reading case, scale should be 1 for the BlueST 9Axis Raw 
 
+function LPFset(imu_sample_rate, imu_filter_cutoff_freq) {
+    LPF2pSetCutoffFreq_1(imu_sample_rate, imu_filter_cutoff_freq);		//30Hz
+    LPF2pSetCutoffFreq_2(imu_sample_rate, imu_filter_cutoff_freq);
+    LPF2pSetCutoffFreq_3(imu_sample_rate, imu_filter_cutoff_freq);
+    LPF2pSetCutoffFreq_4(imu_sample_rate, imu_filter_cutoff_freq);
+    LPF2pSetCutoffFreq_5(imu_sample_rate, imu_filter_cutoff_freq);
+    LPF2pSetCutoffFreq_6(imu_sample_rate, imu_filter_cutoff_freq);
+};
 function IMU_Init() {
     // #ifdef IMU_SW		//软解需要先校陀螺
     imu.ready = 0;
@@ -55,23 +64,17 @@ function IMU_Init() {
     LPF2pSetCutoffFreq_6(IMU_SAMPLE_RATE, IMU_FILTER_CUTOFF_FREQ);
 }
 
+var lastTS = 0;
 
-function ReadIMUSensorHandle(param) {
+function ReadIMUSensorHandle(param, ts = 0) {
     let i;
 
-    // //read raw
-    // MPU6050AccRead(imu.accADC);
-    // MPU6050GyroRead(imu.gyroADC);
-    // //tutn to physical
-    // for(i=0; i<3; i++)
-    // {
-    //     imu.accRaw[i]= imu.accADC[i] *ACC_SCALE * CONSTANTS_ONE_G ;
-    //     imu.gyroRaw[i]= imu.gyroADC[i] * GYRO_SCALE * Math.pitch /180;		//deg/s
-    // }
+    deltaTs = ts - lastTS;
+    lastTS = ts;
 
-    // imu.accb[0] = LPF2pApply_1(imu.accRaw[0] - imu.accOffset[0]);
-    // imu.accb[1] = LPF2pApply_2(imu.accRaw[1] - imu.accOffset[1]);
-    // imu.accb[2] = LPF2pApply_3(imu.accRaw[2] - imu.accOffset[2]);
+    // let ts_IMU_SAMPLE_RATE = 100 / deltaTs;
+
+    // LPFset(ts_IMU_SAMPLE_RATE, IMU_FILTER_CUTOFF_FREQ);
 
     imu.accRaw[0] = param[0] / 1000 * acc_scale_rate; //mg -> g with scale matching
     imu.accRaw[1] = param[1] / 1000 * acc_scale_rate;
@@ -79,8 +82,8 @@ function ReadIMUSensorHandle(param) {
     imu.gyroRaw[0] = param[3] / 10 * gyro_scale_rps_rate; //dps->rps with scale matching
     imu.gyroRaw[1] = param[4] / 10 * gyro_scale_rps_rate;
     imu.gyroRaw[2] = param[5] / 10 * gyro_scale_rps_rate;
-    imu.magRaw[0] = param[6] / 1000;//mg -> gauss
-    imu.magRaw[1] = param[7] / 1000;
+    imu.magRaw[0] = param[7] / 1000;//mg -> gauss // the x of 303 is y of 6dsl
+    imu.magRaw[1] = param[6] / 1000;//the y of 303 is x of 6dsl
     imu.magRaw[2] = param[8] / 1000;
 
     imu.accb[0] = LPF2pApply_1(imu.accRaw[0]);
@@ -94,4 +97,7 @@ function ReadIMUSensorHandle(param) {
 
     // if (isNaN(imu.gyro[0] + imu.gyro[1] + imu.gyro[2])) return false;
     // else return true;
+    imu.mag[0] = (imu.magRaw[0]);
+    imu.mag[1] = (imu.magRaw[1]);
+    imu.mag[2] = (imu.magRaw[2]);
 }
