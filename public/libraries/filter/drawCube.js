@@ -3,19 +3,25 @@ const Point3D = function (x, y, z) { this.x = x; this.y = y; this.z = z; };
 
 //Cube is defining the cube to be drawed as the center coordination is (x,y,z) related to the camera=(0,0,0) 
 //while the size is the size of the cube in the drawing plane
+//axis x from 0 to the right
+//axis y from 0 to the up
+//axis z from 0 to the outside of the panel
+//face[0]=<0,1,2,3> is in anti-clock sequence, which makes the n.p1<0
+//same case for face[2] = <1,5,6,2>, face[3]=<3,2,6,7> are all in anti-clock sequence, which makes the n.p1<0
+//the other faces are clock wise sequence, which n.p1>0
 const Cube = function (x, y, z, size, name, elementID) {
     Point3D.call(this, x, y, z);
     size *= 0.5;
     this.name = name;
     this.elementID = elementID;
-    this.vertices = [new Point3D(x - size, y - size, z - size),
-    new Point3D(x + size, y - size, z - size),
-    new Point3D(x + size, y + size, z - size),
-    new Point3D(x - size, y + size, z - size),
-    new Point3D(x - size, y - size, z + size),
-    new Point3D(x + size, y - size, z + size),
-    new Point3D(x + size, y + size, z + size),
-    new Point3D(x - size, y + size, z + size)];
+    this.vertices = [new Point3D(x - size, y - size, z - size),//0
+    new Point3D(x + size, y - size, z - size),//1
+    new Point3D(x + size, y + size, z - size),//2
+    new Point3D(x - size, y + size, z - size),//3
+    new Point3D(x - size, y - size, z + size),//4
+    new Point3D(x + size, y - size, z + size),//5
+    new Point3D(x + size, y + size, z + size),//6
+    new Point3D(x - size, y + size, z + size)];//7
     this.faces = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [3, 2, 6, 7], [0, 3, 7, 4], [4, 7, 6, 5]];
     this.faces_fillstyle = ["#0080f0", "red", "white", "yellow", "green", "black"];
 };
@@ -68,7 +74,7 @@ function project(points3d, width, height) {
 }
 
 
-function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube, imuAngle) {
+function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
     // window.requestAnimationFrame(loop);
     // initDraw(cube);
     var canvas = document.getElementById(cube.elementID);
@@ -113,7 +119,12 @@ function loop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, cube, imuAngle) {
         let v1 = new Point3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
         let v2 = new Point3D(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
         let n = new Point3D(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+        //n = v1 x v2
         if (-p1.x * n.x + -p1.y * n.y + -p1.z * n.z <= 0) {
+            // if p1.n>0
+
+            // if (n.z >= 0) {
+
             context.fillStyle = cube.faces_fillstyle[index];
             context.beginPath();
             context.moveTo(vertices[face[0]].x, vertices[face[0]].y);

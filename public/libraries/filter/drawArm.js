@@ -3,6 +3,16 @@
 
 //Arm is defining the arm to be drawed as the center coordination is (x,y,z) related to the camera=(0,0,0) 
 //while the size is the size of the arm in the drawing plane
+
+//Cube is defining the cube to be drawed as the center coordination is (x,y,z) related to the camera=(0,0,0) 
+//while the size is the size of the cube in the drawing plane
+//axis x from 0 to the right
+//axis y from 0 to the up
+//axis z from 0 to the outside of the panel
+//face[0]=<0,1,2,3> is in anti-clock sequence, which makes the n.p1<0
+//same case for face[2] = <1,5,6,2>, face[3]=<3,2,6,7> are all in anti-clock sequence, which makes the n.p1<0
+//the other faces are clock wise sequence, which n.p1>0
+
 const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID, rCx, rCy, rCz) {
     Point3D.call(this, x, y, z);
     sizeW *= 0.5;
@@ -16,15 +26,15 @@ const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID, rCx, rCy, r
     this.H = sizeH;
     this.name = name;
     this.elementID = elementID;
-    this.vertices = [new Point3D(x - sizeW, y - sizeL, z - sizeH),
-    new Point3D(x + sizeW, y - sizeL, z - sizeH),
-    new Point3D(x + sizeW, y + sizeL, z - sizeH),
-    new Point3D(x - sizeW, y + sizeL, z - sizeH),
-    new Point3D(x - sizeW, y - sizeL, z + sizeH),
-    new Point3D(x + sizeW, y - sizeL, z + sizeH),
-    new Point3D(x + sizeW, y + sizeL, z + sizeH),
-    new Point3D(x - sizeW, y + sizeL, z + sizeH),
-    new Point3D(x, y, z)];//add the center as no.9 vertice
+    this.vertices = [new Point3D(x - sizeW, y - sizeL, z - sizeH),//0
+    new Point3D(x + sizeW, y - sizeL, z - sizeH),//1
+    new Point3D(x + sizeW, y + sizeL, z - sizeH),//2
+    new Point3D(x - sizeW, y + sizeL, z - sizeH),//3
+    new Point3D(x - sizeW, y - sizeL, z + sizeH),//4
+    new Point3D(x + sizeW, y - sizeL, z + sizeH),//5
+    new Point3D(x + sizeW, y + sizeL, z + sizeH),//6
+    new Point3D(x - sizeW, y + sizeL, z + sizeH),//7
+    new Point3D(x, y, z)];//8, add the center as no.9 vertice
 
     this.faces = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [3, 2, 6, 7], [0, 3, 7, 4], [4, 7, 6, 5]];
     this.faces_fillstyle = ["#0080f0", "red", "white", "yellow", "green", "black"];
@@ -85,6 +95,10 @@ Arm.prototype = {
             p.y = y + this.rCy;
         }
 
+    },
+    bOrOTvertice: function (bOrO, vertice) {
+        let v = ((bOrO.x - this.rCx) * vertice.x + (bOrO.y - this.rCy) * vertice.y + (bOrO.z - this.rCz) * vertice.z);
+        return (v);
     }
 };
 
@@ -109,7 +123,7 @@ function armProject(points3d, width, height) {
 }
 
 
-function armLoop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, arm, imuAngle) {
+function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
     // window.requestAnimationFrame(loop);
     // initDraw(arm);
     var canvas = document.getElementById(arm.elementID);
@@ -175,12 +189,17 @@ function armLoop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, arm, imuAngle) {
         // let v2 = new Point3D(p3.x, p3.y, p3.z);
 
         let v1 = new Point3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
-        let v2 = new Point3D(-p3.x + p1.x, -p3.y + p1.y, -p3.z + p1.z);
+        // let v2 = new Point3D(-p3.x + p1.x, -p3.y + p1.y, -p3.z + p1.z);
         // let v1 = new Point3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
-        // let v2 = new Point3D(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
+        let v2 = new Point3D(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
         let n = new Point3D(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
-        // if (-(p1.x) * n.x + -(p1.y) * n.y + -(p1.z) * n.z > 0) {
-        if ((p1.x - arm.vertices[8].x) * n.x + (p1.y - arm.vertices[8].y) * n.y + (p1.z - arm.vertices[8].z) * n.z > 0) {
+
+        let ndotp1 = ((p1.x - arm.vertices[8].x) * n.x + (p1.y - arm.vertices[8].y) * n.y + (p1.z - arm.vertices[8].z) * n.z);
+
+        // console.log(index, ':', face, '/', ndotp1);
+
+        if (ndotp1 <= 0) {
+            // if (((p1.x - arm.vertices[8].x) * n.x + (p1.y - arm.vertices[8].y) * n.y + (p1.z - arm.vertices[8].z) * n.z) > 0) {
             context.fillStyle = arm.faces_fillstyle[index];
             context.beginPath();
             context.moveTo(vertices[face[0]].x, vertices[face[0]].y);
@@ -191,11 +210,11 @@ function armLoop(Yaw = 0.0001, Pitch = 0.0001, Roll = 0.0001, arm, imuAngle) {
             context.fill();
             context.stroke();
 
-            context.beginPath();
-            context.moveTo(centerX, centerY);
-            context.lineTo(vertices[8].x, vertices[8].y);
-            context.closePath();
-            context.stroke();
+            // context.beginPath();
+            // context.moveTo(centerX, centerY);
+            // context.lineTo(vertices[8].x, vertices[8].y);
+            // context.closePath();
+            // context.stroke();
         }
     }
 
