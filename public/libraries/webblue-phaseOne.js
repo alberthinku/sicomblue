@@ -915,10 +915,10 @@ class webblue_phaseOne {
 
             if (ifContent.slice(-36) == uuid) {
                 //process the then function
-                node.processAlgorithm(uuid, readoutData);
+                node.processAlgorithm(uuid, readoutData, TS);
             } else if (ifRawContent.slice(-36) == uuid) {
                 //process the then function
-                node.processAlgorithmRaw(uuid, readoutData);
+                node.processAlgorithmRaw(uuid, readoutData, TS);
             }
         }
         catch (err) {
@@ -927,7 +927,7 @@ class webblue_phaseOne {
     }//onSelectedChar
 
 
-    processAlgorithm = function (uuid, params) {
+    processAlgorithm = function (uuid, params, TS) {
         // console.log('selected char to be further deployed');
         let outp = document.getElementById('thenContent');
         let eularAngle = [];
@@ -974,12 +974,12 @@ class webblue_phaseOne {
 
     }
 
-    processAlgorithmRaw = function (uuid, params) {
+    processAlgorithmRaw = function (uuid, params, TS) {
         // if is 9 axis data in, process with related filter and fusion
         let outp = document.getElementById('thenContent');
         // let eularAngle = [];
 
-        let eularRadian = IMUSO3Thread(params);
+        let eularRadian = IMUSO3Thread(params,TS);
         //         console.log(eularRadian);
 
 
