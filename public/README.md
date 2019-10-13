@@ -31,6 +31,12 @@
 
 <h3>release notes:</h3>
 
+<p>[131019] version 1.1.6 -cube is on with new features & bugs:</p>
+<p>1. added arm(1 phase) to the cube displace</p>
+<p>2. fixed arm(1 phase) colorfill bug</p>
+<p>3. realigned pRy from body to display</p>
+<p>4. re-confirm the samples rate is 20-50hz instead of 166hz due to the nodes throughput ratio, while the filter need at >100hz, so currently we are using less samples to form the filter (samplerate= 166, cutoff= 30) inputs</p>
+
 <p>[051019] version 1.1.5 -cube is on with new features & bugs:</p>
 <p>1. dealt with cube non-cube node ui, and reset to reset cube as well</p>
 
