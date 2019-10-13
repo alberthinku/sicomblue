@@ -47,11 +47,7 @@ Arm.prototype = {
 
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
-            // let y = (p.y - this.y) * cosine - (p.z - this.z) * sine;
-            // let z = (p.y - this.y) * sine + (p.z - this.z) * cosine;
 
-            // p.y = y + this.y;
-            // p.z = z + this.z;
             let y = (p.y - this.rCy) * cosine - (p.z - this.rCz) * sine;
             let z = (p.y - this.rCy) * sine + (p.z - this.rCz) * cosine;
             p.y = y + this.rCy;
@@ -65,12 +61,6 @@ Arm.prototype = {
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
 
-            // let x = (p.z - this.z) * sine + (p.x - this.x) * cosine;
-            // let z = (p.z - this.z) * cosine - (p.x - this.x) * sine;
-
-            // p.x = x + this.x;
-            // p.z = z + this.z;
-
             let x = (p.z - this.rCz) * sine + (p.x - this.rCx) * cosine;
             let z = (p.z - this.rCz) * cosine - (p.x - this.rCx) * sine;
             p.x = x + this.rCx;
@@ -83,14 +73,11 @@ Arm.prototype = {
         var sine = Math.sin(radian);
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
-            // let x = (p.y - this.y) * sine + (p.x - this.x) * cosine;
-            // let y = (p.y - this.y) * cosine - (p.x - this.x) * sine;
+            let x = -(p.y - this.y) * sine + (p.x - this.x) * cosine;
+            let y = (p.y - this.y) * cosine + (p.x - this.x) * sine;
 
-            // p.x = x + this.x;
-            // p.y = y + this.y;
-
-            let x = (p.y - this.rCy) * sine + (p.x - this.rCx) * cosine;
-            let y = (p.y - this.rCy) * cosine - (p.x - this.rCx) * sine;
+            // let x = (p.y - this.rCy) * sine + (p.x - this.rCx) * cosine;
+            // let y = (p.y - this.rCy) * cosine - (p.x - this.rCx) * sine;
             p.x = x + this.rCx;
             p.y = y + this.rCy;
         }
@@ -171,13 +158,19 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
 
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
-    // arm.rotateZ(Yaw);
-    // arm.rotateX(Roll);
-    // arm.rotateY(Pitch);
+    arm.rotateZ(Yaw);
+    arm.rotateX(Roll);
+    arm.rotateY(Pitch);
 
-    arm.rotateZ(Roll);
+    // arm.rotateZ(Roll);
+    // arm.rotateX(Pitch);
+    // arm.rotateY(-Yaw);
+
+    //aligned with motion sensors for below
+    arm.rotateZ(Yaw);
     arm.rotateX(Pitch);
-    arm.rotateY(-Yaw);
+    arm.rotateY(Roll);
+
     var vertices = armProject(arm.vertices, width, height);
 
     for (let index = arm.faces.length - 1; index > -1; --index) {
@@ -194,11 +187,11 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
         let v2 = new Point3D(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
         let n = new Point3D(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
 
-        let ndotp1 = ((p1.x - arm.vertices[8].x) * n.x + (p1.y - arm.vertices[8].y) * n.y + (p1.z - arm.vertices[8].z) * n.z);
+        let ndotp1 = ((p1.x) * n.x + (p1.y) * n.y + (p1.z - arm.H * 10 - 1) * n.z);
+        //(p1-(0,0,500)).n
+        //(notice: the displace space pO is (0,0,0), while the cube created along bO(0,0,bCz), and (p1-(0,0,H*10+1)) is definitely from outside the arm. so that the p1.n may turn negative)
 
-        // console.log(index, ':', face, '/', ndotp1);
-
-        if (ndotp1 <= 0) {
+        if (ndotp1 > 0) {
             // if (((p1.x - arm.vertices[8].x) * n.x + (p1.y - arm.vertices[8].y) * n.y + (p1.z - arm.vertices[8].z) * n.z) > 0) {
             context.fillStyle = arm.faces_fillstyle[index];
             context.beginPath();
@@ -208,13 +201,13 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
             context.lineTo(vertices[face[3]].x, vertices[face[3]].y);
             context.closePath();
             context.fill();
-            context.stroke();
-
-            // context.beginPath();
-            // context.moveTo(centerX, centerY);
-            // context.lineTo(vertices[8].x, vertices[8].y);
-            // context.closePath();
             // context.stroke();
+
+            context.beginPath();
+            context.moveTo(centerX, centerY);
+            context.lineTo(vertices[8].x, vertices[8].y);
+            context.closePath();
+            context.stroke();
         }
     }
 
