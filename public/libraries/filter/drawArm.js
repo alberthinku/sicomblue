@@ -189,7 +189,7 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
 
         let ndotp1 = ((p1.x) * n.x + (p1.y) * n.y + (p1.z - arm.H * 10 - 1) * n.z);
         //(p1-(0,0,500)).n
-        //(notice: the displace space pO is (0,0,0), while the cube created along bO(0,0,bCz), and (p1-(0,0,H*10+1)) is definitely from outside the arm. so that the p1.n may turn negative)
+        //(notice: the displace space pO is (0,0,0), while the cube created along bO(0,0,bCz), and (p1-(0,0,H*10+1)) is definitely from outside the arm. so that the ndotp1 may turn negative)
 
         if (ndotp1 > 0) {
             // if (((p1.x - arm.vertices[8].x) * n.x + (p1.y - arm.vertices[8].y) * n.y + (p1.z - arm.vertices[8].z) * n.z) > 0) {
