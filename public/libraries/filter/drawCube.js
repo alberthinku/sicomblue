@@ -14,14 +14,14 @@ const Cube = function (x, y, z, size, name, elementID) {
     size *= 0.5;
     this.name = name;
     this.elementID = elementID;
-    this.vertices = [new Point3D(x - size, y - size, z - size),//0
-    new Point3D(x + size, y - size, z - size),//1
-    new Point3D(x + size, y + size, z - size),//2
-    new Point3D(x - size, y + size, z - size),//3
-    new Point3D(x - size, y - size, z + size),//4
-    new Point3D(x + size, y - size, z + size),//5
-    new Point3D(x + size, y + size, z + size),//6
-    new Point3D(x - size, y + size, z + size)];//7
+    this.vertices = [new Point3D(x - size, y - size, z - size),//0 ---
+    new Point3D(x + size, y - size, z - size),//1 +--
+    new Point3D(x + size, y + size, z - size),//2 ++-
+    new Point3D(x - size, y + size, z - size),//3 -+-
+    new Point3D(x - size, y - size, z + size),//4 --+
+    new Point3D(x + size, y - size, z + size),//5 +-+
+    new Point3D(x + size, y + size, z + size),//6 +++
+    new Point3D(x - size, y + size, z + size)];//7 -++
     this.faces = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [3, 2, 6, 7], [0, 3, 7, 4], [4, 7, 6, 5]];
     this.faces_fillstyle = ["#0080f0", "red", "white", "yellow", "green", "black"];
 };
@@ -31,6 +31,8 @@ Cube.prototype = {
         var sine = Math.sin(radian);
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
+            // let y = (p.y - this.y) * cosine - (p.z - this.z) * sine;
+            // let z = (p.y - this.y) * sine + (p.z - this.z) * cosine;
             let y = (p.y - this.y) * cosine - (p.z - this.z) * sine;
             let z = (p.y - this.y) * sine + (p.z - this.z) * cosine;
             p.y = y + this.y;
@@ -42,6 +44,8 @@ Cube.prototype = {
         var sine = Math.sin(radian);
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
+            // let x = (p.z - this.z) * sine + (p.x - this.x) * cosine;
+            // let z = (p.z - this.z) * cosine - (p.x - this.x) * sine;
             let x = (p.z - this.z) * sine + (p.x - this.x) * cosine;
             let z = (p.z - this.z) * cosine - (p.x - this.x) * sine;
             p.x = x + this.x;
@@ -53,8 +57,11 @@ Cube.prototype = {
         var sine = Math.sin(radian);
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
-            let x = (p.y - this.y) * sine + (p.x - this.x) * cosine;
-            let y = (p.y - this.y) * cosine - (p.x - this.x) * sine;
+            // let x = (p.y - this.y) * sine + (p.x - this.x) * cosine;
+            // let y = (p.y - this.y) * cosine - (p.x - this.x) * sine;
+            let x = -(p.y - this.y) * sine + (p.x - this.x) * cosine;
+            let y = (p.y - this.y) * cosine + (p.x - this.x) * sine;
+
             p.x = x + this.x;
             p.y = y + this.y;
         }
@@ -106,9 +113,14 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
 
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
-    cube.rotateZ(Roll);
+    // cube.rotateZ(Roll);
+    // cube.rotateX(Pitch);
+    // cube.rotateY(-Yaw);
+
+    //aligned with motion sensors for below
+    cube.rotateZ(Yaw);
     cube.rotateX(Pitch);
-    cube.rotateY(-Yaw);
+    cube.rotateY(Roll);
 
     var vertices = project(cube.vertices, width, height);
     for (let index = cube.faces.length - 1; index > -1; --index) {
@@ -121,7 +133,8 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
         let n = new Point3D(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
         //n = v1 x v2
         if (-p1.x * n.x + -p1.y * n.y + -p1.z * n.z <= 0) {
-            // if p1.n>0
+            // if p1.n>0 
+            //(notice: the displace space pO is (0,0,0), while the cube created along bO(0,0,400), so that the p1.n may turn negative)
 
             // if (n.z >= 0) {
 
