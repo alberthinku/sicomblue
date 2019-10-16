@@ -31,6 +31,11 @@
 
 <h3>release notes:</h3>
 
+<p>[161019] version 1.1.8 -cubearms is on with new features & bugs:</p>
+<p>1. added arms(2 phase) to arms page</p>
+<p>2. able to trace 2 connected nodes with different movement</p>
+<p>3. limit the arms nodes to 2 so far</p>
+
 <p>[131019] version 1.1.6 -cube is on with new features & bugs:</p>
 <p>1. added arm(1 phase) to the cube displace</p>
 <p>2. fixed arm(1 phase) colorfill bug</p>
