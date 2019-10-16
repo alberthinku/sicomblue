@@ -24,6 +24,9 @@ const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID, rCx, rCy, r
     this.W = sizeW;
     this.L = sizeL;
     this.H = sizeH;
+    this.ctX = x;
+    this.ctY = y;
+    this.ctZ = z + sizeH;
     this.name = name;
     this.elementID = elementID;
     this.vertices = [new Point3D(x - sizeW, y - sizeL, z - sizeH),//0
@@ -34,7 +37,9 @@ const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID, rCx, rCy, r
     new Point3D(x + sizeW, y - sizeL, z + sizeH),//5
     new Point3D(x + sizeW, y + sizeL, z + sizeH),//6
     new Point3D(x - sizeW, y + sizeL, z + sizeH),//7
-    new Point3D(x, y, z)];//8, add the center as no.9 vertice
+    new Point3D(x, y, z),//8, add the center as no.9 vertice
+    new Point3D(x, y, z - sizeH),//9, add the center of bottom face as no.9 vertice
+    new Point3D(x, y, z + sizeH)];//10, add the center of top face as no.10 vertice which will give the 2nd ARM as a rO
 
     this.faces = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [3, 2, 6, 7], [0, 3, 7, 4], [4, 7, 6, 5]];
     this.faces_fillstyle = ["#0080f0", "red", "white", "yellow", "green", "black"];
@@ -73,8 +78,8 @@ Arm.prototype = {
         var sine = Math.sin(radian);
         for (let index = this.vertices.length - 1; index > -1; --index) {
             let p = this.vertices[index];
-            let x = -(p.y - this.y) * sine + (p.x - this.x) * cosine;
-            let y = (p.y - this.y) * cosine + (p.x - this.x) * sine;
+            let x = -(p.y - this.rCy) * sine + (p.x - this.rCx) * cosine;
+            let y = (p.y - this.rCy) * cosine + (p.x - this.rCx) * sine;
 
             // let x = (p.y - this.rCy) * sine + (p.x - this.rCx) * cosine;
             // let y = (p.y - this.rCy) * cosine - (p.x - this.rCx) * sine;
@@ -89,12 +94,14 @@ Arm.prototype = {
     }
 };
 
+var Px = 00;
+var Py = 00;
+var Pz = 1000;
+
 function armProject(points3d, width, height) {
     var points2d = new Array(points3d.length);
     var focal_length = 200;
-    var Px = 00;
-    var Py = 00;
-    var Pz = 200;
+
 
     for (let index = points3d.length - 1; index > -1; --index) {
         let p = points3d[index];
@@ -146,6 +153,9 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
 
     let centerX = width * 0.5;
     let centerY = height * 0.5;
+    // let centerX = width * 0.5 + arm.vertices[9].x;
+    // let centerY = height * 0.5 + arm.vertices[9].y;
+
     context.beginPath();
     context.moveTo(centerX - 5, centerY);
     context.lineTo(centerX + 5, centerY);
@@ -158,9 +168,9 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
 
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
-    arm.rotateZ(Yaw);
-    arm.rotateX(Roll);
-    arm.rotateY(Pitch);
+    // arm.rotateZ(Yaw);
+    // arm.rotateX(Roll);
+    // arm.rotateY(Pitch);
 
     // arm.rotateZ(Roll);
     // arm.rotateX(Pitch);
@@ -187,7 +197,7 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
         let v2 = new Point3D(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
         let n = new Point3D(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
 
-        let ndotp1 = ((p1.x) * n.x + (p1.y) * n.y + (p1.z - arm.H * 10 - 1) * n.z);
+        let ndotp1 = ((p1.x - Px) * n.x + (p1.y - Py) * n.y + (p1.z - Pz) * n.z);
         //(p1-(0,0,500)).n
         //(notice: the displace space pO is (0,0,0), while the cube created along bO(0,0,bCz), and (p1-(0,0,H*10+1)) is definitely from outside the arm. so that the ndotp1 may turn negative)
 
@@ -204,7 +214,7 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
             // context.stroke();
 
             context.beginPath();
-            context.moveTo(centerX, centerY);
+            context.moveTo(vertices[9].x, vertices[9].y);
             context.lineTo(vertices[8].x, vertices[8].y);
             context.closePath();
             context.stroke();

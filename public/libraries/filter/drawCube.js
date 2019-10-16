@@ -110,6 +110,10 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
     context.font = "25px Arial";
     let outp = 'P>' + imuAngle.eurla_pitch_Angle + '/ R>' + imuAngle.eurla_roll_Angle + '/ Y>' + imuAngle.eurla_yaw_Angle;
     context.fillText(outp, 0, 50);
+    if (imuAngle.eurla_pitch_Angle == 0 && imuAngle.eurla_roll_Angle == 0 && imuAngle.eurla_yaw_Angle == 0) {
+        context.fillStyle = "red";
+        context.fillText("calibrating ... please wait...", width / 2, height / 2);
+    }
 
     //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
     //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll

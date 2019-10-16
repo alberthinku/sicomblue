@@ -31,7 +31,7 @@ class IMU_tt {
 //现在使用软件解算，不再使用MPU6050的硬件解算单元DMP，IMU_SW在SysConfig.h中定义
 const IMU_SAMPLE_RATE = 166; //as pre the TS of BLUEST output calculated, not a fixed rate so far, this will impact the digital filter
 
-const IMU_FILTER_CUTOFF_FREQ = 45;
+const IMU_FILTER_CUTOFF_FREQ = 30;
 
 const CrazePony_Gyro_Max = 2000;
 const CrazePony_Acc_Max = 8;
@@ -51,6 +51,7 @@ function LPFset(imu_sample_rate, imu_filter_cutoff_freq) {
     LPF2pSetCutoffFreq_5(imu_sample_rate, imu_filter_cutoff_freq);
     LPF2pSetCutoffFreq_6(imu_sample_rate, imu_filter_cutoff_freq);
 };
+
 function IMU_Init() {
     // #ifdef IMU_SW		//软解需要先校陀螺
     imu.ready = 0;
@@ -64,13 +65,10 @@ function IMU_Init() {
     LPF2pSetCutoffFreq_6(IMU_SAMPLE_RATE, IMU_FILTER_CUTOFF_FREQ);
 }
 
-var lastTS = 0;
 
 function ReadIMUSensorHandle(param, ts = 0) {
     let i;
 
-    deltaTs = ts - lastTS;
-    lastTS = ts;
 
     // let ts_IMU_SAMPLE_RATE = 100 / deltaTs;
 
@@ -86,17 +84,15 @@ function ReadIMUSensorHandle(param, ts = 0) {
     imu.magRaw[1] = param[6] / 1000;//the y of 303 is x of 6dsl
     imu.magRaw[2] = param[8] / 1000;
 
-    imu.accb[0] = LPF2pApply_1(imu.accRaw[0]);
-    imu.accb[1] = LPF2pApply_2(imu.accRaw[1]);
-    imu.accb[2] = LPF2pApply_3(imu.accRaw[2]);
+    // imu.accb[0] = LPF2pApply_1(imu.accRaw[0]);
+    // imu.accb[1] = LPF2pApply_2(imu.accRaw[1]);
+    // imu.accb[2] = LPF2pApply_3(imu.accRaw[2]);
 
-    // #ifdef IMU_SW
-    imu.gyro[0] = LPF2pApply_4(imu.gyroRaw[0]);
-    imu.gyro[1] = LPF2pApply_5(imu.gyroRaw[1]);
-    imu.gyro[2] = LPF2pApply_6(imu.gyroRaw[2]);
+    // // #ifdef IMU_SW
+    // imu.gyro[0] = LPF2pApply_4(imu.gyroRaw[0]);
+    // imu.gyro[1] = LPF2pApply_5(imu.gyroRaw[1]);
+    // imu.gyro[2] = LPF2pApply_6(imu.gyroRaw[2]);
 
-    // if (isNaN(imu.gyro[0] + imu.gyro[1] + imu.gyro[2])) return false;
-    // else return true;
     imu.mag[0] = (imu.magRaw[0]);
     imu.mag[1] = (imu.magRaw[1]);
     imu.mag[2] = (imu.magRaw[2]);

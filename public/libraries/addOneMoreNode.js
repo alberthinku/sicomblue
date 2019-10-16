@@ -140,4 +140,44 @@ function addOneMoreNode(nodeCount) {
 
     showJsonFile.appendChild(oneMoreShowJson);
 
+    if (cubeEnabled) {
+        let step4Cube = document.getElementById("step4Cube");
+        // let oneMoredest_copyh1 = document.createElement("h1");
+        // oneMoredest_copyh1.innerHTML = "drag Node" + nodeCount + " SensorFusionCompact Char into box :";
+        // step4Cube.appendChild(oneMoredest_copyh1);
+        let oneMoredest_copy = document.createElement("div");
+        oneMoredest_copy.setAttribute("id", "dest_copy" + nodeCount);
+        oneMoredest_copy.setAttribute("class", "info");
+        oneMoredest_copy.setAttribute("ondrop", "drop_handler(event," + nodeCount + ");");
+        oneMoredest_copy.setAttribute("ondragover", "dragover_handler(event," + nodeCount + ");");
+        let oneMoredest_copyh1 = document.createElement("h1");
+        oneMoredest_copyh1.innerHTML = "drag Node" + nodeCount + " SensorFusionCompact Char into box";
+        oneMoredest_copy.appendChild(oneMoredest_copyh1);
+        // oneMoredest_copy.innerHTML = "drag Node" + nodeCount + " SensorFusionCompact Char into box";
+        step4Cube.appendChild(oneMoredest_copy);
+
+
+        // step4Cube.appendChild(oneMoredest_copyRawh1);
+        let oneMoredest_copyRaw = document.createElement("div");
+        oneMoredest_copyRaw.setAttribute("id", "dest_copy_raw" + nodeCount);
+        oneMoredest_copyRaw.setAttribute("class", "info");
+        oneMoredest_copyRaw.setAttribute("ondrop", "drop_handler(event," + nodeCount + ");");
+        oneMoredest_copyRaw.setAttribute("ondragover", "dragover_handler(event," + nodeCount + ");");
+        let oneMoredest_copyRawh1 = document.createElement("h1");
+        oneMoredest_copyRawh1.innerHTML = "drag Node" + nodeCount + " Raw 9 Axis Char into box";
+        oneMoredest_copyRaw.appendChild(oneMoredest_copyRawh1);
+        // oneMoredest_copyRaw.innerHTML = "drag Node" + nodeCount + " Raw 9 Axis Char into box";
+        step4Cube.appendChild(oneMoredest_copyRaw);
+        let oneMoredest_text = document.createElement("text");
+        oneMoredest_text.setAttribute("id", "ifContent" + nodeCount);
+        step4Cube.appendChild(oneMoredest_text);
+        oneMoredest_text = document.createElement("text");
+        oneMoredest_text.setAttribute("id", "thenContent" + nodeCount);
+        step4Cube.appendChild(oneMoredest_text);
+        oneMoredest_text = document.createElement("text");
+        oneMoredest_text.setAttribute("id", "ifRawContent" + nodeCount);
+        step4Cube.appendChild(oneMoredest_text);
+
+    }
+
 }

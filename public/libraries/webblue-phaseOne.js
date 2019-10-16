@@ -56,6 +56,15 @@ class webblue_phaseOne {
 
         this.has_selected_service = false;
         this.has_selected_Char = false;
+
+        this.ifContent = "ifContent" + this.name;
+        this.ifRawContent = "ifRawContent" + this.name;
+        this.thenContent = "thenContent" + this.name;
+        this.arm9Axis = "arm9Axis" + this.name;
+        this.armSFCompact = "armSFCompact" + this.name;
+        this.arm9AxisARM = null;
+        this.armSFCompactARM = null;
+
         this.last_EularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         this.last_EularRadian_Raw = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         document.getElementById(this.buttonDiscover).disabled = false;
@@ -141,15 +150,17 @@ class webblue_phaseOne {
         });
         document.getElementById(this.status_notifications).innerHTML = notification_status_output;
 
-        if (document.getElementById('ifContent').innerText.slice(-36) == uuid) {
+        if (document.getElementById(this.ifContent).innerText.slice(-36) == uuid) {
             document.getElementById(cubeSFCompact.elementID).hidden = !(status);
-            document.getElementById(armSFCompact.elementID).hidden = !(status);
+            if (armsEnabled) document.getElementById(armSFCompactARMS.elementID).hidden = !(status);
+            else document.getElementById(this.armSFCompactARM.elementID).hidden = !(status);
 
         };
 
-        if (document.getElementById('ifRawContent').innerText.slice(-36) == uuid) {
+        if (document.getElementById(this.ifRawContent).innerText.slice(-36) == uuid) {
             document.getElementById(cube9Axis.elementID).hidden = !(status);
-            document.getElementById(arm9Axis.elementID).hidden = !(status);
+            if (armsEnabled) document.getElementById(arm9AxisARMS.elementID).hidden = !(status);
+            else document.getElementById(this.arm9AxisARM.elementID).hidden = !(status);
             IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
         };
 
@@ -906,30 +917,35 @@ class webblue_phaseOne {
 
         node.collectedData.push({ uuid, bufferInhex, wTS, TS, readoutData });
         // return motionSensorData;
-        try {
-            //incase ifContent has the uuid label, process the function accordinly
-            let ifContent = document.getElementById('ifContent').innerText;
 
-            //incase ifRawContent has the uuid label, process the function accordinly
-            let ifRawContent = document.getElementById('ifRawContent').innerText;
+        if (cubeEnabled)
+            try {
+                //incase ifContent has the uuid label, process the function accordinly
+                let ifContent = document.getElementById(node.ifContent).innerText;
 
-            if (ifContent.slice(-36) == uuid) {
-                //process the then function
-                node.processAlgorithm(uuid, readoutData, TS);
-            } else if (ifRawContent.slice(-36) == uuid) {
-                //process the then function
-                node.processAlgorithmRaw(uuid, readoutData, TS);
+                //incase ifRawContent has the uuid label, process the function accordinly
+                let ifRawContent = document.getElementById(node.ifRawContent).innerText;
+
+                if (ifContent.slice(-36) == uuid) {
+                    //process the then function
+                    node.processAlgorithm(uuid, readoutData, TS);
+                } else if (ifRawContent.slice(-36) == uuid) {
+                    //process the then function
+                    node.processAlgorithmRaw(uuid, readoutData, TS);
+                }
             }
-        }
-        catch (err) {
-            return (err);
-        }
+            catch (err) {
+                return (err);
+            }
+        else return;
     }//onSelectedChar
 
+    shift2newCenter = function (params) {
 
+    }
     processAlgorithm = function (uuid, params, TS) {
         // console.log('selected char to be further deployed');
-        let outp = document.getElementById('thenContent');
+        let outp = document.getElementById(this.thenContent);
         let eularAngle = [];
         let eularRadianSum = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         for (let i = 0; i < params.length; i += 3) {
@@ -953,13 +969,16 @@ class webblue_phaseOne {
             let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian.eurla_yaw;
             let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch;
             let delta_roll = eularRadian.eurla_roll - this.last_EularRadian.eurla_roll;
+
             if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
                 loop(0, 0, 0, cubeSFCompact, eularRadian);
-                armLoop(0, 0, 0, armSFCompact, eularRadian)
+                if (armsEnabled) { armTwoLoop(0, 0, 0, armSFCompactARMS, this.name, eularRadian); }
+                else armLoop(0, 0, 0, this.armSFCompactARM, eularRadian);
             }
             else {
-                loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact, eularRadian);//drawCube
-                armLoop(delta_yaw, delta_pitch, delta_roll, armSFCompact, eularRadian);//drawArm
+                loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact, eularRadian);//drawCube#
+                if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, armSFCompactARMS, this.name, eularRadian); }
+                else armLoop(delta_yaw, delta_pitch, delta_roll, this.armSFCompactARM, eularRadian);//drawArm
             }
             //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
             this.last_EularRadian = eularRadian;
@@ -976,23 +995,27 @@ class webblue_phaseOne {
 
     processAlgorithmRaw = function (uuid, params, TS) {
         // if is 9 axis data in, process with related filter and fusion
-        let outp = document.getElementById('thenContent');
+        let outp = document.getElementById(this.thenContent);
         // let eularAngle = [];
 
-        let eularRadian = IMUSO3Thread(params,TS);
+        let eularRadian = IMUSO3Thread(params, TS);
         //         console.log(eularRadian);
 
 
         let delta_yaw = eularRadian.eurla_yaw - this.last_EularRadian_Raw.eurla_yaw;
         let delta_pitch = eularRadian.eurla_pitch - this.last_EularRadian_Raw.eurla_pitch;
         let delta_roll = eularRadian.eurla_roll - this.last_EularRadian_Raw.eurla_roll;
+
         if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
             loop(0, 0, 0, cube9Axis, eularRadian);
-            armLoop(0, 0, 0, arm9Axis, eularRadian);
+            if (armsEnabled) { armTwoLoop(0, 0, 0, arm9AxisARMS, this.name, eularRadian); }
+            else armLoop(0, 0, 0, this.arm9AxisARM, eularRadian);
         }
         else {
             loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);//drawCube
-            armLoop(delta_yaw, delta_pitch, delta_roll, arm9Axis, eularRadian);//drawArm
+            if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, arm9AxisARMS, this.name, eularRadian); }
+            else armLoop(delta_yaw, delta_pitch, delta_roll, this.arm9AxisARM, eularRadian);//drawArm 
+            //
         }
 
         //due to the algorithm is output opsite to FSCompact, we reverse teh delta_xxxx for the loop.

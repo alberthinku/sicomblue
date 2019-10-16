@@ -252,7 +252,7 @@ NonlinearSO3AHRSupdate = function (gx, gy, gz, ax, ay, az, mx, my, mz, twoKp, tw
 }
 
 const so3_comp_params_Kp = 1.0;
-const so3_comp_params_Ki = 0.05;//0.05
+const so3_comp_params_Ki = 0.0005;//0.05
 const M_PI_F = Math.PI;
 var imu = new IMU_tt;
 IMU_Init();
@@ -380,15 +380,21 @@ IMUSO3Thread = function (param, TS) {
     }
 
 
-    gyro[0] = imu.gyro[0] - imu.gyroOffset[0]; //remove offset
-    gyro[1] = imu.gyro[1] - imu.gyroOffset[1];
-    gyro[2] = imu.gyro[2] - imu.gyroOffset[2];
+    gyro[0] = imu.gyroRaw[0] - imu.gyroOffset[0]; //remove offset
+    gyro[1] = imu.gyroRaw[1] - imu.gyroOffset[1];
+    gyro[2] = imu.gyroRaw[2] - imu.gyroOffset[2];
+    // gyro[0] = imu.gyro[0] - imu.gyroOffset[0]; //remove offset
+    // gyro[1] = imu.gyro[1] - imu.gyroOffset[1];
+    // gyro[2] = imu.gyro[2] - imu.gyroOffset[2];
 
     lastAcc = acc;
 
-    acc[0] = imu.accb[0] - imu.accOffset[0]; //remove offset
-    acc[1] = imu.accb[1] - imu.accOffset[1];
-    acc[2] = imu.accb[2] - imu.accOffset[2];
+    acc[0] = imu.accRaw[0] - imu.accOffset[0]; //remove offset
+    acc[1] = imu.accRaw[1] - imu.accOffset[1];
+    acc[2] = imu.accRaw[2] - imu.accOffset[2];
+    // acc[0] = imu.accb[0] - imu.accOffset[0]; //remove offset
+    // acc[1] = imu.accb[1] - imu.accOffset[1];
+    // acc[2] = imu.accb[2] - imu.accOffset[2];
 
     // acc[0] = imu.accb[0]; // incase the level cannot be found ,it is better to leave the offset there otherwise created manual drift by remove G
     // acc[1] = imu.accb[1];
@@ -398,7 +404,7 @@ IMUSO3Thread = function (param, TS) {
     // mag[1] = (imu.magRaw[1] - imu.magOffset[1]) * 0.1;
     // mag[2] = (imu.magRaw[2] - imu.magOffset[2]) * 0.1;
     let magRate = 1;
-    let gyroRate = 1;
+    let gyroRate = 1;//set it to 0 to test if only acc can make fusion
     if ((lastAcc[0] - acc[0]) * (lastAcc[1] - acc[1]) * (lastAcc[2] - acc[2]) < 0.0000001) { magRate = 0; }
 
     gyro[0] *= gyroRate;
@@ -436,8 +442,9 @@ IMUSO3Thread = function (param, TS) {
     Rot_matrix[6] = 2. * (q1 * q3 + q0 * q2);	// 31
     Rot_matrix[7] = 2. * (q2 * q3 - q0 * q1);	// 32
     Rot_matrix[8] = q0q0 - q1q1 - q2q2 + q3q3;// 33
-    console.log("9Axis Fusion is : ", q0, '/', q1, '/', q2, '/', q3);
-    console.log(acc);
+    // console.log("9Axis Fusion is : ", q0, '/', q1, '/', q2, '/', q3);
+    // console.log(acc);
+    // console.log(Rot_matrix[1], '/', Rot_matrix[0], '=', Rot_matrix[1] / Rot_matrix[0]);
     //1-2-3 Representation.
     //Equation (290)
     //Representing Attitude: Euler Angles, Unit Quaternions, and Rotation Vectors, James Diebel.
@@ -445,7 +452,7 @@ IMUSO3Thread = function (param, TS) {
     euler[0] = Math.atan2(Rot_matrix[5], Rot_matrix[8]);	//! Roll
     euler[1] = -safe_asin(Rot_matrix[2]);									//! Pitch
     // euler[1] = Math.asin(Rot_matrix[2]);									//! why asin is so much concerned??
-    euler[2] = Math.atan2(Rot_matrix[0], Rot_matrix[1]);
+    euler[2] = Math.atan2(Rot_matrix[1], Rot_matrix[0]);
 
     //DCM . ground to body
     // for (i = 0; i < 9; i++) {

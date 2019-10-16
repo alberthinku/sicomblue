@@ -13,6 +13,10 @@ function removeOneMoreNode(nodeCount) {
         document.getElementById("btn_notify" + nodeCount).remove();
         document.getElementById("chardatanotification" + nodeCount).remove();
         document.getElementById(nodeCount + "GATTShow").remove();
+        if (cubeEnabled) {
+            document.getElementById("dest_copy" + nodeCount).remove();
+            document.getElementById("dest_copy_raw" + nodeCount).remove();
+        }
     }
     else {
         alert("no nodes exist!"); deviceCount = 0;
@@ -88,7 +92,8 @@ function reinit() {
 
     if (deviceNo == []) return;
 
-    let dev = deviceNo.slice(1); //deviceNo[0] = empty, so cut it off
+    let dev = deviceNo;
+    //     .slice(1); //deviceNo[0] = empty, so cut it off
 
     dev.forEach(device => {
         if (device == undefined) return;
@@ -98,29 +103,43 @@ function reinit() {
         document.getElementById("btn_scan" + device.name).disabled = true;
         document.getElementById("showJson" + device.name).innerHTML = "";
         document.getElementById(device.name + "GATTShow").innerHTML = "";
+        if (cubeEnabled) {
+            document.getElementById(device.ifContent).innerText = "";
+            document.getElementById(device.ifRawContent).innerText = "";
+            document.getElementById(device.thenContent).innerText = "";
+        }
+        if (!armsEnabled && cubeEnabled) {
+            //     document.getElementById(armSFCompactARM.elementID).hidden = true;//hide the canvas when reset
+            //     document.getElementById(arm9AxisARM.elementID).hidden = true;//hide the canvas when reset    
+            // } else {
+            // {
+            document.getElementById(device.armSFCompactARM.elementID).hidden = true;//hide the canvas when reset
+            document.getElementById(device.arm9AxisARM.elementID).hidden = true;//hide the canvas when reset
+        }
+        device.armsIMU.IMU_Init();
         device = undefined;
 
     });
+
+    if (armsEnabled) {
+        document.getElementById(armSFCompactARMS.elementID).hidden = true;//hide the canvas when reset
+        document.getElementById(arm9AxisARMS.elementID).hidden = true;//hide the canvas when reset
+    };
+
     if (cubeEnabled) {
         document.getElementById(cubeSFCompact.elementID).hidden = true;//hide the canvas when reset
         document.getElementById(cube9Axis.elementID).hidden = true;//hide the canvas when reset
-
-        document.getElementById(armSFCompact.elementID).hidden = true;//hide the canvas when reset
-        document.getElementById(arm9Axis.elementID).hidden = true;//hide the canvas when reset
-
-        document.getElementById("ifContent").innerText = "";
-        document.getElementById("ifRawContent").innerText = "";
-        document.getElementById("thenContent").innerText = "";
-
+        // document.getElementById("ifContent").innerText = "";
+        // document.getElementById("ifRawContent").innerText = "";
+        // document.getElementById("thenContent").innerText = "";
         cubeInit();
         armInit();
-
         // cubeSFCompact = new Cube(00, 0, 400, 200, "SFCompact", "drawCube");
         // cube9Axis = new Cube(00, 0, 400, 200, "9Axis", "drawCube9Axis");
 
         // armSFCompact = new Arm(armLength, 0, 400, 25, "armSFCompact", "drawArm");
         // arm9Axis = new Arm(armLength, 0, -400, 25, "arm9Axis", "drawArm9Axis");
-        IMU_Init();
+
     }
 
     deviceNo = [];
