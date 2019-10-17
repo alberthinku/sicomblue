@@ -45,9 +45,9 @@ div {
 #dest_copy_then2 {
     border: 2px dashed blue;
     background-color: white;
-    color: azure;
+    color: brown;
     width: 400px;
-    height: 30px;
+    height: 35px;
 }
 
 .notification {
