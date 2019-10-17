@@ -150,7 +150,7 @@ function addOneMoreNode(nodeCount) {
         oneMoredest_copy.setAttribute("class", "info");
         oneMoredest_copy.setAttribute("ondrop", "drop_handler(event," + nodeCount + ");");
         oneMoredest_copy.setAttribute("ondragover", "dragover_handler(event," + nodeCount + ");");
-        let oneMoredest_copyh1 = document.createElement("h1");
+        let oneMoredest_copyh1 = document.createElement("p");
         oneMoredest_copyh1.innerHTML = "drag Node" + nodeCount + " SensorFusionCompact Char into box";
         oneMoredest_copy.appendChild(oneMoredest_copyh1);
         // oneMoredest_copy.innerHTML = "drag Node" + nodeCount + " SensorFusionCompact Char into box";
@@ -163,7 +163,7 @@ function addOneMoreNode(nodeCount) {
         oneMoredest_copyRaw.setAttribute("class", "info");
         oneMoredest_copyRaw.setAttribute("ondrop", "drop_handler(event," + nodeCount + ");");
         oneMoredest_copyRaw.setAttribute("ondragover", "dragover_handler(event," + nodeCount + ");");
-        let oneMoredest_copyRawh1 = document.createElement("h1");
+        let oneMoredest_copyRawh1 = document.createElement("p");
         oneMoredest_copyRawh1.innerHTML = "drag Node" + nodeCount + " Raw 9 Axis Char into box";
         oneMoredest_copyRaw.appendChild(oneMoredest_copyRawh1);
         // oneMoredest_copyRaw.innerHTML = "drag Node" + nodeCount + " Raw 9 Axis Char into box";
