@@ -68,18 +68,38 @@ Cube.prototype = {
     }
 };
 
+var Pcx = 00;
+var Pcy = 00;
+var Pcz = -400;
+
 function project(points3d, width, height) {
     var points2d = new Array(points3d.length);
     var focal_length = 200;
+    // let Pcx = 00;
+    // let Pcy = 00;
+    // let Pcz = 1000;
+
     for (let index = points3d.length - 1; index > -1; --index) {
         let p = points3d[index];
-        let x = p.x * (focal_length / p.z) + width * 0.5;
-        let y = p.y * (focal_length / p.z) + height * 0.5;
+        // let x = p.x * (focal_length / p.z) + width * 0.5;
+        // let y = p.y * (focal_length / p.z) + height * 0.5;
+
+        let x = (Pcx * p.z - p.x * Pcz) / (p.z - Pcz) + width * 0.5;
+        let y = (Pcy * p.z - p.y * Pcz) / (p.z - Pcz) + height * 0.5;
+
         points2d[index] = new Point2D(x, y);
     }
     return points2d;
 }
 
+function recalculate(angle) {
+    if (Math.abs(angle) <= Math.PI) {
+        return angle;
+    };
+
+    if (angle < 0) return (angle + 2 * Math.PI);
+    else return (angle - 2 * Math.PI);
+}
 
 function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
     // window.requestAnimationFrame(loop);
@@ -115,16 +135,14 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
         context.fillText("calibrating ... please wait...", width / 2, height / 2);
     }
 
-    //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
-    //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
-    // cube.rotateZ(Roll);
-    // cube.rotateX(Pitch);
-    // cube.rotateY(-Yaw);
+    let nYaw = recalculate(Yaw);
+    let nPitch = recalculate(Pitch);
+    let nRoll = recalculate(Roll);
 
     //aligned with motion sensors for below
-    cube.rotateZ(Yaw);
-    cube.rotateX(Pitch);
-    cube.rotateY(Roll);
+    cube.rotateZ(nYaw);
+    cube.rotateX(nPitch);
+    cube.rotateY(nRoll);
 
     var vertices = project(cube.vertices, width, height);
     for (let index = cube.faces.length - 1; index > -1; --index) {
@@ -136,7 +154,8 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
         let v2 = new Point3D(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
         let n = new Point3D(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
         //n = v1 x v2
-        if (-p1.x * n.x + -p1.y * n.y + -p1.z * n.z <= 0) {
+        let ndotp1 = ((p1.x - Pcx) * n.x + (p1.y - Pcy) * n.y + (p1.z - Pcz) * n.z);
+        if (ndotp1 > 0) {
             // if p1.n>0 
             //(notice: the displace space pO is (0,0,0), while the cube created along bO(0,0,400), so that the p1.n may turn negative)
 

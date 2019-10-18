@@ -188,10 +188,13 @@ function armTwoLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, nodeID, imuAn
     // arm.rotateX(Pitch);
     // arm.rotateY(-Yaw);
 
+    let nYaw = recalculate(Yaw);
+    let nPitch = recalculate(Pitch);
+    let nRoll = recalculate(Roll);
     //aligned with motion sensors for below
-    arm.rotateZ(Yaw, seq);
-    arm.rotateX(Pitch, seq);
-    arm.rotateY(Roll, seq);
+    arm.rotateZ(nYaw, seq);
+    arm.rotateX(nPitch, seq);
+    arm.rotateY(nRoll, seq);
 
     var vertices = armTwoProject(arm.vertices, width, height);
 

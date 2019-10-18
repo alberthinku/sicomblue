@@ -176,10 +176,14 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
     // arm.rotateX(Pitch);
     // arm.rotateY(-Yaw);
 
+    let nYaw = recalculate(Yaw);
+    let nPitch = recalculate(Pitch);
+    let nRoll = recalculate(Roll);
+
     //aligned with motion sensors for below
-    arm.rotateZ(Yaw);
-    arm.rotateX(Pitch);
-    arm.rotateY(Roll);
+    arm.rotateZ(nYaw);
+    arm.rotateX(nPitch);
+    arm.rotateY(nRoll);
 
     var vertices = armProject(arm.vertices, width, height);
 
