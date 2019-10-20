@@ -31,6 +31,9 @@
 
 <h3>release notes:</h3>
 
+<p>[201019] version 1.1.9 -cubearms is on with new features & bugs:</p>
+<p>1. used absolute angle mapping to the fusion output so that improve the cube/arm display accuracy, and avoided accumulating errors during the rotation obj displayed</p>
+
 <p>[161019] version 1.1.8 -cubearms is on with new features & bugs:</p>
 <p>1. added arms(2 phase) to arms page</p>
 <p>2. able to trace 2 connected nodes with different movement</p>
