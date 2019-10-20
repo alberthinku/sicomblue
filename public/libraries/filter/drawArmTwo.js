@@ -15,20 +15,14 @@
 
 const ArmTwo = function (x = 0, y = 0, z = 0, elementID) {
     Point3D.call(this, x, y, z);
-    // sizeW *= 0.5;
-    // sizeL *= 0.5;
-    // sizeH *= 0.5;
-    // this.W = sizeW;
-    // this.L = sizeL;
-    // this.H = sizeH;
-    // this.ctX = x;
-    // this.ctY = y;
-    // this.ctZ = z + sizeH;
-    // this.name = name;
     this.elementID = elementID;
     this.name = "arms";
-    // this.vertices = ArmCVertices;//1
     let leg = 50;
+    this.vertices_origin = [
+        new Point3D(x, y, z),
+        new Point3D(x, y, z + leg),
+        new Point3D(x, y, z + 2 * leg)
+    ];
     this.vertices = [
         new Point3D(x, y, z),
         new Point3D(x, y, z + leg),
@@ -94,6 +88,48 @@ ArmTwo.prototype = {
         }
 
     },
+    rotateXYZ: function (Yaw, Pitch, Roll, seq = 0) {
+        let cosineYaw = Math.cos(Yaw);
+        let sinYaw = Math.sin(Yaw);
+        let cosinePitch = Math.cos(Pitch);
+        let sinPitch = Math.sin(Pitch);
+        let cosineRoll = Math.cos(Roll);
+        let sinRoll = Math.sin(Roll);
+        let rCx = this.vertices[seq].x;
+        let rCy = this.vertices[seq].y;
+        let rCz = this.vertices[seq].z;
+        for (let index = this.vertices.length - 1; index >= seq; --index) {
+            let p = this.vertices_origin[index];
+            let q = this.vertices[index];
+            let ox = p.x - rCx;
+            let oy = p.y - rCy;
+            let oz = p.z - rCz;
+            let x = -oy * sinYaw + ox * cosineYaw;
+            let y = oy * cosineYaw + ox * sinYaw;
+
+            ox = x;
+            let z = oz * cosineRoll - ox * sinRoll;
+
+            x = oz * sinRoll + ox * cosineRoll;
+            oy = y;
+
+            oz = z;
+
+            y = oy * cosinePitch - oz * sinPitch;
+            z = oy * sinPitch + oz * cosinePitch;
+            // x = (p.z - this.z) * sinRoll + (p.x - this.x) * cosineRoll;
+            // y = (p.y - this.y) * cosinePitch - (p.z - this.z) * sinPitch;
+            // z = (p.y - this.y) * sinPitch + (p.z - this.z) * cosinePitch;
+
+            q.x = x + rCx;
+            q.y = y + rCy;
+            q.z = z + rCz;
+
+            // p=q;
+
+        }
+    },
+
     refreshArmC: function () {
         return;
     }
@@ -188,13 +224,34 @@ function armTwoLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, nodeID, imuAn
     // arm.rotateX(Pitch);
     // arm.rotateY(-Yaw);
 
+    // let nYaw = recalculate(-imuAngle.eurla_yaw + arm.last_abs_Yaw);
+    // let nPitch = recalculate(-imuAngle.eurla_pitch + arm.last_abs_Pitch);
+    // let nRoll = recalculate(-imuAngle.eurla_roll + arm.last_abs_Roll);
+
+    // // console.log(nYaw, nPitch, nRoll, "~", Yaw, Pitch, Roll);
+
+    // arm.last_abs_Pitch = imuAngle.eurla_pitch;
+    // arm.last_abs_Roll = imuAngle.eurla_roll;
+    // arm.last_abs_Yaw = imuAngle.eurla_yaw;
+
+    // // aligned with motion sensors for below
+    // arm.rotateZ(nYaw, seq);
+    // arm.rotateX(nPitch, seq);
+    // arm.rotateY(nRoll, seq);
+
     let nYaw = recalculate(Yaw);
     let nPitch = recalculate(Pitch);
     let nRoll = recalculate(Roll);
-    //aligned with motion sensors for below
+
+    // aligned with motion sensors for below
     arm.rotateZ(nYaw, seq);
     arm.rotateX(nPitch, seq);
     arm.rotateY(nRoll, seq);
+
+    // let nYaw = recalculate(-imuAngle.eurla_yaw);
+    // let nPitch = recalculate(-imuAngle.eurla_pitch);
+    // let nRoll = recalculate(-imuAngle.eurla_roll);
+    // arm.rotateXYZ(nYaw, nRoll, nPitch, seq);
 
     var vertices = armTwoProject(arm.vertices, width, height);
 
