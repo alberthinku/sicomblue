@@ -414,6 +414,10 @@ class IMU_tt {
         this.magRaw[1] = param[6] / 1000;//the y of 303 is x of 6dsl
         this.magRaw[2] = param[8] / 1000;
 
+        // this.accb[0] = (this.accRaw[0]);
+        // this.accb[1] = (this.accRaw[1]);
+        // this.accb[2] = (this.accRaw[2]);
+
         this.accb[0] = this.LPF2pApply_1(this.accRaw[0]);
         this.accb[1] = this.LPF2pApply_2(this.accRaw[1]);
         this.accb[2] = this.LPF2pApply_3(this.accRaw[2]);
@@ -426,6 +430,11 @@ class IMU_tt {
         this.mag[0] = (this.magRaw[0]);
         this.mag[1] = (this.magRaw[1]);
         this.mag[2] = (this.magRaw[2]);
+
+
+        // this.mag[0] = this.LPF2pApply_1(this.magRaw[0]);
+        // this.mag[1] = this.LPF2pApply_2(this.magRaw[1]);
+        // this.mag[2] = this.LPF2pApply_3(this.magRaw[2]);
     };
 } //end of class
 
