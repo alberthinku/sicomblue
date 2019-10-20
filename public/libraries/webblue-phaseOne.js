@@ -970,16 +970,16 @@ class webblue_phaseOne {
             let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian.eurla_pitch;
             let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian.eurla_roll;
 
-            if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
-                loop(0, 0, 0, cubeSFCompact, eularRadian);
-                if (armsEnabled) { armTwoLoop(0, 0, 0, armSFCompactARMS, this.name, eularRadian); }
-                else armLoop(0, 0, 0, this.armSFCompactARM, eularRadian);
-            }
-            else {
-                loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact, eularRadian);//drawCube#
-                if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, armSFCompactARMS, this.name, eularRadian); }
-                else armLoop(delta_yaw, delta_pitch, delta_roll, this.armSFCompactARM, eularRadian);//drawArm
-            }
+            // if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
+            loop(0, 0, 0, cubeSFCompact, eularRadian);
+            if (armsEnabled) { armTwoLoop(0, 0, 0, armSFCompactARMS, this.name, eularRadian); }
+            else armLoop(0, 0, 0, this.armSFCompactARM, eularRadian);
+            // }
+            // else {
+            //     loop(delta_yaw, delta_pitch, delta_roll, cubeSFCompact, eularRadian);//drawCube#
+            //     if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, armSFCompactARMS, this.name, eularRadian); }
+            //     else armLoop(delta_yaw, delta_pitch, delta_roll, this.armSFCompactARM, eularRadian);//drawArm
+            // }
             //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
             this.last_EularRadian = eularRadian;
 
@@ -1006,17 +1006,17 @@ class webblue_phaseOne {
         let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian_Raw.eurla_pitch;
         let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian_Raw.eurla_roll;
 
-        if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
-            loop(0, 0, 0, cube9Axis, eularRadian);
-            if (armsEnabled) { armTwoLoop(0, 0, 0, arm9AxisARMS, this.name, eularRadian); }
-            else armLoop(0, 0, 0, this.arm9AxisARM, eularRadian);
-        }
-        else {
-            loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);//drawCube
-            if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, arm9AxisARMS, this.name, eularRadian); }
-            else armLoop(delta_yaw, delta_pitch, delta_roll, this.arm9AxisARM, eularRadian);//drawArm 
-            //
-        }
+        // if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
+        loop(0, 0, 0, cube9Axis, eularRadian);
+        if (armsEnabled) { armTwoLoop(0, 0, 0, arm9AxisARMS, this.name, eularRadian); }
+        else armLoop(0, 0, 0, this.arm9AxisARM, eularRadian);
+        // }
+        // else {
+        //     loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);//drawCube
+        //     if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, arm9AxisARMS, this.name, eularRadian); }
+        //     else armLoop(delta_yaw, delta_pitch, delta_roll, this.arm9AxisARM, eularRadian);//drawArm 
+        //     //
+        // }
 
         //due to the algorithm is output opsite to FSCompact, we reverse teh delta_xxxx for the loop.
 
