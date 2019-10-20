@@ -64,12 +64,13 @@ class webblue_phaseOne {
         this.armSFCompact = "armSFCompact" + this.name;
         this.arm9AxisARM = null;
         this.armSFCompactARM = null;
-
+        ///this is the major two lines comparing to the phaseOne, put IMU/thread under the object
         this.armsIMU = null;
         this.armsIMUthread = null;
 
         this.last_EularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         this.last_EularRadian_Raw = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+        this.last_EularRadian_Raw_delta = { "delta_pitch": 0, "delta_yaw": 0, "delta_roll": 0 };
         document.getElementById(this.buttonDiscover).disabled = false;
         this.statusInit();
 
@@ -960,15 +961,6 @@ class webblue_phaseOne {
             let qW = Math.sqrt(1 - qi * qi - qj * qj - qk * qk);
             let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);//
 
-            //     eularRadianSum.eurla_roll += eularRadian.eurla_roll;
-            //     eularRadianSum.eurla_pitch += eularRadian.eurla_pitch;
-            //     eularRadianSum.eurla_yaw += eularRadian.eurla_yaw;
-            // }
-            // let eularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
-            // eularRadian.eurla_roll = eularRadianSum.eurla_roll / params.length;
-            // eularRadian.eurla_pitch = eularRadianSum.eurla_pitch / params.length;
-            // eularRadian.eurla_yaw = eularRadianSum.eurla_yaw / params.length;
-
             let delta_yaw = -eularRadian.eurla_yaw + this.last_EularRadian.eurla_yaw;
             let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian.eurla_pitch;
             let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian.eurla_roll;
@@ -983,12 +975,8 @@ class webblue_phaseOne {
                 if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, armSFCompactARMS, this.name, eularRadian); }
                 else armLoop(delta_yaw, delta_pitch, delta_roll, this.armSFCompactARM, eularRadian);//drawArm
             }
-            //             loop(0, eularRadian.eurla_pitch - this.last_EularRadian.eurla_pitch, 0);
             this.last_EularRadian = eularRadian;
 
-            // let r2d = 180 / Math.PI;
-            // let eAngle = [eularRadian.eurla_yaw * r2d, eularRadian.eurla_pitch * r2d, eularRadian.eurla_roll * r2d];
-            // eularAngle.push(eAngle);
 
         }
 
@@ -1012,6 +1000,14 @@ class webblue_phaseOne {
         let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian_Raw.eurla_pitch;
         let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian_Raw.eurla_roll;
 
+        let rate = this.name - 1;
+        let correction = { "dela_yaw": 0, "delta_roll": 0, "delta_pitch": 0 };
+        if (rate == 1) {
+            // correction = deviceNo[rate].last_EularRadian_Raw_delta;
+        };
+
+
+
         if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
             loop(0, 0, 0, cube9Axis, eularRadian);
             if (armsEnabled) { armTwoLoop(0, 0, 0, arm9AxisARMS, this.name, eularRadian); }
@@ -1020,6 +1016,7 @@ class webblue_phaseOne {
         else {
             loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);//drawCube
             if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, arm9AxisARMS, this.name, eularRadian); }
+            // if (armsEnabled) { armTwoLoop(delta_yaw - correction.delta_yaw, delta_pitch - correction.delta_pitch, delta_roll - correction.delta_roll, arm9AxisARMS, this.name, eularRadian); }
             else armLoop(delta_yaw, delta_pitch, delta_roll, this.arm9AxisARM, eularRadian);//drawArm 
             //
         }
@@ -1027,6 +1024,7 @@ class webblue_phaseOne {
         //due to the algorithm is output opsite to FSCompact, we reverse teh delta_xxxx for the loop.
 
         this.last_EularRadian_Raw = eularRadian;
+        this.last_EularRadian_Raw_delta = { "delta_yaw": delta_yaw, "delta_pitch": delta_pitch, "delta_roll": delta_roll };
         // eularAngle.push(eularRadian);
         // console.log('first eular angle is : ', eularAngle);
 
