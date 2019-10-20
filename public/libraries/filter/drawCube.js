@@ -14,6 +14,15 @@ const Cube = function (x, y, z, size, name, elementID) {
     size *= 0.5;
     this.name = name;
     this.elementID = elementID;
+    this.vertices_origin = [new Point3D(x - size, y - size, z - size),//0 ---
+    new Point3D(x + size, y - size, z - size),//1 +--
+    new Point3D(x + size, y + size, z - size),//2 ++-
+    new Point3D(x - size, y + size, z - size),//3 -+-
+    new Point3D(x - size, y - size, z + size),//4 --+
+    new Point3D(x + size, y - size, z + size),//5 +-+
+    new Point3D(x + size, y + size, z + size),//6 +++
+    new Point3D(x - size, y + size, z + size)];//7 -++
+
     this.vertices = [new Point3D(x - size, y - size, z - size),//0 ---
     new Point3D(x + size, y - size, z - size),//1 +--
     new Point3D(x + size, y + size, z - size),//2 ++-
@@ -65,6 +74,43 @@ Cube.prototype = {
             p.x = x + this.x;
             p.y = y + this.y;
         }
+    },
+    rotateXYZ: function (Yaw, Pitch, Roll) {
+        let cosineYaw = Math.cos(Yaw);
+        let sinYaw = Math.sin(Yaw);
+        let cosinePitch = Math.cos(Pitch);
+        let sinPitch = Math.sin(Pitch);
+        let cosineRoll = Math.cos(Roll);
+        let sinRoll = Math.sin(Roll);
+        for (let index = this.vertices.length - 1; index > -1; --index) {
+            let p = this.vertices_origin[index];
+            let q = this.vertices[index];
+            let ox = p.x - this.x;
+            let oy = p.y - this.y;
+            let oz = p.z - this.z;
+            let x = -oy * sinYaw + ox * cosineYaw;
+            let y = oy * cosineYaw + ox * sinYaw;
+
+            ox = x;
+            let z = oz * cosineRoll - ox * sinRoll;
+
+            x = oz * sinRoll + ox * cosineRoll;
+            oy = y;
+
+            oz = z;
+
+            y = oy * cosinePitch - oz * sinPitch;
+            z = oy * sinPitch + oz * cosinePitch;
+            // x = (p.z - this.z) * sinRoll + (p.x - this.x) * cosineRoll;
+            // y = (p.y - this.y) * cosinePitch - (p.z - this.z) * sinPitch;
+            // z = (p.y - this.y) * sinPitch + (p.z - this.z) * cosinePitch;
+
+            q.x = x + this.x;
+            q.y = y + this.y;
+            q.z = z + this.z;
+
+        }
+
     }
 };
 
@@ -93,6 +139,9 @@ function project(points3d, width, height) {
 }
 
 function recalculate(angle) {
+
+    if (isNaN(angle)) return 0;
+
     if (Math.abs(angle) <= Math.PI) {
         return angle;
     };
@@ -135,14 +184,33 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
         context.fillText("calibrating ... please wait...", width / 2, height / 2);
     }
 
-    let nYaw = recalculate(Yaw);
-    let nPitch = recalculate(Pitch);
-    let nRoll = recalculate(Roll);
+
+
+    // let nYaw = recalculate(-imuAngle.eurla_yaw + cube.last_abs_Yaw);
+    // let nPitch = recalculate(-imuAngle.eurla_pitch + cube.last_abs_Pitch);
+    // let nRoll = recalculate(-imuAngle.eurla_roll + cube.last_abs_Roll);
+
+    // console.log(nYaw, nPitch, nRoll, "~", Yaw, Pitch, Roll);
+
+    // cube.last_abs_Pitch = imuAngle.eurla_pitch;
+    // cube.last_abs_Roll = imuAngle.eurla_roll;
+    // cube.last_abs_Yaw = imuAngle.eurla_yaw;
+
+    // let nYaw = recalculate(Yaw);
+    // let nPitch = recalculate(Pitch);
+    // let nRoll = recalculate(Roll);
 
     //aligned with motion sensors for below
-    cube.rotateZ(nYaw);
-    cube.rotateX(nPitch);
-    cube.rotateY(nRoll);
+    // cube.rotateZ(nYaw);
+    // cube.rotateX(nPitch);
+    // cube.rotateY(nRoll);
+
+    // cube.rotateXYZ(nYaw, nRoll, nPitch);
+
+    let nYaw = recalculate(-imuAngle.eurla_yaw);
+    let nPitch = recalculate(-imuAngle.eurla_pitch);
+    let nRoll = recalculate(-imuAngle.eurla_roll);
+    cube.rotateXYZ(nYaw, nRoll, nPitch);
 
     var vertices = project(cube.vertices, width, height);
     for (let index = cube.faces.length - 1; index > -1; --index) {

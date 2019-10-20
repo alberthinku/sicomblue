@@ -29,6 +29,21 @@ const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID, rCx, rCy, r
     this.ctZ = z + sizeH;
     this.name = name;
     this.elementID = elementID;
+    this.last_abs_Yaw = 0;
+    this.last_abs_Roll = 0;
+    this.last_abs_Pitch = 0;
+    this.vertices_origin = [new Point3D(x - sizeW, y - sizeL, z - sizeH),//0
+    new Point3D(x + sizeW, y - sizeL, z - sizeH),//1
+    new Point3D(x + sizeW, y + sizeL, z - sizeH),//2
+    new Point3D(x - sizeW, y + sizeL, z - sizeH),//3
+    new Point3D(x - sizeW, y - sizeL, z + sizeH),//4
+    new Point3D(x + sizeW, y - sizeL, z + sizeH),//5
+    new Point3D(x + sizeW, y + sizeL, z + sizeH),//6
+    new Point3D(x - sizeW, y + sizeL, z + sizeH),//7
+    new Point3D(x, y, z),//8, add the center as no.9 vertice
+    new Point3D(x, y, z - sizeH),//9, add the center of bottom face as no.9 vertice
+    new Point3D(x, y, z + sizeH)];//10, add the center of top face as no.10 vertice which will give the 2nd ARM as a rO
+
     this.vertices = [new Point3D(x - sizeW, y - sizeL, z - sizeH),//0
     new Point3D(x + sizeW, y - sizeL, z - sizeH),//1
     new Point3D(x + sizeW, y + sizeL, z - sizeH),//2
@@ -45,6 +60,7 @@ const Arm = function (x, y, z, sizeW, sizeL, sizeH, name, elementID, rCx, rCy, r
     this.faces_fillstyle = ["#0080f0", "red", "white", "yellow", "green", "black"];
     // this.center = [x, y, z];
 };
+
 Arm.prototype = {
     rotateX: function (radian) {
         var cosine = Math.cos(radian);
@@ -88,11 +104,43 @@ Arm.prototype = {
         }
 
     },
-    bOrOTvertice: function (bOrO, vertice) {
-        let v = ((bOrO.x - this.rCx) * vertice.x + (bOrO.y - this.rCy) * vertice.y + (bOrO.z - this.rCz) * vertice.z);
-        return (v);
+    rotateXYZ: function (Yaw, Pitch, Roll) {
+        let cosineYaw = Math.cos(Yaw);
+        let sinYaw = Math.sin(Yaw);
+        let cosinePitch = Math.cos(Pitch);
+        let sinPitch = Math.sin(Pitch);
+        let cosineRoll = Math.cos(Roll);
+        let sinRoll = Math.sin(Roll);
+        for (let index = this.vertices.length - 1; index > -1; --index) {
+            let p = this.vertices_origin[index];
+            let q = this.vertices[index];
+            let ox = p.x - this.rCx;
+            let oy = p.y - this.rCy;
+            let oz = p.z - this.rCz;
+            let x = -oy * sinYaw + ox * cosineYaw;
+            let y = oy * cosineYaw + ox * sinYaw;
+
+            ox = x;
+            let z = oz * cosineRoll - ox * sinRoll;
+
+            x = oz * sinRoll + ox * cosineRoll;
+            oy = y;
+
+            oz = z;
+
+            y = oy * cosinePitch - oz * sinPitch;
+            z = oy * sinPitch + oz * cosinePitch;
+            // x = (p.z - this.z) * sinRoll + (p.x - this.x) * cosineRoll;
+            // y = (p.y - this.y) * cosinePitch - (p.z - this.z) * sinPitch;
+            // z = (p.y - this.y) * sinPitch + (p.z - this.z) * cosinePitch;
+
+            q.x = x + this.rCx;
+            q.y = y + this.rCy;
+            q.z = z + this.rCz;
+
+        }
     }
-};
+}
 
 var Px = 00;
 var Py = 00;
@@ -125,17 +173,8 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
     var height = canvas.clientHeight;
     var width = canvas.clientWidth;
 
-    // var armX = arm.x;
-    // var armY = arm.Y;
-    // var armZ = arm.Z;
-
-
-
     startX = 0;
     startY = 0;
-    // height = canvas.clientHeight;
-    // width = canvas.clientWidth;
-    // if (arm.x > 0) { startX = width; }
     context.canvas.height = height;
     context.canvas.width = width;
     context.fillStyle = "#ffffff";
@@ -153,8 +192,6 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
 
     let centerX = width * 0.5;
     let centerY = height * 0.5;
-    // let centerX = width * 0.5 + arm.vertices[9].x;
-    // let centerY = height * 0.5 + arm.vertices[9].y;
 
     context.beginPath();
     context.moveTo(centerX - 5, centerY);
@@ -166,24 +203,31 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
     context.closePath();
     context.stroke();
 
-    //from the monitor display point, the y axis is the body Z, and z axis is pointing out from display which means body y. 
-    //while rotation by ym in the reverse angle, so ym = -YAW, xm = Pitch, zm = Roll
-    // arm.rotateZ(Yaw);
-    // arm.rotateX(Roll);
-    // arm.rotateY(Pitch);
+    // let nYaw = recalculate(-imuAngle.eurla_yaw + arm.last_abs_Yaw);
+    // let nPitch = recalculate(-imuAngle.eurla_pitch + arm.last_abs_Pitch);
+    // let nRoll = recalculate(-imuAngle.eurla_roll + arm.last_abs_Roll);
 
-    // arm.rotateZ(Roll);
-    // arm.rotateX(Pitch);
-    // arm.rotateY(-Yaw);
+    // console.log(nYaw, nPitch, nRoll, "~", Yaw, Pitch, Roll);
 
-    let nYaw = recalculate(Yaw);
-    let nPitch = recalculate(Pitch);
-    let nRoll = recalculate(Roll);
+    // arm.last_abs_Pitch = imuAngle.eurla_pitch;
+    // arm.last_abs_Roll = imuAngle.eurla_roll;
+    // arm.last_abs_Yaw = imuAngle.eurla_yaw;
+
+    // let nYaw = recalculate(Yaw);
+    // let nPitch = recalculate(Pitch);
+    // let nRoll = recalculate(Roll);
 
     //aligned with motion sensors for below
-    arm.rotateZ(nYaw);
-    arm.rotateX(nPitch);
-    arm.rotateY(nRoll);
+    // arm.rotateZ(nYaw);
+    // arm.rotateX(nPitch);
+    // arm.rotateY(nRoll);
+
+    //here below is using the absolute angle to make cube/arms to make sure the position showed are inline with the current angle calculated by fusion
+    //the previous method (above) is using delta angle to make the draw which may accumulate the integraion erros!
+    let nYaw = recalculate(-imuAngle.eurla_yaw);
+    let nPitch = recalculate(-imuAngle.eurla_pitch);
+    let nRoll = recalculate(-imuAngle.eurla_roll);
+    arm.rotateXYZ(nYaw, nRoll, nPitch);
 
     var vertices = armProject(arm.vertices, width, height);
 
