@@ -13,20 +13,27 @@
 //same case for face[2] = <1,5,6,2>, face[3]=<3,2,6,7> are all in anti-clock sequence, which makes the n.p1<0
 //the other faces are clock wise sequence, which n.p1>0
 
+//given 3 points forming a arms obj(O,P2,P1), the fusion result for OP2 is angle_w2, fusion result for P2P1 is angle_w1, 
+//then the new coordination should be ==>1) P2' = R(o, P20, angle_w2_abs), 2) P1'temp = P2'-P20+P10, 3) P1' = R(P2', P1'temp, angle_w1_abs)
+
+
 const ArmTwo = function (x = 0, y = 0, z = 0, elementID) {
     Point3D.call(this, x, y, z);
     this.elementID = elementID;
     this.name = "arms";
+    this.legPx = 0;
+    this.legPy = 0;
+    this.legPz = 50;
     let leg = 50;
     this.vertices_origin = [
-        new Point3D(x, y, z),
-        new Point3D(x, y, z + leg),
-        new Point3D(x, y, z + 2 * leg)
+        new Point3D(x, y, z), //O0
+        new Point3D(x, y, z + leg),//P20
+        new Point3D(x, y, z + 2 * leg)//P10
     ];
     this.vertices = [
-        new Point3D(x, y, z),
-        new Point3D(x, y, z + leg),
-        new Point3D(x, y, z + 2 * leg)
+        new Point3D(x, y, z),//O
+        new Point3D(x, y, z + leg),//P2
+        new Point3D(x, y, z + 2 * leg)//P1
     ];
     // this.faces = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [3, 2, 6, 7], [0, 3, 7, 4], [4, 7, 6, 5]];
     this.arms_fillstyle = ["blue", "red", "green"];
@@ -98,7 +105,9 @@ ArmTwo.prototype = {
         let rCx = this.vertices[seq].x;
         let rCy = this.vertices[seq].y;
         let rCz = this.vertices[seq].z;
-        for (let index = this.vertices.length - 1; index >= seq; --index) {
+        // for (let index = this.vertices.length - 1; index >= seq; --index) {
+        {//1) P2' = R(o, P20, angle_w2_abs),3) P1' = R(P2', P1'temp, angle_w1_abs)
+            let index = seq + 1;
             let p = this.vertices_origin[index];
             let q = this.vertices[index];
             let ox = p.x - rCx;
@@ -125,8 +134,15 @@ ArmTwo.prototype = {
             q.y = y + rCy;
             q.z = z + rCz;
 
-            // p=q;
-
+            for (let ind = index + 1; ind < this.vertices.length; ++ind) {
+                // if (index == 1) {
+                this.vertices_origin[ind].x = this.vertices[ind - 1].x + this.legPx;
+                // (q.x - p.x) + this.vertices_origin[index + 1].x;
+                this.vertices_origin[ind].y = this.vertices[ind - 1].y + this.legPy;
+                // (q.y - p.y) + this.vertices_origin[index + 1].y;
+                this.vertices_origin[ind].z = this.vertices[ind - 1].z + this.legPz;
+                // }//2) P1'temp = P2'-P20+P10,
+            }
         }
     },
 
@@ -239,19 +255,19 @@ function armTwoLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, nodeID, imuAn
     // arm.rotateX(nPitch, seq);
     // arm.rotateY(nRoll, seq);
 
-    let nYaw = recalculate(Yaw);
-    let nPitch = recalculate(Pitch);
-    let nRoll = recalculate(Roll);
+    // let nYaw = recalculate(Yaw);
+    // let nPitch = recalculate(Pitch);
+    // let nRoll = recalculate(Roll);
 
-    // aligned with motion sensors for below
-    arm.rotateZ(nYaw, seq);
-    arm.rotateX(nPitch, seq);
-    arm.rotateY(nRoll, seq);
+    // // aligned with motion sensors for below
+    // arm.rotateZ(nYaw, seq);
+    // arm.rotateX(nPitch, seq);
+    // arm.rotateY(nRoll, seq);
 
-    // let nYaw = recalculate(-imuAngle.eurla_yaw);
-    // let nPitch = recalculate(-imuAngle.eurla_pitch);
-    // let nRoll = recalculate(-imuAngle.eurla_roll);
-    // arm.rotateXYZ(nYaw, nRoll, nPitch, seq);
+    let nYaw = recalculate(-imuAngle.eurla_yaw);
+    let nPitch = recalculate(-imuAngle.eurla_pitch);
+    let nRoll = recalculate(-imuAngle.eurla_roll);
+    arm.rotateXYZ(nYaw, nRoll, nPitch, seq);
 
     var vertices = armTwoProject(arm.vertices, width, height);
 
