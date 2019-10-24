@@ -185,7 +185,7 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
     }
 
 
-
+    let nYaw, nPitch, nRoll;
     // let nYaw = recalculate(-imuAngle.eurla_yaw + cube.last_abs_Yaw);
     // let nPitch = recalculate(-imuAngle.eurla_pitch + cube.last_abs_Pitch);
     // let nRoll = recalculate(-imuAngle.eurla_roll + cube.last_abs_Roll);
@@ -206,11 +206,30 @@ function loop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, cube, imuAngle) {
     // cube.rotateY(nRoll);
 
     // cube.rotateXYZ(nYaw, nRoll, nPitch);
+    if (!armsEnabled) {
+        nYaw = recalculate(-imuAngle.eurla_yaw);
+        nPitch = recalculate(-imuAngle.eurla_pitch);
+        nRoll = recalculate(-imuAngle.eurla_roll);
+        cube.rotateXYZ(nYaw, nRoll, nPitch);
 
-    let nYaw = recalculate(-imuAngle.eurla_yaw);
-    let nPitch = recalculate(-imuAngle.eurla_pitch);
-    let nRoll = recalculate(-imuAngle.eurla_roll);
-    cube.rotateXYZ(nYaw, nRoll, nPitch);
+    } else {
+        // nYaw = recalculate(-imuAngle.eurla_yaw + cube.last_abs_Yaw);
+        // nPitch = recalculate(-imuAngle.eurla_pitch + cube.last_abs_Pitch);
+        // nRoll = recalculate(-imuAngle.eurla_roll + cube.last_abs_Roll);
+        // cube.last_abs_Pitch = imuAngle.eurla_pitch;
+        // cube.last_abs_Roll = imuAngle.eurla_roll;
+        // cube.last_abs_Yaw = imuAngle.eurla_yaw;
+        nYaw = recalculate(Yaw);
+        nPitch = recalculate(Pitch);
+        nRoll = recalculate(Roll);
+
+        cube.rotateZ(nYaw);
+        cube.rotateX(nPitch);
+        cube.rotateY(nRoll);
+    };
+
+
+
 
     var vertices = project(cube.vertices, width, height);
     for (let index = cube.faces.length - 1; index > -1; --index) {
