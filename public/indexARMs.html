@@ -29,7 +29,7 @@
         var nodeMax = 2;
         var deviceNo = [];
         var cubeEnabled = true;
-        var armsEnabled = true;
+        var armsEnabled = false;
     </script>
 
 </head>
@@ -38,7 +38,7 @@
 
 <body>
     <h1>Web Bluetooth SiCom</h1>
-    <p>ver 1.1.10 -cubeArms </p>
+    <p>ver 1.1.11 -cubeArms </p>
     <a href="about">release note</a> & <a href="help">profile example</a> & <a href="manual">manual</a> & <a
         href="/">return</a>
 
@@ -218,7 +218,8 @@
     <text id="ifRawContent1"></text> -->
     <script src="libraries/filter/drawCube.js">
     </script>
-
+    <script src="libraries/filter/drawArm.js">
+    </script>
     <script src="libraries/filter/drawArmTwo.js">
     </script>
 
@@ -259,6 +260,20 @@
             // let sizeZ = armLength;
             armSFCompactARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm");
             arm9AxisARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm9Axis");
+
+            if (device == null) return;
+            let rCx = rCenter.x;
+            let rCy = rCenter.y;
+            let rCz = rCenter.z;
+            let bCx = rCx;
+            // armLength / 2 + rCx;
+            let bCy = rCy;
+            let bCz = armLength / 2 + rCz;
+            let sizeX = 25;
+            let sizeY = 25;
+            let sizeZ = armLength;
+            device.armSFCompactARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.armSFCompact, "drawArm", rCx, rCy, rCz);
+            device.arm9AxisARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.arm9Axis, "drawArm9Axis", rCx, rCy, rCz);
         };
         cubeInit();
         armInit();
@@ -275,6 +290,12 @@
 
             // let device = deviceNo[1];
 
+            // if (deviceNo.length > 2) { armsEnabled = true; } 
+
+            armsEnabled = (deviceCount >= 2);
+
+            console.log("armsEnabled is ", armsEnabled);
+
             deviceNo.forEach(device => {
 
                 if (device == null) return;
@@ -290,8 +311,13 @@
                 // targetChar.onchange = function () { "raw" + console.log(targetChar.innerText) };
                 checkBoxImmyActAsst(inputChar);
 
+                if (armsEnabled == false) armInit(device, rCenter[device.name]);
+
                 device.armsIMU = new IMU_tt;
                 device.armsIMUthread = new CrazePonyIMUo3Class;
+
+                // device.arm9AxisARMS = arm9AxisARMS;
+                // device.armSFCompactARMS = armSFCompactARMS;
 
             });
 
