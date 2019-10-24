@@ -15,6 +15,7 @@ Author:		祥 、nieyong
 Part of this algrithom is referred from pixhawk.
 ------------------------------------
 */
+/*albert note: Crazepony is using Mahony filter*/
 
 const ACC_CALC_TIME = 3000; //ms
 const GYRO_CALC_TIME = 3000000;	//us
@@ -26,7 +27,7 @@ const fixpoint = 1;// to show the 4 number of decimal
 const floatpoint = 8;// to make quaternion shoren
 
 const so3_comp_params_Kp = 1.0;
-const so3_comp_params_Ki = 0.0005;//0.05
+const so3_comp_params_Ki = 0;//0.00005;//0.05 //the Ki is the integral index for A+M, if is 0, the yaw drift can be locked while pitch and roll will need time to recover
 const M_PI_F = Math.PI;
 // var imu = new IMU_tt; //should be defined when nodes connection done and ifContent selected
 // IMU_Init(); should be no need any longer
@@ -397,7 +398,7 @@ class CrazePonyIMUo3Class {
         // mag[2] = (imu.magRaw[2] - imu.magOffset[2]) * 0.1;
         let magRate = 1;
         let gyroRate = 1;//set it to 0 to test if only acc can make fusion
-        if ((this.lastAcc[0] - acc[0]) * (this.lastAcc[1] - acc[1]) * (this.lastAcc[2] - acc[2]) < 0.0000001) { magRate = 0; }
+        if (Math.abs((this.lastAcc[0] - acc[0]) * (this.lastAcc[1] - acc[1]) * (this.lastAcc[2] - acc[2])) < 0.0000001) { magRate = 0; }
 
         gyro[0] *= gyroRate;
         gyro[1] *= gyroRate;

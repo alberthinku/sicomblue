@@ -405,7 +405,7 @@ IMUSO3Thread = function (param, TS) {
     // mag[2] = (imu.magRaw[2] - imu.magOffset[2]) * 0.1;
     let magRate = 1;
     let gyroRate = 1;//set it to 0 to test if only acc can make fusion
-    if ((lastAcc[0] - acc[0]) * (lastAcc[1] - acc[1]) * (lastAcc[2] - acc[2]) < 0.0000001) { magRate = 0; }
+    if (Math.abs((lastAcc[0] - acc[0]) * (lastAcc[1] - acc[1]) * (lastAcc[2] - acc[2])) < 0.0000001) { magRate = 0; }
 
     gyro[0] *= gyroRate;
     gyro[1] *= gyroRate;
@@ -452,7 +452,7 @@ IMUSO3Thread = function (param, TS) {
     euler[0] = Math.atan2(Rot_matrix[5], Rot_matrix[8]);	//! Roll
     euler[1] = -safe_asin(Rot_matrix[2]);									//! Pitch
     // euler[1] = Math.asin(Rot_matrix[2]);									//! why asin is so much concerned??
-    euler[2] = Math.atan2(Rot_matrix[1], Rot_matrix[0]);
+    euler[2] = Math.atan2(Rot_matrix[1], Rot_matrix[0]);// + Math.PI;
 
     //DCM . ground to body
     // for (i = 0; i < 9; i++) {
