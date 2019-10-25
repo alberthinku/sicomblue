@@ -187,8 +187,15 @@ function armLoop(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, arm, imuAngle) {
 
     context.fillStyle = "blue";
     context.font = "25px Arial";
-    let outp = 'P>' + imuAngle.eurla_pitch_Angle + '/ R>' + imuAngle.eurla_roll_Angle + '/ Y>' + imuAngle.eurla_yaw_Angle;
+    // let outp = 'P>' + imuAngle.eurla_pitch_Angle + '/ R>' + imuAngle.eurla_roll_Angle + '/ Y>' + imuAngle.eurla_yaw_Angle;
+    // context.fillText(outp, 0, 50);
+    let outp = 'P>' + imuAngle.eurla_pitch_Angle;
+    //  + '/ R>' + imuAngle.eurla_roll_Angle + '/ Y>' + imuAngle.eurla_yaw_Angle;
     context.fillText(outp, 0, 50);
+    let outr = 'R>' + imuAngle.eurla_roll_Angle;
+    context.fillText(outr, 0, 70);
+    let outy = 'Y>' + imuAngle.eurla_yaw_Angle;
+    context.fillText(outy, 0, 90);
 
     let centerX = width * 0.5;
     let centerY = height * 0.5;
