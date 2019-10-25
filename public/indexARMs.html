@@ -18,9 +18,11 @@
     <script src="libraries/parseJson.js"></script>
     <script src="libraries/refreshLayer.js"></script>
     <script src="libraries/DragDroplib.js"></script>
-
+    <script src="libraries/filter/safe_asin.js"></script>
+    <script src="libraries/filter/invSqrt.js"></script>
     <script src="libraries/filter/imuClass.js"></script>
     <script src="libraries/filter/CrazePonyIMUo3Class.js"></script>
+    <script src="libraries/filter/MadgwickAHRS.js"></script>
     <script src="libraries/filter/fusionQuaternion2Eular.js"></script>
     <script src="libraries/filter/Latitude2Gravity.js"></script>
     <script>
@@ -38,15 +40,20 @@
 
 <body>
     <h1>Web Bluetooth SiCom</h1>
-    <p>ver 1.1.11 -cubeArms </p>
+    <p>ver 1.1.12 -cubeArms </p>
     <a href="about">release note</a> & <a href="help">profile example</a> & <a href="manual">manual</a> & <a
         href="/">return</a>
 
-    <canvas style="left: 600px; top: 00px" id="drawCube" width="100" height="100" hidden="true"></canvas>
-    <canvas style="left: 600px; top: 350px" id="drawCube9Axis" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 630px; top: 00px" id="drawCube" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 630px; top: 200px" id="drawCube9Axis" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 630px; top: 400px" id="drawCube9AxisMadgwickAHRS" width="100" height="100"
+        hidden="true"></canvas>
 
-    <canvas style="left: 00px; top: 00px" id="drawArm" width="100" height="100" hidden="true"></canvas>
-    <canvas style="left: 00px; top: 350px" id="drawArm9Axis" width="100" height="100" hidden="true"></canvas>
+
+    <canvas style="left: 50px; top: 00px" id="drawArm" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 50px; top: 200px" id="drawArm9Axis" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 50px; top: 400px" id="drawArm9AxisMadgwickAHRS" width="100" height="100"
+        hidden="true"></canvas>
 
     <!-- <p id="welcomeIP"></p>
     <script>
@@ -233,13 +240,22 @@
         var cube9Axis;
         //  = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
 
+        var cube9AxisMadgwickAHRS;
+
         var armSFCompact;
         //  = new Arm(armLength, 0, 10 * armLength, 25, "armSFCompact", "drawArm");
         var arm9Axis;
         //  = new Arm(armLength, 0, 10 * armLength, 25, "arm9Axis", "drawArm9Axis");
+        var arm9AxisMadgwickAHRS;
+
+        var arm9AxisARMS;
+        var arm9AxisMadgwickAHRSARMS;
+        var armSFCompactARMS;
+
         function cubeInit() {
-            cubeSFCompact = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
-            cube9Axis = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
+            cubeSFCompact = new Cube(00, 0, 400, 200, "cubeSFCompactST", "drawCube");
+            cube9Axis = new Cube(00, 0, 400, 200, "cube9AxisMahony", "drawCube9Axis");
+            cube9AxisMadgwickAHRS = new Cube(0, 0, 400, 200, "cube9AxisMadgwickAHRS", "drawCube9AxisMadgwickAHRS");
 
             // var armSFCompact = new Arm(armLength, 0, 10 * armLength, 25, "armSFCompact", "drawArm");
             // var arm9Axis = new Arm(armLength, 0, 10 * armLength, 25, "arm9Axis", "drawArm9Axis");
@@ -260,6 +276,7 @@
             // let sizeZ = armLength;
             armSFCompactARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm");
             arm9AxisARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm9Axis");
+            arm9AxisMadgwickAHRSARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm9AxisMadgwickAHRS")
 
             if (device == null) return;
             let rCx = rCenter.x;
@@ -274,6 +291,7 @@
             let sizeZ = armLength;
             device.armSFCompactARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.armSFCompact, "drawArm", rCx, rCy, rCz);
             device.arm9AxisARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.arm9Axis, "drawArm9Axis", rCx, rCy, rCz);
+            device.arm9AxisMadgwickAHRSARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.arm9AxisMadgwickAHRS, "drawArm9AxisMadgwickAHRS", rCx, rCy, rCz);
         };
         cubeInit();
         armInit();
@@ -315,6 +333,7 @@
 
                 device.armsIMU = new IMU_tt;
                 device.armsIMUthread = new CrazePonyIMUo3Class;
+                device.armsMadgwickAHRS = new MadgwickAHRS;
 
                 // device.arm9AxisARMS = arm9AxisARMS;
                 // device.armSFCompactARMS = armSFCompactARMS;
