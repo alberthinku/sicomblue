@@ -60,16 +60,27 @@ class webblue_phaseOne {
         this.ifContent = "ifContent" + this.name;
         this.ifRawContent = "ifRawContent" + this.name;
         this.thenContent = "thenContent" + this.name;
-        this.arm9Axis = "arm9Axis" + this.name;
-        this.armSFCompact = "armSFCompact" + this.name;
+
+        this.arm9Axis = "arm9AxisMahony" + this.name;
+        this.armSFCompact = "armSFCompactST" + this.name;
+        this.arm9AxisMadgwickAHRS = "arm9AxisMadgwickAHRS" + this.name;
+
+
         this.arm9AxisARM = null;
         this.armSFCompactARM = null;
+        this.arm9AxisMadgwickAHRSARM = null;
+
         ///this is the major two lines comparing to the phaseOne, put IMU/thread under the object
-        this.armsIMU = null;
-        this.armsIMUthread = null;
+        this.armsIMU = null; //IMU class defined for Crazepony/Mahony filter
+        this.armsIMUthread = null; //IMU thread class to process the Crazepony/Mahony filter
+        this.armsMadgwickAHRS = null;//IMU class defined for MadgwickAHRS filter process
+
+
 
         this.last_EularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         this.last_EularRadian_Raw = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+        this.last_EularRadian_Raw_MadgwickAHRS = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+
         this.last_EularRadian_Raw_delta = { "delta_pitch": 0, "delta_yaw": 0, "delta_roll": 0 };
         document.getElementById(this.buttonDiscover).disabled = false;
         this.statusInit();
@@ -163,8 +174,16 @@ class webblue_phaseOne {
 
         if (document.getElementById(this.ifRawContent).innerText.slice(-36) == uuid) {
             document.getElementById(cube9Axis.elementID).hidden = !(status);
-            if (armsEnabled) document.getElementById(arm9AxisARMS.elementID).hidden = !(status);
-            else document.getElementById(this.arm9AxisARM.elementID).hidden = !(status);
+            document.getElementById(cube9AxisMadgwickAHRS.elementID).hidden = !(status);
+            if (armsEnabled) {
+                document.getElementById(arm9AxisARMS.elementID).hidden = !(status);
+                document.getElementById(arm9AxisMadgwickAHRSARMS.elementID).hidden = !(status);
+            }
+            else {
+                document.getElementById(this.arm9AxisARM.elementID).hidden = !(status);
+                document.getElementById(this.arm9AxisMadgwickAHRSARM.elementID).hidden = !(status);
+
+            }
             this.armsIMU.IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
         };
 
@@ -988,17 +1007,22 @@ class webblue_phaseOne {
         // if is 9 axis data in, process with related filter and fusion
         let outp = document.getElementById(this.thenContent);
         // let eularAngle = [];
-        let imu = this.armsIMU;
+        let imu = this.armsIMU; //imu raw data class for the algorithms (ie. mahony and madgwick)
         let imuthread = this.armsIMUthread;
+        let imuMadgwickAHRS = this.armsMadgwickAHRS;
 
         // let eularRadian = IMUSO3Thread(params, TS);
-        let eularRadian = imuthread.IMUSO3Thread(imu, params, TS);
+        let eularRadian = imuthread.IMUSO3Thread(imu, params, TS, imuMadgwickAHRS);
         //         console.log(eularRadian);
-
-
         let delta_yaw = -eularRadian.eurla_yaw + this.last_EularRadian_Raw.eurla_yaw;
         let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian_Raw.eurla_pitch;
         let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian_Raw.eurla_roll;
+
+        let eularRadian_MadgwickAHRS = fusionQuaternion2Eular(imuMadgwickAHRS.q0, imuMadgwickAHRS.q1, imuMadgwickAHRS.q2, imuMadgwickAHRS.q3);
+        let delta_yaw_MadgwickAHRS = -eularRadian_MadgwickAHRS.eurla_yaw + this.last_EularRadian_Raw_MadgwickAHRS.eurla_yaw;
+        let delta_pitch_MadgwickAHRS = -eularRadian_MadgwickAHRS.eurla_pitch + this.last_EularRadian_Raw_MadgwickAHRS.eurla_pitch;
+        let delta_roll_MadgwickAHRS = -eularRadian_MadgwickAHRS.eurla_roll + this.last_EularRadian_Raw_MadgwickAHRS.eurla_roll;
+
 
         let rate = this.name - 1;
         let correction = { "dela_yaw": 0, "delta_roll": 0, "delta_pitch": 0 };
@@ -1010,26 +1034,39 @@ class webblue_phaseOne {
 
         if (isNaN(delta_pitch + delta_yaw + delta_roll)) {
             loop(0, 0, 0, cube9Axis, eularRadian);
-            if (armsEnabled) { armTwoLoop(0, 0, 0, arm9AxisARMS, this.name, eularRadian); }
-            else armLoop(0, 0, 0, this.arm9AxisARM, eularRadian);
+            if (armsEnabled) {
+                armTwoLoop(0, 0, 0, arm9AxisARMS, this.name, eularRadian);
+                armTwoLoop(0, 0, 0, arm9AxisMadgwickAHRSARMS, this.name, eularRadian_MadgwickAHRS);
+
+            }
+            else {
+                armLoop(0, 0, 0, this.arm9AxisARM, eularRadian);
+                armLoop(0, 0, 0, this.arm9AxisMadgwickAHRSARM, eularRadian_MadgwickAHRS);
+            }
+            loop(0, 0, 0, cube9AxisMadgwickAHRS, eularRadian_MadgwickAHRS);
+
         }
         else {
             loop(delta_yaw, delta_pitch, delta_roll, cube9Axis, eularRadian);//drawCube
-            if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, arm9AxisARMS, this.name, eularRadian); }
+            if (armsEnabled) {
+                armTwoLoop(delta_yaw, delta_pitch, delta_roll, arm9AxisARMS, this.name, eularRadian);
+                armTwoLoop(delta_yaw_MadgwickAHRS, delta_pitch_MadgwickAHRS, delta_roll_MadgwickAHRS, arm9AxisMadgwickAHRSARMS, this.name, eularRadian_MadgwickAHRS);
+            }
             // if (armsEnabled) { armTwoLoop(delta_yaw - correction.delta_yaw, delta_pitch - correction.delta_pitch, delta_roll - correction.delta_roll, arm9AxisARMS, this.name, eularRadian); }
-            else armLoop(delta_yaw, delta_pitch, delta_roll, this.arm9AxisARM, eularRadian);//drawArm 
+            else {
+                armLoop(delta_yaw, delta_pitch, delta_roll, this.arm9AxisARM, eularRadian);//drawArm 
+                armLoop(delta_yaw_MadgwickAHRS, delta_pitch_MadgwickAHRS, delta_roll_MadgwickAHRS, this.arm9AxisMadgwickAHRSARM, eularRadian_MadgwickAHRS);//drawArm 
+            }
             //
+            loop(delta_yaw_MadgwickAHRS, delta_pitch_MadgwickAHRS, delta_roll_MadgwickAHRS, cube9AxisMadgwickAHRS, eularRadian_MadgwickAHRS);
+
         }
+
 
         //due to the algorithm is output opsite to FSCompact, we reverse teh delta_xxxx for the loop.
 
         this.last_EularRadian_Raw = eularRadian;
-        this.last_EularRadian_Raw_delta = { "delta_yaw": delta_yaw, "delta_pitch": delta_pitch, "delta_roll": delta_roll };
-        // eularAngle.push(eularRadian);
-        // console.log('first eular angle is : ', eularAngle);
-
-        // }
-        // outp.innerText = JSON.stringify(eularRadian);
+        this.last_EularRadian_Raw_MadgwickAHRS = eularRadian_MadgwickAHRS;
     }
 
 }//webblue-phaseOne
