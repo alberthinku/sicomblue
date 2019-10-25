@@ -31,6 +31,11 @@
 
 <h3>release notes:</h3>
 
+<p>[251019] version 1.1.12 -cubearms is on with new features & bugs:</p>
+<p>1. added MadgwickAHRS algorithm by adding MadgwichAHRS class</p>
+<p>2. tune the cube/arms display ui </p>
+<p>3. reshuffled the filters functions</p>
+
 <p>[241019] version 1.1.11 -cubearms is on with new features & bugs:</p>
 <p>1. added on arms page a auto justify if single node input then drawarm, if multinode then drawarms, and cube will be aligned with multinode input as a combined rotation as well</p>
 <p>2. crazepony algorithm is Mahony filter, Ki could be 0, and the Ki i.e. integral of the A+M will make Yaw drift </p>
