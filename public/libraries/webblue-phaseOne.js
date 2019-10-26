@@ -150,19 +150,23 @@ class webblue_phaseOne {
         });
         document.getElementById(this.status_notifications).innerHTML = notification_status_output;
 
-        if (document.getElementById(this.ifContent).innerText.slice(-36) == uuid) {
-            document.getElementById(cubeSFCompact.elementID).hidden = !(status);
-            if (armsEnabled) document.getElementById(armSFCompactARMS.elementID).hidden = !(status);
-            else document.getElementById(this.armSFCompactARM.elementID).hidden = !(status);
+        if (cubeEnabled) {
 
-        };
+            if (document.getElementById(this.ifContent).innerText.slice(-36) == uuid) {
+                document.getElementById(cubeSFCompact.elementID).hidden = !(status);
+                if (armsEnabled) document.getElementById(armSFCompactARMS.elementID).hidden = !(status);
+                else document.getElementById(this.armSFCompactARM.elementID).hidden = !(status);
 
-        if (document.getElementById(this.ifRawContent).innerText.slice(-36) == uuid) {
-            document.getElementById(cube9Axis.elementID).hidden = !(status);
-            if (armsEnabled) document.getElementById(arm9AxisARMS.elementID).hidden = !(status);
-            else document.getElementById(this.arm9AxisARM.elementID).hidden = !(status);
-            IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
-        };
+            };
+
+            if (document.getElementById(this.ifRawContent).innerText.slice(-36) == uuid) {
+                document.getElementById(cube9Axis.elementID).hidden = !(status);
+                if (armsEnabled) document.getElementById(arm9AxisARMS.elementID).hidden = !(status);
+                else document.getElementById(this.arm9AxisARM.elementID).hidden = !(status);
+                IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
+            };
+        }
+
 
     }//setNotificationStatus
 
