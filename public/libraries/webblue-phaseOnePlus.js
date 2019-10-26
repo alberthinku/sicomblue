@@ -958,6 +958,7 @@ class webblue_phaseOne {
                 }
             }
             catch (err) {
+                console.log(err);
                 return (err);
             }
         else return;
