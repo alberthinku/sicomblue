@@ -124,6 +124,8 @@ const server = http.createServer((req, res) => {
         case "/manual": filename = "manual/SiComBlueusermanual.docx.html"; break;
         case "/cube": filename = "indexDnD.html"; break;
         case "/arms": filename = "indexARMs.html"; break;
+        case "/tof": filename = "indexToF.html"; break;
+
 
     }
 
