@@ -1,5 +1,3 @@
-const Point2D = function (x, y) { this.x = x; this.y = y; };
-const Point3D = function (x, y, z) { this.x = x; this.y = y; this.z = z; };
 
 //Cube is defining the cube to be drawed as the center coordination is (x,y,z) related to the camera=(0,0,0) 
 //while the size is the size of the cube in the drawing plane
