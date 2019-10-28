@@ -39,9 +39,11 @@ div {
 
 #dest_copy1,
 #dest_copy_raw1,
+#dest_copy_tof1,
 #dest_copy_then1,
 #dest_copy2,
 #dest_copy_raw2,
+#dest_copy_tof2,
 #dest_copy_then2 {
     border: 2px dashed blue;
     background-color: white;

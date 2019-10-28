@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Web Bluetooth SiCom</title>
+    <link rel="stylesheet" type="text/css" href="css/tableCss.css">
+    <link rel="stylesheet" type="text/css" href="css/smallbuttonsCss.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Cube</title>
+    <script>
+        var localGravity = 9.81259;//default g of (52,100) 
+    </script>
+
+    <script src="libraries/filter/drawtofModel.js"></script>
+    <script src="libraries/filter/Point2D3D.js"></script>
+    <script src="libraries/tofModeling.js"></script>
+    <script src="libraries/addOneMoreNode.js"></script>
+    <script src="libraries/webblue-phaseOnePlus.js"></script>
+    <script src="libraries/parseJson.js"></script>
+    <script src="libraries/refreshLayer.js"></script>
+    <script src="libraries/DragDroplib.js"></script>
+    <script src="libraries/filter/safe_asin.js"></script>
+    <script src="libraries/filter/invSqrt.js"></script>
+    <script src="libraries/filter/imuClass.js"></script>
+    <script src="libraries/filter/CrazePonyIMUo3Class.js"></script>
+    <script src="libraries/filter/MadgwickAHRS.js"></script>
+    <script src="libraries/filter/fusionQuaternion2Eular.js"></script>
+    <script src="libraries/filter/Latitude2Gravity.js"></script>
+    <script>
+        var myWindow = [];
+        var deviceCount = 1;
+        var nodeMax = 2;
+        var deviceNo = [];
+        var cubeEnabled = false;
+        var armsEnabled = false;
+        var tofEnabled = true;
+        var tofPointArray = [];
+        var initEurlaRadian = {};
+        var tofM = null;
+        const tof2obj = 20; //the distance between tof sensor and obj center is 50cm 
+        const tofPointArrayLengthMax = 500;
+    </script>
+
+</head>
+
+<!-- <body onload="GETIP()"> -->
+
+<body>
+    <h1>Web Bluetooth SiCom</h1>
+    <p>ver 1.2.0 -ToF </p>
+    <a href="about">release note</a> & <a href="help">profile example</a> & <a href="manual">manual</a> & <a
+        href="/">return</a>
+
+    <canvas style="left: 50px; top: 200px" id="tofModeldraw" width="100" height="100" hidden="true"></canvas>
+    <!-- <canvas style="left: 630px; top: 00px" id="drawCube" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 630px; top: 200px" id="drawCube9Axis" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 630px; top: 400px" id="drawCube9AxisMadgwickAHRS" width="100" height="100"
+        hidden="true"></canvas>
+
+
+    <canvas style="left: 50px; top: 00px" id="drawArm" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 50px; top: 200px" id="drawArm9Axis" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 50px; top: 400px" id="drawArm9AxisMadgwickAHRS" width="100" height="100"
+        hidden="true"></canvas> -->
+
+    <span>
+        <text>caculate the local g for fusion</text>
+        <input id="LatValue" class="inputnum" onkeyup="updateLocalGravCalc();" type="number" name="LengthValue"
+            placeholder="Enter latitude (-90,90)" onchange="updateLocalGravCalc();" onclick="updateLocalGravCalc();" />
+        <input id="HeightValue" class="inputnum" onkeyup="updateLocalGravCalc();" type="number" name="HeightValue"
+            placeholder="Enter height (-488, 8844)" onchange="updateLocalGravCalc();"
+            onclick="updateLocalGravCalc();" />
+        <input id="GravValue" class="inputnum" type="text" name="GravValue" placeholder="g Answer shows here"
+            readonly="readonly" onclick="updateLocalGravCalc();" />
+    </span>
+
+    <h2>Connection Status</h2>
+
+    <table id="statusTable">
+        <tbody id="statusTbody">
+            <tr id="statusHead">
+                <td>
+                    <b>Device No.</b>
+                </td>
+                <td>
+                    <b>Connected</b>
+                </td>
+                <td>
+                    <b>Device Name.</b>
+                </td>
+
+                <td>
+                    <b>Services Discovery Completed</b>
+                </td>
+                <td>
+                    <b>Notifications status</b>
+                </td>
+                <td>
+                    <b>select profile</b>
+                </td>
+                <td>
+                    <b>upload your own profile</b>
+                </td>
+            </tr>
+            <tr id="statusLine1">
+                <td>1</td>
+                <td id="status_connected1">false</td>
+                <td id="device_name1">NA</td>
+                <td id="status_discovered1">false</td>
+                <td id="status_notifications1">false</td>
+                <td>
+                    <form id="profileSelectForm1">
+                        <select class="small grey button" id="mySelectedProfile1"
+                            onchange="selectProfile(this.value, 'libraries/', 1)">
+                            <option value="" selected="selected" disabled="true"></option>
+                            <option value="BBC_Microbit">BBC Microbit</option>
+                            <option value="ST_BLUEST">ST BLUEST</option>
+                            <option value="ST_BLUEST_full">ST BLUEST_full</option>
+                            <option value="ST_BlueNRG">ST BlueNRG</option>
+                            <option value="ST_BLUEST_fusion">ST Fusion</option>
+
+                        </select>
+                    </form>
+                </td>
+                <td>
+                    <form id="uploadForm1">
+
+                        <input type="file" id="file-input1" name="userJson" oninput="addAprofile('file-input1')">
+
+                    </form>
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <form>
+        <input class="small button" id="addNode" type="button" value="+Node" name="+oneMoreLine"
+            onclick="addOneMoreNode(++deviceCount)">
+        <input class="small red button" id="minusNode" type="button" value="-Node" name="+oneMoreLine"
+            onclick="removeOneMoreNode(deviceCount--)">
+    </form>
+
+    <h2>Step.1 choose a preloaded profile or upload your own profile from above table</h2>
+
+    <form>
+        <input class="small red button" type="reset" value="reset choices" onclick="reinit()" />
+    </form>
+
+    <span id="showJsonFile">
+        <div class="xJSON" id="showJson1" hidden="true"></div>
+    </span>
+
+    <h2>Step.2 Device Discovery and Connection</h2>
+    <span id="btnScanButton">
+        <button class="small button" id="btn_scan1" onclick="deviceDiscoverOrDisconnectCall(deviceNo['1'])"
+            disabled="true">discoverDevices</button>
+    </span>
+    <hr>
+    <h2>Step.3 Customize your choices and run!</h2>
+    <span id="step3AllAction">
+        <button class="small button" id="btn_notify1" disabled="true"
+            onclick="processAllCharSelections(deviceNo['1'])">Dev_1:ProcessAllChar</button>
+    </span>
+
+    <span id="charDataArea">
+        <div class="notification" id="chardatanotification1"></div>
+    </span>
+
+    <label id="step3FinalShow">
+        <span id="1GATTShow" disabled="true"></span>
+
+    </label>
+    <script>
+
+    </script>
+
+    <script src="libraries/initAddOnelib.js"></script>
+    <script src="libraries/saveit.js"></script>
+    <script src="libraries/checkBoxlib.js"></script>
+
+    <script>
+
+    </script>
+    <p>
+        SiCom web bluetooth connection tool user environment:<br>
+        HARDWARE: PC/Mac/Laptop/Chromebook, <br>
+        SOFTWARE: Chrome ver70 or later on Windows10 or Chrome ver56 or later on
+        Mac/Linux/Window7</p>
+    <p>
+        Bluetooth devices :<br>
+        HARDWARE : BBC microbit, STM32 Nucelo kit, SensorTile, or any device equipted with BLE 4.x or later<br>
+        FIRMWARE/PROFILE : BBC microbit V1_11, ST BlueST V4.3 or later/FunctionPack ALLMEMS/FLV/MOTENV<br>
+    </p>
+
+    <form>
+        <span id="step4Cube">
+            <div class="info" id="dest_copy1" ondrop="drop_handler(event,'1');"
+                ondragover="dragover_handler(event,'1');">
+                <p>drag Node 1 SensorFusionCompact Char into box</p>
+            </div>
+
+            <div class="info" id="dest_copy_raw1" ondrop="drop_handler(event,'1');"
+                ondragover="dragover_handler(event,'1');">
+                <p>drag Node 1 raw 9 axis Char into box</p>
+            </div>
+
+            <div class="info" id="dest_copy_tof1" ondrop="drop_handler(event,'1');"
+                ondragover="dragover_handler(event,'1');">
+                <p>drag Node 1 tof/proximity Char into box</p>
+            </div>
+
+            <text id="ifContent1"></text>
+            <text id="thenContent1"></text>
+            <text id="ifRawContent1"></text>
+            <text id="ifTofContent1"></text>
+        </span>
+        <button class="small button" name="Act!" id="mixCharAction" type="button"
+            onclick="letCharMix()"><text>Act!</text></button>
+    </form>
+
+    <!-- <script src="libraries/filter/drawCube.js">
+    </script>
+    <script src="libraries/filter/drawArm.js">
+    </script>
+    <script src="libraries/filter/drawArmTwo.js">
+    </script> -->
+
+    <script>
+        // let armW = document.getElementById("drawArm");
+        // var armLength = Math.sqrt(armW.width * armW.width / 4 + armW.height * armW.height / 4);
+        // var rCenter = [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: armLength }];
+
+        // var cubeSFCompact;
+        // //  = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
+        // var cube9Axis;
+        // //  = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
+
+        // var cube9AxisMadgwickAHRS;
+
+        // var armSFCompact;
+        // //  = new Arm(armLength, 0, 10 * armLength, 25, "armSFCompact", "drawArm");
+        // var arm9Axis;
+        // //  = new Arm(armLength, 0, 10 * armLength, 25, "arm9Axis", "drawArm9Axis");
+        // var arm9AxisMadgwickAHRS;
+
+        // var arm9AxisARMS;
+        // var arm9AxisMadgwickAHRSARMS;
+        // var armSFCompactARMS;
+
+        // function cubeInit() {
+        //     cubeSFCompact = new Cube(00, 0, 400, 200, "cubeSFCompactST", "drawCube");
+        //     cube9Axis = new Cube(00, 0, 400, 200, "cube9AxisMahony", "drawCube9Axis");
+        //     cube9AxisMadgwickAHRS = new Cube(0, 0, 400, 200, "cube9AxisMadgwickAHRS", "drawCube9AxisMadgwickAHRS");
+
+        //     // var armSFCompact = new Arm(armLength, 0, 10 * armLength, 25, "armSFCompact", "drawArm");
+        //     // var arm9Axis = new Arm(armLength, 0, 10 * armLength, 25, "arm9Axis", "drawArm9Axis");
+        // };
+
+        // function armInit(device = null, rCenter = { x: 0, y: 0, z: 0 }) {
+        //     //     var cubeSFCompact = new Cube(00, 0, 400, 200, "cubeSFCompact", "drawCube");
+        //     // var cube9Axis = new Cube(00, 0, 400, 200, "cube9Axis", "drawCube9Axis");
+        //     // var rCx = rCenter.x;
+        //     // var rCy = rCenter.y;
+        //     // var rCz = rCenter.z;
+        //     // let bCx = rCx;
+        //     // armLength / 2 + rCx;
+        //     // let bCy = rCy;
+        //     // let bCz = armLength / 2 + rCz;
+        //     // let sizeX = 25;
+        //     // let sizeY = 25;
+        //     // let sizeZ = armLength;
+        //     armSFCompactARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm");
+        //     arm9AxisARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm9Axis");
+        //     arm9AxisMadgwickAHRSARMS = new ArmTwo(rCenter.x, rCenter.y, rCenter.z, "drawArm9AxisMadgwickAHRS")
+
+        //     if (device == null) return;
+        //     let rCx = rCenter.x;
+        //     let rCy = rCenter.y;
+        //     let rCz = rCenter.z;
+        //     let bCx = rCx;
+        //     // armLength / 2 + rCx;
+        //     let bCy = rCy;
+        //     let bCz = armLength / 2 + rCz;
+        //     let sizeX = 25;
+        //     let sizeY = 25;
+        //     let sizeZ = armLength;
+        //     device.armSFCompactARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.armSFCompact, "drawArm", rCx, rCy, rCz);
+        //     device.arm9AxisARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.arm9Axis, "drawArm9Axis", rCx, rCy, rCz);
+        //     device.arm9AxisMadgwickAHRSARM = new Arm(bCx, bCy, bCz, sizeX, sizeY, sizeZ, device.arm9AxisMadgwickAHRS, "drawArm9AxisMadgwickAHRS", rCx, rCy, rCz);
+        // };
+        // cubeInit();
+        // armInit();
+
+    </script>
+
+    <script>
+
+        letCharMix = function () {
+
+            armsEnabled = (deviceCount >= 2);
+            console.log("armsEnabled is ", armsEnabled);
+
+            if (armsEnabled && tofEnabled) {
+                console.log("yes we can");
+                tofPointArray = [];
+                tofM = null;
+                initEurlaRadian = {};
+            }
+
+            deviceNo.forEach(device => {
+                if (device == null) return;
+
+                let inputChar = document.getElementById(device.ifContent).innerText.slice(-40);
+                checkBoxImmyActAsst(inputChar);
+
+                inputChar = document.getElementById(device.ifRawContent).innerText.slice(-40);
+                checkBoxImmyActAsst(inputChar);
+
+                if (armsEnabled == false) armInit(device, rCenter[device.name]);
+
+                device.armsIMU = new IMU_tt; //be ready for SFCompact angle calculation
+                // device.armsIMUthread = new CrazePonyIMUo3Class;
+                // device.armsMadgwickAHRS = new MadgwickAHRS;
+            });
+
+            inputChar = document.getElementById(deviceNo[1].ifTofContent).innerText.slice(-40);
+            checkBoxImmyActAsst(inputChar);
+
+
+
+
+
+        }
+
+
+    </script>
+
+
+
+</body>
+
+</html>
