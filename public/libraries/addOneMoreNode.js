@@ -72,7 +72,7 @@ function addOneMoreNode(nodeCount) {
     lineBoxSelectProfileOptionBlueNRG.setAttribute("value", "ST_BlueNRG");
     lineBoxSelectProfileOptionBlueNRG.append("ST BlueNRG");
 
-    if (cubeEnabled) {
+    if (cubeEnabled || tofEnabled) {
         let lineBoxSelectProfileOptionBlueSTFusion = document.createElement("option");
         lineBoxSelectProfile.appendChild(lineBoxSelectProfileOptionBlueSTFusion);//append profileOption as child of profile
         lineBoxSelectProfileOptionBlueSTFusion.setAttribute("value", "ST_BLUEST_fusion");
@@ -140,7 +140,7 @@ function addOneMoreNode(nodeCount) {
 
     showJsonFile.appendChild(oneMoreShowJson);
 
-    if (cubeEnabled) {
+    if (cubeEnabled || tofEnabled) {
         let step4Cube = document.getElementById("step4Cube");
         // let oneMoredest_copyh1 = document.createElement("h1");
         // oneMoredest_copyh1.innerHTML = "drag Node" + nodeCount + " SensorFusionCompact Char into box :";
@@ -177,6 +177,24 @@ function addOneMoreNode(nodeCount) {
         oneMoredest_text = document.createElement("text");
         oneMoredest_text.setAttribute("id", "ifRawContent" + nodeCount);
         step4Cube.appendChild(oneMoredest_text);
+
+        if (tofEnabled && nodeCount == 1) {
+
+            let oneMoredest_copytof = document.createElement("div");
+            oneMoredest_copytof.setAttribute("id", "dest_copy_tof" + nodeCount);
+            oneMoredest_copytof.setAttribute("class", "info");
+            oneMoredest_copytof.setAttribute("ondrop", "drop_handler(event," + nodeCount + ");");
+            oneMoredest_copytof.setAttribute("ondragover", "dragover_handler(event," + nodeCount + ");");
+            let oneMoredest_texttof = document.createElement("p");
+            oneMoredest_texttof.innerHTML = "drag Node" + nodeCount + " tof/proximity Char into box";
+            oneMoredest_copytof.appendChild(oneMoredest_texttof);
+            // oneMoredest_copy.innerHTML = "drag Node" + nodeCount + " SensorFusionCompact Char into box";
+            step4Cube.appendChild(oneMoredest_copytof);
+
+            oneMoredest_text = document.createElement("text");
+            oneMoredest_text.setAttribute("id", "ifTofContent" + nodeCount);
+            step4Cube.appendChild(oneMoredest_text);
+        }
 
     }
 

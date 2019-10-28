@@ -59,6 +59,8 @@ class webblue_phaseOne {
 
         this.ifContent = "ifContent" + this.name;
         this.ifRawContent = "ifRawContent" + this.name;
+        this.ifTofContent = "ifTofContent" + this.name;
+
         this.thenContent = "thenContent" + this.name;
 
         this.arm9Axis = "arm9AxisMahony" + this.name;
@@ -80,6 +82,8 @@ class webblue_phaseOne {
         this.last_EularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         this.last_EularRadian_Raw = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         this.last_EularRadian_Raw_MadgwickAHRS = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+
+        this.last_tofReading = 0;
 
         this.last_EularRadian_Raw_delta = { "delta_pitch": 0, "delta_yaw": 0, "delta_roll": 0 };
         document.getElementById(this.buttonDiscover).disabled = false;
@@ -165,28 +169,31 @@ class webblue_phaseOne {
         });
         document.getElementById(this.status_notifications).innerHTML = notification_status_output;
 
-        if (document.getElementById(this.ifContent).innerText.slice(-36) == uuid) {
-            document.getElementById(cubeSFCompact.elementID).hidden = !(status);
-            if (armsEnabled) document.getElementById(armSFCompactARMS.elementID).hidden = !(status);
-            else document.getElementById(this.armSFCompactARM.elementID).hidden = !(status);
+        if (cubeEnabled) {
 
-        };
+            if (document.getElementById(this.ifContent).innerText.slice(-36) == uuid) {
+                document.getElementById(cubeSFCompact.elementID).hidden = !(status);
+                if (armsEnabled) document.getElementById(armSFCompactARMS.elementID).hidden = !(status);
+                else document.getElementById(this.armSFCompactARM.elementID).hidden = !(status);
 
-        if (document.getElementById(this.ifRawContent).innerText.slice(-36) == uuid) {
-            document.getElementById(cube9Axis.elementID).hidden = !(status);
-            document.getElementById(cube9AxisMadgwickAHRS.elementID).hidden = !(status);
-            if (armsEnabled) {
-                document.getElementById(arm9AxisARMS.elementID).hidden = !(status);
-                document.getElementById(arm9AxisMadgwickAHRSARMS.elementID).hidden = !(status);
-            }
-            else {
-                document.getElementById(this.arm9AxisARM.elementID).hidden = !(status);
-                document.getElementById(this.arm9AxisMadgwickAHRSARM.elementID).hidden = !(status);
+            };
 
-            }
-            this.armsIMU.IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
-        };
+            if (document.getElementById(this.ifRawContent).innerText.slice(-36) == uuid) {
+                document.getElementById(cube9Axis.elementID).hidden = !(status);
+                document.getElementById(cube9AxisMadgwickAHRS.elementID).hidden = !(status);
+                if (armsEnabled) {
+                    document.getElementById(arm9AxisARMS.elementID).hidden = !(status);
+                    document.getElementById(arm9AxisMadgwickAHRSARMS.elementID).hidden = !(status);
+                }
+                else {
+                    document.getElementById(this.arm9AxisARM.elementID).hidden = !(status);
+                    document.getElementById(this.arm9AxisMadgwickAHRSARM.elementID).hidden = !(status);
 
+                }
+                this.armsIMU.IMU_Init();//each time status change, init the IMU to ensure the gyro calibration to be done prior to the algorithm output
+            };
+
+        }
     }//setNotificationStatus
 
     setConnectedStatus(status) {
@@ -961,12 +968,70 @@ class webblue_phaseOne {
                 console.log(err);
                 return (err);
             }
-        else return;
+        else if (tofEnabled) { //if tofEnabled, let get the tof related stuff done
+            try {
+                //incase ifContent has the uuid label, process the function accordinly
+                let ifContent = document.getElementById(node.ifContent).innerText;
+
+                //incase ifRawContent has the uuid label, process the function accordinly
+                // let ifRawContent = document.getElementById(node.ifRawContent).innerText;
+
+                if (node.name == 1) {
+                    let ifTofContent = document.getElementById(node.ifTofContent).innerText;
+                    if (ifTofContent.slice(-36) == uuid) {
+                        node.processTof(uuid, readoutData, TS);
+                        tofModeling();
+                    }
+                }
+
+                if (ifContent.slice(-36) == uuid) {
+                    //process the then function
+                    node.processAngleCalc(uuid, readoutData, TS);
+                }
+
+
+
+            }
+            catch (err) {
+                console.log(err);
+                return (err);
+            }
+        };
     }//onSelectedChar
 
+    processTof = function (uuid, params, TS) {
+        let outp = document.getElementById(this.thenContent);
+        let tofReading = (params - 32767) / 10; //turn the reading into cm
+        this.last_tofReading = tofReading;
+    }
+
+    processAngleCalc = function (uuid, params, TS) {
+        // console.log('selected char to be further deployed');
+        let outp = document.getElementById(this.thenContent);
+        let eularAngle = [];
+        let eularRadianSum = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+        for (let i = 0; i < params.length; i += 3) {
+            let quarternionElement = params.slice(i, i + 3);
+            let qi = quarternionElement[0] / 10000;//BlueST defines the Qi,j,k output with real Int16*10000
+            let qj = quarternionElement[1] / 10000;
+            let qk = quarternionElement[2] / 10000;
+            // console.log('SFC elements is : ', qi, '/', qj, '/', qk);
+            let qW = Math.sqrt(1 - qi * qi - qj * qj - qk * qk);
+            let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);//
+
+            // let delta_yaw = -eularRadian.eurla_yaw + this.last_EularRadian.eurla_yaw;
+            // let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian.eurla_pitch;
+            // let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian.eurla_roll;
+
+            this.last_EularRadian = eularRadian;
+
+            //{ eurla_pitch, eurla_roll, eurla_yaw, eurla_pitch_Angle, eurla_roll_Angle, eurla_yaw_Angle }
+        }
+    }
     shift2newCenter = function (params) {
 
     }
+
     processAlgorithm = function (uuid, params, TS) {
         // console.log('selected char to be further deployed');
         let outp = document.getElementById(this.thenContent);
@@ -995,6 +1060,7 @@ class webblue_phaseOne {
                 if (armsEnabled) { armTwoLoop(delta_yaw, delta_pitch, delta_roll, armSFCompactARMS, this.name, eularRadian); }
                 else armLoop(delta_yaw, delta_pitch, delta_roll, this.armSFCompactARM, eularRadian);//drawArm
             }
+
             this.last_EularRadian = eularRadian;
 
 

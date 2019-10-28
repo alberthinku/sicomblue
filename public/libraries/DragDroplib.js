@@ -50,6 +50,15 @@ function drop_handler(ev, devNo) {
         ev.target.clearData;
         ev.target.appendChild(nodeCopy);
     }
+
+    else if (ev.target.id == "dest_copy_tof" + devNo) {
+        // let nodeCopy = document.createElement("text");
+        // nodeCopy.setAttribute("id", "ifContent");
+        let nodeCopy = document.getElementById(device.ifTofContent);
+        nodeCopy.innerHTML = id;
+        ev.target.clearData;
+        ev.target.appendChild(nodeCopy);
+    }
 }
 function dragend_handler(ev) {
     // console.log("dragEnd");
