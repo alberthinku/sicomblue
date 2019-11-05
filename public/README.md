@@ -36,6 +36,8 @@
 <p>2. refined the fmodeling algorithm</p>
 <p>3. due to the tof board working condition, the pitch of roll of the tof board output is not well monitored, may go back to review the fusion result for both 9axis and sfc output -- see note 4</p>
 <p>4. the issue regarding the pitch and roll mistakes for fusion result of tof board, is showing as for sfc, initial change is huge(slight movement caused the cube rotation dramatically) or as for Mahony/Madgwick 9axis, the big change is causing little movement of cube rotation. reason may linked to the fusion parameters setting. tobe further investigated.</p>
+<p>5. one of the big challenges are the calculation power for the pc during each interruption when notification comes, there are hunderes points to be calculated with fmodel and then rotation, which likely created huge defect to the fusion algorithm itself, so future development should be focused on rebalaned caculation power and improving the interrupt service efficiency</p>
+
 
 
 <p>[281019] version 1.2.0 -tof is on with new features & bugs:</p>
