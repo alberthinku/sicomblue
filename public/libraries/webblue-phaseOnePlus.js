@@ -77,7 +77,7 @@ class webblue_phaseOne {
         this.armsIMUthread = null; //IMU thread class to process the Crazepony/Mahony filter
         this.armsMadgwickAHRS = null;//IMU class defined for MadgwickAHRS filter process
 
-
+        this.calibration_done = false;
 
         this.last_EularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         this.last_EularRadian_Raw = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
@@ -972,24 +972,27 @@ class webblue_phaseOne {
             try {
                 //incase ifContent has the uuid label, process the function accordinly
                 let ifContent = document.getElementById(node.ifContent).innerText;
+                let ifRawContent = document.getElementById(node.ifRawContent).innerText;
 
                 //incase ifRawContent has the uuid label, process the function accordinly
                 // let ifRawContent = document.getElementById(node.ifRawContent).innerText;
-
-                if (node.name == 1) {
-                    let ifTofContent = document.getElementById(node.ifTofContent).innerText;
-                    if (ifTofContent.slice(-36) == uuid) {
-                        node.processTof(uuid, readoutData, TS);
-                        tofModeling();
-                    }
-                }
-
                 if (ifContent.slice(-36) == uuid) {
                     //process the then function
                     node.processAngleCalc(uuid, readoutData, TS);
                 }
 
+                if (ifRawContent.slice(-36) == uuid) {
+                    //process the then function
+                    node.processAngleCalc_Mahony(uuid, readoutData, TS);
+                }
 
+                if (node.name == 1) {
+                    let ifTofContent = document.getElementById(node.ifTofContent).innerText;
+                    if (ifTofContent.slice(-36) == uuid && this.calibration_done) {
+                        node.processTof(uuid, readoutData, TS);
+                        tofModeling(this.calibration_done);
+                    }
+                }
 
             }
             catch (err) {
@@ -1027,6 +1030,53 @@ class webblue_phaseOne {
 
             //{ eurla_pitch, eurla_roll, eurla_yaw, eurla_pitch_Angle, eurla_roll_Angle, eurla_yaw_Angle }
         }
+    }
+
+    processAngleCalc_Mahony = function (uuid, params, TS) {
+        // console.log('selected char to be further deployed');
+        // let outp = document.getElementById(this.thenContent);
+        let eularAngle = [];
+        let eularRadianSum = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
+        let imu = this.armsIMU; //imu raw data class for the algorithms (ie. mahony and madgwick)
+        let imuthread = this.armsIMUthread;
+        let imuMadgwickAHRS = this.armsMadgwickAHRS;
+
+        // let eularRadian = IMUSO3Thread(params, TS);
+        let eularRadian = imuthread.IMUSO3Thread(imu, params, TS, imuMadgwickAHRS);
+        //calculated result put into delta_yaw/pitch/roll;
+        let delta_yaw = -eularRadian.eurla_yaw + this.last_EularRadian_Raw.eurla_yaw;
+        let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian_Raw.eurla_pitch;
+        let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian_Raw.eurla_roll;
+
+        if ((eularRadian.eurla_pitch_Angle == 0 && eularRadian.eurla_yaw_Angle == 0 && eularRadian.eurla_roll_Angle == 0)) {
+            this.calibration_done = false;
+        } else { this.calibration_done = true; }
+
+        this.last_EularRadian_Raw = eularRadian;
+
+        // let eularRadian_MadgwickAHRS = fusionQuaternion2Eular(imuMadgwickAHRS.q0, imuMadgwickAHRS.q1, imuMadgwickAHRS.q2, imuMadgwickAHRS.q3);
+        // let delta_yaw_MadgwickAHRS = -eularRadian_MadgwickAHRS.eurla_yaw + this.last_EularRadian_Raw_MadgwickAHRS.eurla_yaw;
+        // let delta_pitch_MadgwickAHRS = -eularRadian_MadgwickAHRS.eurla_pitch + this.last_EularRadian_Raw_MadgwickAHRS.eurla_pitch;
+        // let delta_roll_MadgwickAHRS = -eularRadian_MadgwickAHRS.eurla_roll + this.last_EularRadian_Raw_MadgwickAHRS.eurla_roll;
+
+
+        // for (let i = 0; i < params.length; i += 3) {
+        //     let quarternionElement = params.slice(i, i + 3);
+        //     let qi = quarternionElement[0] / 10000;//BlueST defines the Qi,j,k output with real Int16*10000
+        //     let qj = quarternionElement[1] / 10000;
+        //     let qk = quarternionElement[2] / 10000;
+        //     // console.log('SFC elements is : ', qi, '/', qj, '/', qk);
+        //     let qW = Math.sqrt(1 - qi * qi - qj * qj - qk * qk);
+        //     let eularRadian = fusionQuaternion2Eular(qW, qi, qj, qk);//
+
+        //     // let delta_yaw = -eularRadian.eurla_yaw + this.last_EularRadian.eurla_yaw;
+        //     // let delta_pitch = -eularRadian.eurla_pitch + this.last_EularRadian.eurla_pitch;
+        //     // let delta_roll = -eularRadian.eurla_roll + this.last_EularRadian.eurla_roll;
+
+        //     this.last_EularRadian = eularRadian;
+
+        //     //{ eurla_pitch, eurla_roll, eurla_yaw, eurla_pitch_Angle, eurla_roll_Angle, eurla_yaw_Angle }
+        // }
     }
     shift2newCenter = function (params) {
 
