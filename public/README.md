@@ -31,6 +31,13 @@
 
 <h3>release notes:</h3>
 
+<p>[051119] version 1.2.1 -tof is on with new features & bugs:</p>
+<p>1. added 9axis fusion result as the input for tofmodeling</p>
+<p>2. refined the fmodeling algorithm</p>
+<p>3. due to the tof board working condition, the pitch of roll of the tof board output is not well monitored, may go back to review the fusion result for both 9axis and sfc output -- see note 4</p>
+<p>4. the issue regarding the pitch and roll mistakes for fusion result of tof board, is showing as for sfc, initial change is huge(slight movement caused the cube rotation dramatically) or as for Mahony/Madgwick 9axis, the big change is causing little movement of cube rotation. reason may linked to the fusion parameters setting. tobe further investigated.</p>
+
+
 <p>[281019] version 1.2.0 -tof is on with new features & bugs:</p>
 <p>1. added tof page</p>
 <p>2. represent tof scanning chart for given obj through two nodes, one for tof notif, one for obj sfc</p>
