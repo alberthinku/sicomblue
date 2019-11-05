@@ -345,7 +345,11 @@ class CrazePonyIMUo3Class {
 
                 imu.accOffset[0] = this.acc_offset_sum[0] / this.offset_count;
                 imu.accOffset[1] = this.acc_offset_sum[1] / this.offset_count;
-                imu.accOffset[2] = this.acc_offset_sum[2] / this.offset_count - Constant_G;
+                imu.accOffset[2] = this.acc_offset_sum[2] / this.offset_count;
+                // imu.accOffset[2] = this.acc_offset_sum[2] / this.offset_count - Constant_G;
+                imu.accOffset[0] = imu.accOffset[0] - Constant_G * (imu.accOffset[0] > 0.8);
+                imu.accOffset[1] = imu.accOffset[1] - Constant_G * (imu.accOffset[1] > 0.8);
+                imu.accOffset[2] = imu.accOffset[2] - Constant_G * (imu.accOffset[2] > 0.8);
 
                 imu.magOffset[0] = this.mag_offset_sum[0] / this.offset_count;
                 imu.magOffset[1] = this.mag_offset_sum[1] / this.offset_count;
