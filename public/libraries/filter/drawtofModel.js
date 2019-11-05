@@ -1,6 +1,8 @@
 
 const tofModel = function (x, y, z, verts) {
     Point3D.call(this, x, y, z);
+    // Point3Ds.call(this, verts);
+
 
     this.name = "tofModeling";
     this.last_abs_Yaw = 0;
@@ -63,10 +65,10 @@ tofModel.prototype = {
         let sinPitch = Math.sin(Pitch);
         let cosineRoll = Math.cos(Roll);
         let sinRoll = Math.sin(Roll);
-        let p;
+        // let p;
         for (let index = this.vertices.length - 1; index > -1; --index) {
             // let p = this.vertices_origin[index];
-            p = tofPointArray[index];
+            let p = this.vertices_origin[index];
             let q = this.vertices[index];
             let ox = p.x - this.x;
             let oy = p.y - this.y;
@@ -100,13 +102,14 @@ tofModel.prototype = {
     }
 };
 
-var Pcx = -200;
-var Pcy = 0;
-var Pcz = -200;
+var Pcx = -2000;
+var Pcy = -1000;
+var Pcz = -2000;
 
 function projecttofModel(points3d, width, height) {
     var points2d = new Array(points3d.length);
     var focal_length = 200;
+    let scale = 3;
     // let Pcx = 00;
     // let Pcy = 00;
     // let Pcz = 1000;
@@ -116,8 +119,8 @@ function projecttofModel(points3d, width, height) {
         // let x = p.x * (focal_length / p.z) + width * 0.5;
         // let y = p.y * (focal_length / p.z) + height * 0.5;
 
-        let x = (Pcx * p.z - p.x * Pcz) / (p.z - Pcz) + width * 0.5;
-        let y = (Pcy * p.z - p.y * Pcz) / (p.z - Pcz) + height * 0.5;
+        let x = scale * (Pcx * p.z - p.x * Pcz) / (p.z - Pcz) + width * 0.5;
+        let y = scale * (Pcy * p.z - p.y * Pcz) / (p.z - Pcz) + height * 0.5;
 
         points2d[index] = new Point2D(x, y);
     }
@@ -136,10 +139,13 @@ function recalculatetofModel(angle) {
     else return (angle - 2 * Math.PI);
 }
 
-function looptof(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, tof, imuAngle) {
+function looptof(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, tof, imuAngle, is9Axis = false) {
 
     // var canvas = document.getElementById(tof.elementID);
-    var canvas = document.getElementById("tofModeldraw");
+    let canvasName = "tofModeldraw";
+    if (is9Axis) canvasName += "_9AxisFusion"
+    var canvas = document.getElementById(canvasName);
+
     canvas.hidden = false;
     var context = canvas.getContext("2d");
     var height = canvas.clientHeight;
@@ -172,6 +178,8 @@ function looptof(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, tof, imuAngle) {
     context.fillText(outr, 0, 70);
     let outy = 'Y>' + imuAngle.eurla_yaw_Angle;
     context.fillText(outy, 0, 90);
+    let outcount = 'points scanned>' + tof.vertices.length;
+    context.fillText(outcount, 0, 200);
 
     if (imuAngle.eurla_pitch_Angle == 0 && imuAngle.eurla_roll_Angle == 0 && imuAngle.eurla_yaw_Angle == 0) {
         context.fillStyle = "red";
@@ -232,10 +240,17 @@ function looptof(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, tof, imuAngle) {
 
     var vertices = projecttofModel(tof.vertices, width, height);
 
-    context.fillStyle = "blue";
-    // context.beginPath();
-    // context.moveTo(width / 2, height / 2);
+    context.strokeStyle = "blue";
+    context.beginPath();
+    context.moveTo(width / 2, height / 2);
+    context.lineTo(width / 2 + 5, height / 2);
+    context.lineTo(width / 2 - 5, height / 2);
+    context.moveTo(width / 2, height / 2 - 5);
+    context.lineTo(width / 2, height / 2 + 5);
+    context.closePath();
+    context.stroke();
 
+    context.strokeStyle = "black";
     for (let index = tof.vertices.length - 1; index > -1; --index) {
         context.beginPath();
         context.moveTo(vertices[index].x, vertices[index].y);
@@ -248,7 +263,17 @@ function looptof(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, tof, imuAngle) {
         context.stroke();
         // context.moveTo(vertices[index].x, vertices[index].y);
     }
-
+    let index = 0;
+    context.strokeStyle = "red";
+    context.beginPath();
+    context.moveTo(vertices[index].x, vertices[index].y);
+    context.lineTo(vertices[index].x + 1, vertices[index].y + 1);
+    context.lineTo(vertices[index].x - 1, vertices[index].y - 1);
+    context.moveTo(vertices[index].x, vertices[index].y);
+    context.lineTo(vertices[index].x - 1, vertices[index].y + 1);
+    context.lineTo(vertices[index].x + 1, vertices[index].y - 1);
+    context.closePath();
+    context.stroke();
     // context.closePath();
     // context.stroke();
 
