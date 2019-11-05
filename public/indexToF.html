@@ -38,10 +38,15 @@
         var armsEnabled = false;
         var tofEnabled = true;
         var tofPointArray = [];
+        var tofPointArray_9Axis = [];
         var initEurlaRadian = {};
+        var initEurlaRadian_obj = {};
+        var initEurlaRadian_tof = {};
+        var initEurlaRadian_tof_raw = {};
         var tofM = null;
+        var tofM_9Axis = null;
         const tof2obj = 20; //the distance between tof sensor and obj center is 50cm 
-        const tofPointArrayLengthMax = 500;
+        const tofPointArrayLengthMax = 2500;
     </script>
 
 </head>
@@ -55,6 +60,9 @@
         href="/">return</a>
 
     <canvas style="left: 50px; top: 200px" id="tofModeldraw" width="100" height="100" hidden="true"></canvas>
+    <canvas style="left: 50px; top: 400px" id="tofModeldraw_9AxisFusion" width="100" height="100"
+        hidden="true"></canvas>
+
     <!-- <canvas style="left: 630px; top: 00px" id="drawCube" width="100" height="100" hidden="true"></canvas>
     <canvas style="left: 630px; top: 200px" id="drawCube9Axis" width="100" height="100" hidden="true"></canvas>
     <canvas style="left: 630px; top: 400px" id="drawCube9AxisMadgwickAHRS" width="100" height="100"
@@ -306,8 +314,14 @@
             if (armsEnabled && tofEnabled) {
                 console.log("yes we can");
                 tofPointArray = [];
+                tofPointArray_9Axis = [];
                 tofM = null;
+                tofM_9Axis = null;
                 initEurlaRadian = {};
+                initEurlaRadian_obj = {};
+                initEurlaRadian_tof = {};
+                initEurlaRadian_tof_raw = {};
+
             }
 
             deviceNo.forEach(device => {
@@ -322,8 +336,8 @@
                 if (armsEnabled == false) armInit(device, rCenter[device.name]);
 
                 device.armsIMU = new IMU_tt; //be ready for SFCompact angle calculation
-                // device.armsIMUthread = new CrazePonyIMUo3Class;
-                // device.armsMadgwickAHRS = new MadgwickAHRS;
+                device.armsIMUthread = new CrazePonyIMUo3Class;//be ready for 9Axis Mahony fusion
+                device.armsMadgwickAHRS = new MadgwickAHRS;//be ready for 9Axis MadgwickAHRS fusion
             });
 
             inputChar = document.getElementById(deviceNo[1].ifTofContent).innerText.slice(-40);
