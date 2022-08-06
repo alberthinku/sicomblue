@@ -12,6 +12,7 @@
 <p>SOFTWARE: </p>
   <p>Chrome ver70 or later on Windows10 or</p>
   <p>Chrome ver56 or later on Mac/Linux/Window7</p>
+  <p>Edge on Window10 or later </p>
 
 <h3>Bluetooth devices : </h3>
 <p>Hardware : BBC microbit, STM32 Nucelo kit, SensorTile, or any device equipted with BLE 4.x or later<p>
@@ -30,6 +31,11 @@
 <p>if you have any questions or suggestions, please feel free to leave your comments or send an email to yahui.sun@gmail.com</p>
 
 <h3>release notes:</h3>
+
+<p>[0600822] version 1.2.1 -tof(beta) is on with new features & bugs:</p>
+<p>1. beta version focused on SFC first, looptof(9Aixs) is commented</p>
+<p>2. latest Egde tested ok for webbluetooth connections</p>
+<p>3. fine tuning scaleModel to draw the ball with tof</p>
 
 <p>[051119] version 1.2.1 -tof is on with new features & bugs:</p>
 <p>1. added 9axis fusion result as the input for tofmodeling</p>

@@ -166,8 +166,8 @@ function looptof(Yaw = 0.000, Pitch = 0.000, Roll = 0.000, tof, imuAngle, is9Axi
 
     context.fillStyle = "black";
     context.font = "20px Arial";
-    // context.fillText(tof.name, 0, 30);
-    context.fillText("tofModeling", 0, 30);
+    context.fillText(canvasName, 0, 30);
+    // context.fillText("tofModeling", 0, 30);
 
     context.fillStyle = "blue";
     context.font = "25px Arial";

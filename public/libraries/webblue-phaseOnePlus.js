@@ -77,7 +77,7 @@ class webblue_phaseOne {
         this.armsIMUthread = null; //IMU thread class to process the Crazepony/Mahony filter
         this.armsMadgwickAHRS = null;//IMU class defined for MadgwickAHRS filter process
 
-        this.calibration_done = false;
+        this.calibration_done = true; //060822, to be further investigated, how the carlibration makes the tof modeling unable to proceed the canvas draw? seems obvious we have to fix this just like what did in the other page - cube, arms, etc...
 
         this.last_EularRadian = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };
         this.last_EularRadian_Raw = { "eurla_pitch": 0, "eurla_yaw": 0, "eurla_roll": 0 };

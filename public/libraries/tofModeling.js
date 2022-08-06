@@ -1,5 +1,5 @@
 
-var scaleModel = 1;
+var scaleModel = 1.2; //060822 scaleModel should be near to 1, to make the canvas draw looks good. if too big, the shell became solid (scaleModel indicating the thickness of the ball shell)
 var radiusMax = 10; //cm
 
 eularRadianCal = function (a, b) {
@@ -61,7 +61,7 @@ tofModeling = function (calibration_done = false) {
             tofM_9Axis = new tofModel(0, 0, 0, tofPointArray_9Axis);
         }
 
-        looptof(0, 0, 0, tofM_9Axis, Obj_AngleRadian_abs, true);
+        // looptof(0, 0, 0, tofM_9Axis, Obj_AngleRadian_abs, true); //060822 let alone the SFC first, 9Axis to be further investigated.
 
         // else if ((tofPointArray.length == tofPointArrayLengthMax) && (tofM == null)) {
         //     tofM = new tofModel(0, 0, 0, tofPointArray);
