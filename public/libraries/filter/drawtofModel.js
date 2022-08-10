@@ -109,7 +109,7 @@ var Pcz = -2000;
 function projecttofModel(points3d, width, height) {
     var points2d = new Array(points3d.length);
     var focal_length = 200;
-    let scale = 3;
+    let scale = 4.5;
     // let Pcx = 00;
     // let Pcy = 00;
     // let Pcz = 1000;
@@ -119,8 +119,10 @@ function projecttofModel(points3d, width, height) {
         // let x = p.x * (focal_length / p.z) + width * 0.5;
         // let y = p.y * (focal_length / p.z) + height * 0.5;
 
-        let x = scale * (Pcx * p.z - p.x * Pcz) / (p.z - Pcz) + width * 0.5;
-        let y = scale * (Pcy * p.z - p.y * Pcz) / (p.z - Pcz) + height * 0.5;
+        // let x = scale * (Pcx * p.z - p.x * Pcz) / (p.z - Pcz) + width * 0.5; //V1.2.1 Beta
+        // let y = scale * (Pcy * p.z - p.y * Pcz) / (p.z - Pcz) + height * 0.5;//V1.2.1 Beta
+let x = -p.x * scale + width * 0.5; //100822 fix the display (V1.2.2) 
+let y = -p.y * scale + height * 0.5;//100822 fix the display (V1.2.2)
 
         points2d[index] = new Point2D(x, y);
     }
